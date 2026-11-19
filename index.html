@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>팀파워 레크레이션 — 계약부서 에디션</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #141c33;
+    --panel2: #1c2747;
+    --border: rgba(255,255,255,0.12);
+    --text: #f3f6ff;
+    --muted: #9aa7c7;
+    --primary: #3b82f6;
+    --primary-glow: rgba(59,130,246,0.45);
+    --accent: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: radial-gradient(circle at top, #18254a 0%, #0b1020 65%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+    overflow-x: hidden;
+  }
+  button {
+    font-family: inherit; cursor: pointer; border: none; outline: none;
+    transition: transform 0.1s ease, filter 0.15s ease, background 0.15s ease;
+  }
+  button:active { transform: scale(0.96); }
+  .btn {
+    padding: 12px 20px; border-radius: 12px; font-weight: 700; font-size: 15px;
+    background: var(--primary); color: #fff; box-shadow: 0 6px 20px var(--primary-glow);
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn-secondary { background: var(--panel2); color: var(--text); box-shadow: none; border: 1px solid var(--border); }
+  .btn-green { background: var(--green); color: #052e1e; box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
+  .btn-red { background: var(--red); color: #fff; box-shadow: 0 6px 20px rgba(239,68,68,0.4); }
+  .btn-amber { background: var(--accent); color: #1f1300; box-shadow: 0 6px 20px rgba(245,158,11,0.35); }
+  .btn-purple { background: var(--purple); color: #fff; box-shadow: 0 6px 20px rgba(139,92,246,0.4); }
+  .btn-sm { padding: 8px 13px; font-size: 13px; border-radius: 9px; }
+  .card {
+    background: rgba(20, 28, 51, 0.88);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .hidden { display: none !important; }
+  .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; background: rgba(59,130,246,0.2); color: #93c5fd;
+  }
+  .toast {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+    background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2); z-index: 9999; font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+
+  /* LANDING */
+  .landing {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px; text-align: center;
+  }
+  .landing h1 { font-size: clamp(28px, 5vw, 46px); margin: 8px 0; letter-spacing: -0.5px; }
+  .landing p { color: var(--muted); max-width: 520px; line-height: 1.6; }
+  .landing-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px; width: 100%; max-width: 680px; margin-top: 26px;
+  }
+  .role-card {
+    cursor: pointer; text-align: left; padding: 24px;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .role-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+  .role-icon { font-size: 38px; margin-bottom: 10px; }
+
+  /* HOST LAYOUT */
+  .host-shell { display: flex; flex-direction: column; min-height: 100vh; }
+  .host-topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 22px; background: rgba(11,16,32,0.92); border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .room-pill {
+    display: flex; align-items: center; gap: 10px; background: var(--panel2);
+    padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border);
+  }
+  .room-code-big { font-size: 20px; font-weight: 900; letter-spacing: 3px; color: var(--accent); }
+  .host-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .host-nav .btn-sm.active { background: var(--primary); color: #fff; border-color: transparent; }
+  .host-body {
+    flex: 1; display: grid; grid-template-columns: 1fr 290px; gap: 18px;
+    padding: 18px 22px; max-width: 1500px; width: 100%; margin: 0 auto;
+  }
+  @media (max-width: 960px) {
+    .host-body { grid-template-columns: 1fr; }
+  }
+  .host-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .host-side { display: flex; flex-direction: column; gap: 14px; }
+
+  /* QR LOBBY */
+  .lobby-hero {
+    display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: center;
+  }
+  @media (max-width: 760px) { .lobby-hero { grid-template-columns: 1fr; text-align: center; } }
+  .qr-box {
+    background: #fff; padding: 14px; border-radius: 18px; width: 250px; height: 250px;
+    margin: 0 auto; display: flex; align-items: center; justify-content: center;
+  }
+  .qr-box img { width: 100%; height: 100%; display: block; }
+  .player-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .player-chip {
+    display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+    border-radius: 999px; background: var(--panel2); border: 1px solid var(--border);
+    font-weight: 700; font-size: 15px;
+  }
+  .player-chip .kick {
+    background: transparent; color: var(--muted); font-size: 12px; padding: 2px 5px;
+  }
+  .player-chip .kick:hover { color: var(--red); }
+
+  /* SCOREBOARD SIDE */
+  .lb-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,0.04);
+    margin-bottom: 7px; font-size: 14px;
+  }
+  .lb-row.top1 { background: rgba(245,158,11,0.18); border: 1px solid rgba(245,158,11,0.4); }
+  .lb-row.top2 { background: rgba(148,163,184,0.16); }
+  .lb-row.top3 { background: rgba(180,83,9,0.16); }
+
+  /* GAME 1: 7.77s */
+  .big-timer {
+    font-size: clamp(64px, 11vw, 128px); font-weight: 900; font-variant-numeric: tabular-nums;
+    text-align: center; letter-spacing: 2px; margin: 18px 0;
+    text-shadow: 0 0 32px rgba(59,130,246,0.5);
+  }
+  .reveal-stage {
+    display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 16px;
+  }
+  .reveal-card {
+    width: 155px; padding: 14px; border-radius: 16px; background: var(--panel2);
+    border: 2px solid var(--border); text-align: center;
+    animation: popIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+  .reveal-card.rank-1 {
+    border-color: #fbbf24; background: linear-gradient(160deg, rgba(245,158,11,0.32), rgba(20,28,51,0.95));
+    transform: scale(1.08); box-shadow: 0 0 30px rgba(251,191,36,0.4);
+  }
+  @keyframes popIn {
+    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* GAME 2: BOMB CIRCLE */
+  .circle-arena {
+    position: relative; width: min(500px, 85vw); height: min(500px, 85vw);
+    margin: 8px auto; border-radius: 50%;
+    background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0.5) 70%);
+    border: 2px dashed rgba(255,255,255,0.18);
+  }
+  .circle-center {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; width: 190px;
+  }
+  .seat-node {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 84px; padding: 8px 6px; border-radius: 14px; text-align: center;
+    background: var(--panel2); border: 2px solid var(--border);
+    transition: all 0.2s ease;
+  }
+  .seat-node.holding {
+    border-color: var(--red); background: rgba(239,68,68,0.28);
+    box-shadow: 0 0 28px rgba(239,68,68,0.75);
+    transform: translate(-50%, -50%) scale(1.18);
+    animation: shake 0.35s infinite;
+    z-index: 5;
+  }
+  .seat-node.loser {
+    border-color: #f97316; background: rgba(239,68,68,0.55);
+    transform: translate(-50%, -50%) scale(1.22);
+  }
+  @keyframes shake {
+    0%,100% { margin-left: 0; }
+    25% { margin-left: -4px; }
+    75% { margin-left: 4px; }
+  }
+
+  /* GAME 3: RHYTHM RACE (HOST) */
+  .race-row {
+    display: grid; grid-template-columns: 130px 1fr 80px; align-items: center; gap: 12px;
+    margin-bottom: 10px;
+  }
+  .race-track { height: 26px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+  .race-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    transition: width 0.25s ease;
+  }
+
+  /* GAME 4: QUIZ OX */
+  .quiz-qbox {
+    font-size: clamp(22px, 3vw, 34px); font-weight: 900; text-align: center;
+    padding: 26px 20px; border-radius: 16px; background: var(--panel2);
+    border: 1px solid var(--border); line-height: 1.4;
+  }
+  .ox-zones {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; min-height: 240px;
+  }
+  .ox-zone {
+    border-radius: 18px; padding: 18px; border: 2px solid var(--border);
+    display: flex; flex-direction: column;
+  }
+  .ox-zone.zone-o { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.45); }
+  .ox-zone.zone-x { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.45); }
+  .ox-zone.correct-glow { box-shadow: 0 0 36px rgba(16,185,129,0.65); border-color: var(--green); }
+  .ox-title { font-size: 46px; font-weight: 900; text-align: center; margin-bottom: 10px; }
+
+  /* PLAYER MOBILE VIEW */
+  .player-shell {
+    min-height: 100vh; max-width: 520px; margin: 0 auto; padding: 16px;
+    display: flex; flex-direction: column;
+  }
+  .player-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-radius: 14px; background: var(--panel);
+    border: 1px solid var(--border); margin-bottom: 14px;
+  }
+  .input-field {
+    width: 100%; padding: 14px 16px; border-radius: 12px; font-size: 16px;
+    background: var(--panel2); color: #fff; border: 1px solid var(--border);
+    margin-bottom: 12px; font-family: inherit;
+  }
+  .avatar-grid {
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-bottom: 14px;
+  }
+  .avatar-opt {
+    font-size: 24px; padding: 6px; border-radius: 10px; background: var(--panel2);
+    border: 2px solid transparent; text-align: center; cursor: pointer;
+  }
+  .avatar-opt.selected { border-color: var(--accent); background: rgba(245,158,11,0.22); }
+  .huge-action-btn {
+    width: 100%; min-height: 190px; border-radius: 26px; font-size: 32px; font-weight: 900;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* PLAYER RHYTHM CANVAS */
+  .rhythm-wrap {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+  }
+  #rhythmCanvas {
+    width: 100%; max-width: 420px; height: 390px; border-radius: 16px;
+    background: #070b18; border: 2px solid var(--border); touch-action: none;
+  }
+  .rhythm-keys {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    width: 100%; max-width: 420px; margin-top: 10px;
+  }
+  .rhythm-key {
+    height: 76px; border-radius: 14px; font-size: 22px; font-weight: 900; color: #fff;
+    background: var(--panel2); border: 2px solid rgba(255,255,255,0.2);
+    user-select: none; touch-action: manipulation;
+  }
+  .rhythm-key.pressed { transform: scale(0.94); filter: brightness(1.35); }
+  .rk-0 { border-color: #3b82f6; background: rgba(59,130,246,0.25); }
+  .rk-1 { border-color: #10b981; background: rgba(16,185,129,0.25); }
+  .rk-2 { border-color: #f59e0b; background: rgba(245,158,11,0.25); }
+  .rk-3 { border-color: #ec4899; background: rgba(236,72,153,0.25); }
+
+  /* PODIUM */
+  .podium-grid {
+    display: flex; align-items: flex-end; justify-content: center; gap: 18px;
+    margin: 30px 0; min-height: 260px;
+  }
+  .podium-col {
+    width: 150px; text-align: center; display: flex; flex-direction: column; align-items: center;
+  }
+  .podium-bar {
+    width: 100%; border-radius: 16px 16px 0 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-weight: 900; font-size: 26px;
+  }
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- ==================== LANDING ==================== -->
+<section id="viewLanding" class="landing">
+  <span class="badge">POSCO CONTRACTING TEAM POWER</span>
+  <h1>🏆 팀파워 레크레이션</h1>
+  <p>사회자 PC 화면에 띄우고, 참여자는 QR코드를 스캔해 휴대폰으로 실시간 참여하는 4종 미니게임 플랫폼입니다.</p>
+  <div class="landing-grid">
+    <div class="card role-card" onclick="startAsHost()">
+      <div class="role-icon">🖥️</div>
+      <h2 style="margin:0 0 6px;">사회자 화면 열기 (PC)</h2>
+      <p style="margin:0; font-size:14px;">방을 생성하고 QR코드를 띄워 4가지 게임을 진행합니다. (AI 봇 리허설 가능)</p>
+    </div>
+    <div class="card role-card" onclick="showPlayerJoin()">
+      <div class="role-icon">📱</div>
+      <h2 style="margin:0 0 6px;">참여자로 입장 (모바일)</h2>
+      <p style="margin:0; font-size:14px;">사회자 화면의 4자리 방 코드를 입력하고 닉네임을 정해 참여합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== HOST SHELL ==================== -->
+<section id="viewHost" class="host-shell hidden">
+  <header class="host-topbar">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <strong style="font-size:18px;">🎯 팀파워 레크레이션</strong>
+      <div class="room-pill">
+        <span style="font-size:12px; color:var(--muted);">방 코드</span>
+        <span id="hostRoomCode" class="room-code-big">----</span>
+      </div>
+      <span id="hostConnStatus" class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">연결됨</span>
+    </div>
+    <nav class="host-nav">
+      <button class="btn btn-secondary btn-sm" data-nav="lobby" onclick="hostSwitchGame('lobby')">🏠 로비/QR</button>
+      <button class="btn btn-secondary btn-sm" data-nav="stop777" onclick="hostSwitchGame('stop777')">⏱️ 1. 7.77초</button>
+      <button class="btn btn-secondary btn-sm" data-nav="bomb" onclick="hostSwitchGame('bomb')">💣 2. 계약돌리기</button>
+      <button class="btn btn-secondary btn-sm" data-nav="rhythm" onclick="hostSwitchGame('rhythm')">🎵 3. 리듬게임</button>
+      <button class="btn btn-secondary btn-sm" data-nav="quiz" onclick="hostSwitchGame('quiz')">❓ 4. 눈치퀴즈</button>
+      <button class="btn btn-amber btn-sm" data-nav="podium" onclick="hostSwitchGame('podium')">🏆 최종시상</button>
+    </nav>
+  </header>
+
+  <div class="host-body">
+    <main class="host-main">
+      <!-- LOBBY -->
+      <div id="hostLobby" class="card">
+        <div class="lobby-hero">
+          <div>
+            <div class="qr-box"><img id="hostQrImg" alt="QR Code" /></div>
+            <div style="text-align:center; margin-top:10px; font-size:13px; color:var(--muted);" id="hostJoinUrl"></div>
+          </div>
+          <div>
+            <span class="badge">STEP 1. 참여자 입장</span>
+            <h2 style="font-size:28px; margin:8px 0;">휴대폰 카메라로 QR을 스캔하세요!</h2>
+            <p style="color:var(--muted); margin:0 0 14px;">스캔하면 별도 앱 설치 없이 바로 입장됩니다. 참여자가 다 모이면 상단 메뉴에서 게임을 시작하세요.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-purple btn-sm" onclick="sendWS({type:'add_bot'})">🤖 AI 봇 추가 (테스트용)</button>
+              <button class="btn btn-secondary btn-sm" onclick="if(confirm('모든 점수를 0점으로 초기화할까요?')) sendWS({type:'reset_scores'})">🔄 점수 초기화</button>
+            </div>
+            <h3 style="margin:18px 0 6px;">현재 참여자 (<span id="hostPlayerCount">0</span>명)</h3>
+            <div id="hostPlayerChips" class="player-chips"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 1: 7.77s -->
+      <div id="hostStop777" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <span class="badge">GAME 1</span>
+            <h2 style="margin:6px 0 0;">⏱️ 7.77초 블라인드 스탑</h2>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">3.00초부터 숫자가 <b>?.??</b>로 가려집니다! 마음속으로 세어 7.77초에 가장 가깝게 멈추세요.</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btnStop777Start" class="btn btn-green" onclick="sendWS({type:'stop777_start'})">▶ 게임 시작</button>
+            <button id="btnStop777Finish" class="btn btn-amber hidden" onclick="sendWS({type:'stop777_finish'})">🏁 마감 & 결과 공개</button>
+          </div>
+        </div>
+        <div id="hostStop777Timer" class="big-timer">0.00</div>
+        <div id="hostStop777Status" style="text-align:center; color:var(--muted); margin-bottom:10px;"></div>
+        <div id="hostStop777RevealControls" class="hidden" style="text-align:center; margin:14px 0; display:flex; justify-content:center; gap:10px;">
+          <button class="btn btn-primary" onclick="sendWS({type:'stop777_reveal_next'})">👏 다음 순위 공개 (꼴등부터! / Space)</button>
+          <button class="btn btn-secondary" onclick="sendWS({type:'stop777_reveal_all'})">한 번에 전체 공개</button>
+        </div>
+        <div id="hostStop777RevealStage" class="reveal-stage"></div>
+      </div>
+
+      <!-- GAME 2: BOMB -->
+      <div id="hostBomb" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <span class="badge">GAME 2</span>
+            <h2 style="margin:6px 0 0;">💣 계약 돌리기 (Spot / BPA)</h2>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">계약서 폭탄이 내게 오면 즉시 넘기세요! 제한시간에 들고 있는 사람이 폭발하며, 생존자 전원 +50점!</p>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="sendWS({type:'bomb_start', doc_type:'Spot'})">📄 Spot 계약서 시작</button>
+            <button class="btn btn-purple" onclick="sendWS({type:'bomb_start', doc_type:'BPA'})">📑 BPA 계약서 시작</button>
+          </div>
+        </div>
+        <div class="circle-arena" id="hostBombArena">
+          <div class="circle-center" id="hostBombCenter">
+            <div style="font-size:44px;">📄</div>
+            <div style="font-weight:800; font-size:18px; margin-top:6px;">시작 대기 중</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 3: RHYTHM -->
+      <div id="hostRhythm" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <span class="badge">GAME 3</span>
+            <h2 style="margin:6px 0 0;">🎵 리듬게임: 템포 챌린지 (38초)</h2>
+            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">LV.1 워밍업 → LV.2 리듬 업 → LV.3 피버 → LV.4 극한 챌린지! 실시간 점수 레이싱을 중계합니다.</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="btnRhythmStart" class="btn btn-green" onclick="sendWS({type:'rhythm_start'})">▶ 리듬게임 시작</button>
+            <button id="btnRhythmStop" class="btn btn-red hidden" onclick="sendWS({type:'rhythm_stop'})">⏹ 조기 종료</button>
+          </div>
+        </div>
+        <div id="hostRhythmBanner" style="text-align:center; font-size:24px; font-weight:900; margin:16px 0; color:var(--accent);">준비되면 시작을 누르세요!</div>
+        <div id="hostRhythmRace"></div>
+      </div>
+
+      <!-- GAME 4: QUIZ -->
+      <div id="hostQuiz" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div>
+            <span class="badge">GAME 4</span>
+            <h2 style="margin:6px 0 0;">❓ 눈치 O/X 상식 퀴즈</h2>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="toggleAddQuizModal()">+ 문제 직접 추가</button>
+            <button class="btn btn-green btn-sm" onclick="hostQuizOpenCurrent()">▶ 문제 출제 (선택 열기)</button>
+            <button class="btn btn-red btn-sm" onclick="sendWS({type:'quiz_lock'})">🔒 선택 마감 (STOP)</button>
+            <button class="btn btn-amber btn-sm" onclick="sendWS({type:'quiz_reveal'})">✨ 정답 공개</button>
+            <button class="btn btn-primary btn-sm" onclick="hostQuizNext()">다음 문제 ➡</button>
+          </div>
+        </div>
+
+        <div id="addQuizBox" class="hidden" style="background:var(--panel2); padding:14px; border-radius:12px; margin-bottom:14px;">
+          <div style="display:grid; grid-template-columns:1fr 90px; gap:8px;">
+            <input id="newQuizQ" class="input-field" style="margin:0;" placeholder="예: 우리 팀 회식 최애 메뉴는 삼겹살이다." />
+            <select id="newQuizA" class="input-field" style="margin:0;">
+              <option value="O">정답 O</option>
+              <option value="X">정답 X</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <input id="newQuizExp" class="input-field" style="margin:0;" placeholder="해설 (선택)" />
+            <button class="btn btn-green btn-sm" onclick="submitNewQuiz()">저장</button>
+          </div>
+        </div>
+
+        <div style="font-size:13px; color:var(--muted); margin-bottom:6px;" id="hostQuizMeta">문제 1 / 10</div>
+        <div class="quiz-qbox" id="hostQuizQ">문제 출제 버튼을 눌러 시작하세요!</div>
+        <div id="hostQuizExp" class="hidden" style="margin-top:12px; padding:12px 16px; border-radius:12px; background:rgba(16,185,129,0.18); border:1px solid var(--green); font-weight:700; text-align:center;"></div>
+
+        <div class="ox-zones">
+          <div class="ox-zone zone-o" id="hostZoneO">
+            <div class="ox-title" style="color:#60a5fa;">O <span style="font-size:18px;" id="countO">(0)</span></div>
+            <div class="player-chips" id="playersO" style="justify-content:center;"></div>
+          </div>
+          <div class="ox-zone zone-x" id="hostZoneX">
+            <div class="ox-title" style="color:#f87171;">X <span style="font-size:18px;" id="countX">(0)</span></div>
+            <div class="player-chips" id="playersX" style="justify-content:center;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PODIUM -->
+      <div id="hostPodium" class="card hidden" style="text-align:center;">
+        <span class="badge">FINAL RANKING</span>
+        <h2 style="font-size:34px; margin:10px 0;">🏆 팀파워 최종 시상식 🏆</h2>
+        <div class="podium-grid" id="hostPodiumGrid"></div>
+        <div id="hostPodiumRest" style="max-width:460px; margin:0 auto;"></div>
+      </div>
+    </main>
+
+    <!-- SIDEBAR SCOREBOARD -->
+    <aside class="host-side">
+      <div class="card" style="padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="margin:0; font-size:16px;">📊 실시간 누적 점수</h3>
+          <span class="badge" id="sideCount">0명</span>
+        </div>
+        <div id="hostScoreboard"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== PLAYER JOIN ==================== -->
+<section id="viewPlayerJoin" class="player-shell hidden" style="justify-content:center;">
+  <div class="card">
+    <span class="badge">참여자 입장</span>
+    <h2 style="margin:8px 0 16px;">팀파워 레크레이션 입장</h2>
+    <label style="font-size:13px; color:var(--muted);">방 코드 (사회자 화면 4자리)</label>
+    <input id="joinRoomInput" class="input-field" maxlength="5" placeholder="예: A7K2" style="text-transform:uppercase; font-weight:900; letter-spacing:3px;" />
+    <label style="font-size:13px; color:var(--muted);">닉네임 (이름)</label>
+    <input id="joinNameInput" class="input-field" maxlength="10" placeholder="예: 최현우" />
+    <label style="font-size:13px; color:var(--muted); display:block; margin-bottom:6px;">캐릭터 선택</label>
+    <div class="avatar-grid" id="avatarPicker"></div>
+    <button class="btn btn-green" style="width:100%; padding:15px; font-size:17px;" onclick="joinRoomAsPlayer()">입장하기 🚀</button>
+  </div>
+</section>
+
+<!-- ==================== PLAYER GAME SHELL ==================== -->
+<section id="viewPlayerGame" class="player-shell hidden">
+  <div class="player-header">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span id="pAvatar" style="font-size:26px;">🦊</span>
+      <div>
+        <div id="pName" style="font-weight:800; font-size:15px;">참여자</div>
+        <div style="font-size:12px; color:var(--muted);">방 <span id="pRoom">----</span></div>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:var(--muted);">내 누적 점수</div>
+      <div id="pScore" style="font-size:20px; font-weight:900; color:var(--accent);">0점</div>
+    </div>
+  </div>
+
+  <!-- Player Lobby -->
+  <div id="pLobby" class="card" style="text-align:center; padding:34px 20px;">
+    <div style="font-size:56px; margin-bottom:10px;">🎉</div>
+    <h2 style="margin:0 0 8px;">입장 완료!</h2>
+    <p style="color:var(--muted); margin:0;">사회자 화면을 봐주세요.<br/>게임이 시작되면 화면이 자동으로 전환됩니다.</p>
+  </div>
+
+  <!-- Player Game 1: 7.77s -->
+  <div id="pStop777" class="card hidden" style="text-align:center;">
+    <span class="badge">GAME 1 · 7.77초 블라인드 스탑</span>
+    <div id="pStopTimer" class="big-timer" style="font-size:68px; margin:20px 0;">0.00</div>
+    <button id="pStopBtn" class="btn btn-red huge-action-btn" disabled onclick="playerPressStop777()">
+      <span>✋ STOP!</span>
+      <span style="font-size:15px; font-weight:600; opacity:0.9;">7.77초에 맞춰 누르세요</span>
+    </button>
+    <div id="pStopMsg" style="margin-top:14px; font-weight:700; color:var(--muted);">사회자가 시작을 누를 때까지 대기 중...</div>
+  </div>
+
+  <!-- Player Game 2: Bomb -->
+  <div id="pBomb" class="card hidden" style="text-align:center;">
+    <span class="badge">GAME 2 · 계약 돌리기</span>
+    <div id="pBombStatus" style="margin:14px 0; font-size:20px; font-weight:900;">대기 중...</div>
+    <button id="pBombPassBtn" class="btn btn-red huge-action-btn hidden" onclick="playerPassBomb()">
+      <span id="pBombDocIcon" style="font-size:46px;">📄</span>
+      <span id="pBombPassText">계약서 넘기기!</span>
+      <span style="font-size:14px; opacity:0.9;">터지기 전에 빨리 탭하세요!</span>
+    </button>
+    <div id="pBombSafeBox" style="padding:36px 16px; border-radius:20px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.4);">
+      <div style="font-size:44px;">😮‍💨</div>
+      <div style="font-weight:800; margin-top:8px;">지금은 안전합니다!</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">언제 폭탄이 넘어올지 모르니 준비하세요</div>
+    </div>
+  </div>
+
+  <!-- Player Game 3: Rhythm -->
+  <div id="pRhythm" class="card hidden" style="padding:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span class="badge" id="pRhythmLv">LV.1 워밍업</span>
+      <div style="font-weight:900; font-size:18px; color:var(--accent);"><span id="pRhythmScore">0</span>점</div>
+      <div style="font-size:13px; font-weight:700; color:#60a5fa;">COMBO <span id="pRhythmCombo">0</span></div>
+    </div>
+    <div class="rhythm-wrap">
+      <canvas id="rhythmCanvas" width="360" height="420"></canvas>
+      <div class="rhythm-keys">
+        <button class="rhythm-key rk-0" data-lane="0" ontouchstart="hitLane(0, event)" onmousedown="hitLane(0, event)">D</button>
+        <button class="rhythm-key rk-1" data-lane="1" ontouchstart="hitLane(1, event)" onmousedown="hitLane(1, event)">F</button>
+        <button class="rhythm-key rk-2" data-lane="2" ontouchstart="hitLane(2, event)" onmousedown="hitLane(2, event)">J</button>
+        <button class="rhythm-key rk-3" data-lane="3" ontouchstart="hitLane(3, event)" onmousedown="hitLane(3, event)">K</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Game 4: Quiz -->
+  <div id="pQuiz" class="card hidden" style="text-align:center;">
+    <span class="badge">GAME 4 · 눈치 O/X 퀴즈</span>
+    <div id="pQuizQ" style="font-size:18px; font-weight:800; margin:14px 0 18px; line-height:1.45;">사회자가 문제를 출제할 때까지 기다려주세요.</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <button id="btnChoiceO" class="btn huge-action-btn" style="min-height:160px; font-size:64px; background:#2563eb;" onclick="playerChooseQuiz('O')">O</button>
+      <button id="btnChoiceX" class="btn huge-action-btn" style="min-height:160px; font-size:64px; background:#dc2626;" onclick="playerChooseQuiz('X')">X</button>
+    </div>
+    <div id="pQuizMsg" style="margin-top:14px; font-weight:700; color:var(--muted);"></div>
+  </div>
+
+  <!-- Player Podium -->
+  <div id="pPodium" class="card hidden" style="text-align:center; padding:34px 16px;">
+    <div style="font-size:56px;">🏆</div>
+    <h2>수고하셨습니다!</h2>
+    <p style="color:var(--muted);">사회자 화면에서 최종 순위를 확인하세요!</p>
+  </div>
+</section>
+
+<script>
+const AVATARS = ["🦊","🐻","🐼","🐯","🦁","🐸","🐙","🦄","🐧","🐶","🐱","🐹","🐨","🦖","🐝","🐬"];
+let ws = null;
+let role = null; // 'host' or 'player'
+let roomCode = null;
+let myPlayerId = null;
+let selectedAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+let appState = null;
+let pingInterval = null;
+let stop777Raf = null;
+let hostQuizIdx = 0;
+
+// Web Audio SFX (zero external files)
+let audioCtx = null;
+function playTone(freq, dur = 0.08, type = 'sine', vol = 0.12) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.add("hidden"), 2800);
+}
+
+function connectWS(onOpenCb) {
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  const url = `${proto}//${location.host}/ws`;
+  ws = new WebSocket(url);
+  ws.onopen = () => {
+    const st = document.getElementById("hostConnStatus");
+    if (st) { st.textContent = "실시간 연결됨"; st.style.color = "#6ee7b7"; }
+    clearInterval(pingInterval);
+    pingInterval = setInterval(() => {
+      if (ws && ws.readyState === 1) ws.send(JSON.stringify({type: "ping"}));
+    }, 20000);
+    if (onOpenCb) onOpenCb();
+  };
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.type === "pong") return;
+    if (msg.type === "error") { showToast(msg.message); return; }
+    if (msg.type === "toast") { showToast(msg.message); return; }
+    if (msg.type === "joined") {
+      myPlayerId = msg.player_id;
+      roomCode = msg.room;
+      sessionStorage.setItem("tp_room", roomCode);
+      sessionStorage.setItem("tp_pid", myPlayerId);
+      document.getElementById("viewLanding").classList.add("hidden");
+      document.getElementById("viewPlayerJoin").classList.add("hidden");
+      document.getElementById("viewPlayerGame").classList.remove("hidden");
+      return;
+    }
+    if (msg.type === "state") {
+      appState = msg;
+      roomCode = msg.room;
+      if (role === "host") renderHost(msg);
+      if (role === "player") renderPlayer(msg);
+    }
+  };
+  ws.onclose = () => {
+    const st = document.getElementById("hostConnStatus");
+    if (st) { st.textContent = "재연결 중..."; st.style.color = "#fca5a5"; }
+    setTimeout(() => {
+      if (role === "host" && roomCode) {
+        connectWS(() => sendWS({type: "host_create", room: roomCode}));
+      } else if (role === "player" && roomCode && myPlayerId) {
+        connectWS(() => sendWS({type: "player_join", room: roomCode, player_id: myPlayerId}));
+      }
+    }, 2000);
+  };
+}
+
+function sendWS(obj) {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify(obj));
+}
+
+// ==================== INIT / URL PARAM ====================
+(function init() {
+  const picker = document.getElementById("avatarPicker");
+  AVATARS.forEach(a => {
+    const d = document.createElement("div");
+    d.className = "avatar-opt" + (a === selectedAvatar ? " selected" : "");
+    d.textContent = a;
+    d.onclick = () => {
+      selectedAvatar = a;
+      picker.querySelectorAll(".avatar-opt").forEach(x => x.classList.remove("selected"));
+      d.classList.add("selected");
+    };
+    picker.appendChild(d);
+  });
+
+  const params = new URLSearchParams(location.search);
+  const urlRoom = params.get("room");
+  if (urlRoom) {
+    document.getElementById("joinRoomInput").value = urlRoom.toUpperCase();
+    showPlayerJoin();
+  }
+
+  // Spacebar shortcut for host 7.77s reveal
+  window.addEventListener("keydown", (e) => {
+    if (role === "host" && appState && appState.current_game === "stop777" && appState.game_state.phase === "reveal") {
+      if (e.code === "Space") {
+        e.preventDefault();
+        sendWS({type: "stop777_reveal_next"});
+      }
+    }
+    if (role === "player" && appState && appState.current_game === "rhythm" && rhythmRunning) {
+      const map = { KeyD: 0, KeyF: 1, KeyJ: 2, KeyK: 3 };
+      if (map[e.code] !== undefined) hitLane(map[e.code]);
+    }
+  });
+})();
+
+function startAsHost() {
+  role = "host";
+  document.getElementById("viewLanding").classList.add("hidden");
+  document.getElementById("viewHost").classList.remove("hidden");
+  connectWS(() => sendWS({type: "host_create"}));
+}
+
+function showPlayerJoin() {
+  role = "player";
+  document.getElementById("viewLanding").classList.add("hidden");
+  document.getElementById("viewPlayerJoin").classList.remove("hidden");
+}
+
+function joinRoomAsPlayer() {
+  const code = document.getElementById("joinRoomInput").value.trim().toUpperCase();
+  const name = document.getElementById("joinNameInput").value.trim();
+  if (!code || !name) { showToast("방 코드와 닉네임을 모두 입력해주세요!"); return; }
+  role = "player";
+  const savedRoom = sessionStorage.getItem("tp_room");
+  const savedPid = savedRoom === code ? sessionStorage.getItem("tp_pid") : null;
+  connectWS(() => sendWS({type: "player_join", room: code, name, avatar: selectedAvatar, player_id: savedPid}));
+}
+
+function hostSwitchGame(g) {
+  sendWS({type: "switch_game", game: g});
+}
+
+// ==================== HOST RENDERING ====================
+function renderHost(st) {
+  document.getElementById("hostRoomCode").textContent = st.room;
+  const joinUrl = `${location.origin}/?room=${st.room}`;
+  const qrImg = document.getElementById("hostQrImg");
+  if (qrImg.dataset.url !== joinUrl) {
+    qrImg.src = `/api/qr?data=${encodeURIComponent(joinUrl)}`;
+    qrImg.dataset.url = joinUrl;
+    document.getElementById("hostJoinUrl").textContent = joinUrl;
+  }
+
+  // Nav active state
+  document.querySelectorAll("[data-nav]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.nav === st.current_game);
+  });
+
+  // Panels visibility
+  const map = {
+    lobby: "hostLobby",
+    stop777: "hostStop777",
+    bomb: "hostBomb",
+    rhythm: "hostRhythm",
+    quiz: "hostQuiz",
+    podium: "hostPodium",
+  };
+  Object.entries(map).forEach(([k, id]) => {
+    document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
+  });
+
+  // Player list & sidebar scoreboard
+  const players = st.players || [];
+  document.getElementById("hostPlayerCount").textContent = players.length;
+  document.getElementById("sideCount").textContent = `${players.length}명`;
+
+  const chips = document.getElementById("hostPlayerChips");
+  chips.innerHTML = players.map(p => `
+    <div class="player-chip">
+      <span>${p.avatar}</span>
+      <span>${escapeHtml(p.name)}</span>
+      ${p.is_bot ? '<span style="font-size:11px;color:#a78bfa;">BOT</span>' : ''}
+      <button class="kick" title="내보내기" onclick="sendWS({type:'remove_player', player_id:'${p.id}'})">✕</button>
+    </div>
+  `).join("") || '<span style="color:var(--muted);">아직 입장한 참여자가 없습니다. QR을 스캔하거나 AI 봇을 추가해보세요!</span>';
+
+  const sb = document.getElementById("hostScoreboard");
+  sb.innerHTML = players.map((p, i) => `
+    <div class="lb-row ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
+      <div><b>${i+1}.</b> ${p.avatar} ${escapeHtml(p.name)}</div>
+      <div style="font-weight:900; color:var(--accent);">${p.score}점</div>
+    </div>
+  `).join("") || '<div style="color:var(--muted); font-size:13px;">참여자 대기 중...</div>';
+
+  // Render active game
+  if (st.current_game === "stop777") renderHostStop777(st);
+  else cancelAnimationFrame(stop777Raf);
+
+  if (st.current_game === "bomb") renderHostBomb(st);
+  if (st.current_game === "rhythm") renderHostRhythm(st);
+  if (st.current_game === "quiz") renderHostQuiz(st);
+  if (st.current_game === "podium") renderHostPodium(st);
+}
+
+// --- HOST GAME 1: 7.77s ---
+function renderHostStop777(st) {
+  const gs = st.game_state;
+  const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
+  const btnStart = document.getElementById("btnStop777Start");
+  const btnFinish = document.getElementById("btnStop777Finish");
+  const timerEl = document.getElementById("hostStop777Timer");
+  const statusEl = document.getElementById("hostStop777Status");
+  const revCtrl = document.getElementById("hostStop777RevealControls");
+  const revStage = document.getElementById("hostStop777RevealStage");
+
+  cancelAnimationFrame(stop777Raf);
+
+  if (gs.phase === "ready") {
+    btnStart.classList.remove("hidden");
+    btnFinish.classList.add("hidden");
+    revCtrl.classList.add("hidden");
+    timerEl.textContent = "7.77";
+    statusEl.textContent = "참여자들이 준비되면 [게임 시작]을 눌러주세요!";
+    revStage.innerHTML = "";
+  } else if (gs.phase === "running") {
+    btnStart.classList.add("hidden");
+    btnFinish.classList.remove("hidden");
+    revCtrl.classList.add("hidden");
+    revStage.innerHTML = "";
+
+    const offset = gs.server_now ? (Date.now()/1000 - gs.server_now) : 0;
+    const localStart = gs.start_ts + offset;
+    const tick = () => {
+      const now = Date.now() / 1000;
+      const diff = now - localStart;
+      if (diff < 0) {
+        timerEl.textContent = `준비 ${Math.ceil(-diff)}`;
+      } else if (diff < 3.0) {
+        timerEl.textContent = diff.toFixed(2);
+      } else {
+        timerEl.textContent = "?.??";
+      }
+      if (appState && appState.current_game === "stop777" && appState.game_state.phase === "running") {
+        stop777Raf = requestAnimationFrame(tick);
+      }
+    };
+    tick();
+
+    const stoppedIds = Object.keys(gs.results || {});
+    statusEl.innerHTML = `스탑 완료: <b>${stoppedIds.length} / ${st.players.length}명</b> ` +
+      st.players.map(p => `<span style="margin:0 5px; opacity:${stoppedIds.includes(p.id)?1:0.35}">${p.avatar}${escapeHtml(p.name)}${stoppedIds.includes(p.id)?'✅':'⏳'}</span>`).join("");
+  } else if (gs.phase === "reveal") {
+    btnStart.classList.remove("hidden");
+    btnFinish.classList.add("hidden");
+    revCtrl.classList.remove("hidden");
+    timerEl.textContent = "🎯 7.77";
+
+    const ordered = gs.ordered || [];
+    const shown = ordered.slice(0, gs.revealed_count || 0);
+    statusEl.textContent = `꼴등부터 역순 공개 중! (${shown.length} / ${ordered.length})`;
+    revStage.innerHTML = shown.map(item => {
+      const p = pMap[item.id] || {avatar:"👤", name:"?"};
+      const isFirst = item.rank === 1;
+      return `
+        <div class="reveal-card ${isFirst ? 'rank-1' : ''}">
+          <div style="font-size:13px; font-weight:800; color:${isFirst?'#fbbf24':'var(--muted)'};">${isFirst ? '👑 1등 우승!' : item.rank + '등'}</div>
+          <div style="font-size:38px; margin:6px 0;">${p.avatar}</div>
+          <div style="font-weight:800;">${escapeHtml(p.name)}</div>
+          <div style="font-size:22px; font-weight:900; margin:6px 0; color:${item.dnf?'#f87171':'#fff'};">
+            ${item.dnf ? '미입력' : item.time.toFixed(2) + '초'}
+          </div>
+          <div style="font-size:12px; color:var(--muted);">${item.dnf ? '시간초과' : '오차 ±' + item.diff.toFixed(2) + '초'}</div>
+          <div style="font-size:13px; font-weight:800; color:var(--green); margin-top:4px;">+${item.pts}점</div>
+        </div>
+      `;
+    }).join("");
+  }
+}
+
+// --- HOST GAME 2: BOMB ---
+function renderHostBomb(st) {
+  const gs = st.game_state;
+  const arena = document.getElementById("hostBombArena");
+  const center = document.getElementById("hostBombCenter");
+  const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
+  const order = (gs.order && gs.order.length) ? gs.order : st.players.map(p => p.id);
+
+  // Remove old seat nodes
+  arena.querySelectorAll(".seat-node").forEach(n => n.remove());
+
+  const n = order.length;
+  const radius = 40; // percentage
+  order.forEach((pid, idx) => {
+    const p = pMap[pid];
+    if (!p) return;
+    const angle = (idx / Math.max(n, 1)) * Math.PI * 2 - Math.PI / 2;
+    const x = 50 + radius * Math.cos(angle);
+    const y = 50 + radius * Math.sin(angle);
+    const node = document.createElement("div");
+    node.className = "seat-node";
+    if (gs.phase === "running" && gs.holder === pid) node.classList.add("holding");
+    if (gs.phase === "exploded" && gs.loser === pid) node.classList.add("loser");
+    node.style.left = x + "%";
+    node.style.top = y + "%";
+    node.innerHTML = `
+      <div style="font-size:28px;">${p.avatar}</div>
+      <div style="font-size:13px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
+      ${gs.phase === "running" && gs.holder === pid ? `<div style="font-size:11px; color:#fecaca; font-weight:900;">💣 ${gs.doc_type}</div>` : ''}
+      ${gs.phase === "exploded" && gs.loser === pid ? `<div style="font-size:11px; color:#fde047; font-weight:900;">💥 폭발!</div>` : ''}
+    `;
+    arena.appendChild(node);
+  });
+
+  if (gs.phase === "ready") {
+    center.innerHTML = `<div style="font-size:44px;">📄</div><div style="font-weight:800; margin-top:6px;">Spot 또는 BPA<br/>시작 버튼을 누르세요</div>`;
+  } else if (gs.phase === "running") {
+    const holder = pMap[gs.holder];
+    center.innerHTML = `
+      <div style="font-size:46px;">${gs.doc_type === 'Spot' ? '📄' : '📑'}</div>
+      <div style="font-size:20px; font-weight:900; color:var(--accent);">${gs.doc_type} 계약서</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">패스 횟수: ${gs.pass_count || 0}회</div>
+      <div style="font-size:14px; font-weight:800; margin-top:6px; color:#fca5a5;">현재 보유: ${holder ? escapeHtml(holder.name) : ''}</div>
+    `;
+  } else if (gs.phase === "exploded") {
+    const loser = pMap[gs.loser];
+    playTone(110, 0.4, 'sawtooth', 0.2);
+    center.innerHTML = `
+      <div style="font-size:52px;">💥</div>
+      <div style="font-size:20px; font-weight:900; color:#f87171;">${gs.doc_type} 계약 폭발!</div>
+      <div style="font-size:15px; font-weight:800; margin-top:4px;">${loser ? loser.avatar + ' ' + escapeHtml(loser.name) : ''} 당첨!</div>
+      <div style="font-size:12px; color:var(--green); margin-top:4px;">나머지 생존자 전원 +50점</div>
+    `;
+  }
+}
+
+// --- HOST GAME 3: RHYTHM ---
+function renderHostRhythm(st) {
+  const gs = st.game_state;
+  const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
+  const btnStart = document.getElementById("btnRhythmStart");
+  const btnStop = document.getElementById("btnRhythmStop");
+  const banner = document.getElementById("hostRhythmBanner");
+  const race = document.getElementById("hostRhythmRace");
+
+  if (gs.phase === "ready") {
+    btnStart.classList.remove("hidden");
+    btnStop.classList.add("hidden");
+    banner.textContent = "휴대폰 화면을 보고 떨어지는 노트를 타이밍에 맞춰 터치하세요!";
+    race.innerHTML = "";
+    return;
+  }
+
+  btnStart.classList.toggle("hidden", gs.phase === "running");
+  btnStop.classList.toggle("hidden", gs.phase !== "running");
+
+  if (gs.phase === "running") {
+    banner.textContent = "🔥 실시간 리듬 레이싱 진행 중! 🔥";
+  } else if (gs.phase === "finished") {
+    banner.textContent = "🏁 리듬게임 종료! 순위별 점수가 반영되었습니다!";
+  }
+
+  const scores = gs.scores || {};
+  const list = st.players.map(p => ({
+    p,
+    sc: (scores[p.id] && scores[p.id].score) || 0,
+    combo: (scores[p.id] && scores[p.id].combo) || 0,
+    pts: (gs.awarded && gs.awarded[p.id]) || 0,
+  })).sort((a, b) => b.sc - a.sc);
+
+  const maxSc = Math.max(1000, ...list.map(x => x.sc));
+  race.innerHTML = list.map((item, idx) => `
+    <div class="race-row">
+      <div style="font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+        ${idx+1}. ${item.p.avatar} ${escapeHtml(item.p.name)}
+      </div>
+      <div class="race-track">
+        <div class="race-fill" style="width:${Math.max(4, (item.sc / maxSc) * 100)}%;"></div>
+      </div>
+      <div style="text-align:right; font-weight:900;">
+        ${item.sc} ${gs.phase==='finished' ? `<span style="color:var(--green); font-size:12px;">(+${item.pts})</span>` : ''}
+      </div>
+    </div>
+  `).join("");
+}
+
+// --- HOST GAME 4: QUIZ ---
+function renderHostQuiz(st) {
+  const gs = st.game_state;
+  const quizzes = st.quizzes || [];
+  if (gs.index !== undefined) hostQuizIdx = gs.index;
+  const qObj = quizzes[hostQuizIdx] || {q: "문제가 없습니다.", a: "O", exp: ""};
+
+  document.getElementById("hostQuizMeta").textContent = `문제 ${hostQuizIdx + 1} / ${quizzes.length}  ·  상태: ${
+    gs.phase === 'open' ? '🟢 선택 중 (눈치게임!)' :
+    gs.phase === 'locked' ? '🔴 마감됨 (STOP)' :
+    gs.phase === 'revealed' ? '✨ 정답 공개됨' : '대기 중'
+  }`;
+  document.getElementById("hostQuizQ").textContent = gs.phase === "ready" ? `[준비] Q${hostQuizIdx+1}. 문제 출제 버튼을 누르세요!` : `Q${hostQuizIdx+1}. ${qObj.q}`;
+
+  const expBox = document.getElementById("hostQuizExp");
+  const zO = document.getElementById("hostZoneO");
+  const zX = document.getElementById("hostZoneX");
+  zO.classList.remove("correct-glow");
+  zX.classList.remove("correct-glow");
+
+  if (gs.phase === "revealed") {
+    expBox.textContent = qObj.exp;
+    expBox.classList.remove("hidden");
+    if (qObj.a === "O") zO.classList.add("correct-glow");
+    else zX.classList.add("correct-glow");
+  } else {
+    expBox.classList.add("hidden");
+  }
+
+  const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
+  const choices = gs.choices || {};
+  const listO = [], listX = [];
+  Object.entries(choices).forEach(([pid, ch]) => {
+    if (!pMap[pid]) return;
+    if (ch === "O") listO.push(pMap[pid]);
+    if (ch === "X") listX.push(pMap[pid]);
+  });
+
+  document.getElementById("countO").textContent = `(${listO.length}명)`;
+  document.getElementById("countX").textContent = `(${listX.length}명)`;
+  document.getElementById("playersO").innerHTML = listO.map(p => `<div class="player-chip">${p.avatar} ${escapeHtml(p.name)}</div>`).join("");
+  document.getElementById("playersX").innerHTML = listX.map(p => `<div class="player-chip">${p.avatar} ${escapeHtml(p.name)}</div>`).join("");
+}
+
+function hostQuizOpenCurrent() { sendWS({type: "quiz_open", index: hostQuizIdx}); }
+function hostQuizNext() {
+  const total = (appState && appState.quizzes) ? appState.quizzes.length : 1;
+  hostQuizIdx = (hostQuizIdx + 1) % total;
+  sendWS({type: "quiz_open", index: hostQuizIdx});
+}
+function toggleAddQuizModal() { document.getElementById("addQuizBox").classList.toggle("hidden"); }
+function submitNewQuiz() {
+  const q = document.getElementById("newQuizQ").value.trim();
+  const a = document.getElementById("newQuizA").value;
+  const exp = document.getElementById("newQuizExp").value.trim();
+  if (!q) { showToast("문제 내용을 입력하세요!"); return; }
+  sendWS({type: "quiz_add", q, a, exp});
+  document.getElementById("newQuizQ").value = "";
+  document.getElementById("newQuizExp").value = "";
+  document.getElementById("addQuizBox").classList.add("hidden");
+  showToast("새 문제가 추가되었습니다!");
+}
+
+// --- HOST PODIUM ---
+function renderHostPodium(st) {
+  const players = st.players || [];
+  const top = [players[1], players[0], players[2]]; // 2nd, 1st, 3rd
+  const heights = [130, 180, 100];
+  const labels = ["🥈 2등", "🥇 1등", "🥉 3등"];
+  const colors = ["rgba(148,163,184,0.35)", "rgba(245,158,11,0.45)", "rgba(180,83,9,0.38)"];
+
+  document.getElementById("hostPodiumGrid").innerHTML = top.map((p, i) => {
+    if (!p) return "";
+    return `
+      <div class="podium-col">
+        <div style="font-size:48px;">${p.avatar}</div>
+        <div style="font-weight:900; font-size:18px; margin:4px 0;">${escapeHtml(p.name)}</div>
+        <div style="color:var(--accent); font-weight:800; margin-bottom:8px;">${p.score}점</div>
+        <div class="podium-bar" style="height:${heights[i]}px; background:${colors[i]};">${labels[i]}</div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("hostPodiumRest").innerHTML = players.slice(3).map((p, i) => `
+    <div class="lb-row"><div><b>${i+4}등</b> ${p.avatar} ${escapeHtml(p.name)}</div><div style="font-weight:800;">${p.score}점</div></div>
+  `).join("");
+}
+
+// ==================== PLAYER RENDERING ====================
+let pStopLocalStart = 0;
+let pStopSubmitted = false;
+
+function renderPlayer(st) {
+  const me = (st.players || []).find(p => p.id === myPlayerId);
+  if (me) {
+    document.getElementById("pAvatar").textContent = me.avatar;
+    document.getElementById("pName").textContent = me.name;
+    document.getElementById("pScore").textContent = `${me.score}점`;
+  }
+  document.getElementById("pRoom").textContent = st.room;
+
+  const map = {
+    lobby: "pLobby",
+    stop777: "pStop777",
+    bomb: "pBomb",
+    rhythm: "pRhythm",
+    quiz: "pQuiz",
+    podium: "pPodium",
+  };
+  Object.entries(map).forEach(([k, id]) => {
+    document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
+  });
+
+  if (st.current_game !== "rhythm") stopRhythmEngine();
+  if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
+
+  if (st.current_game === "stop777") renderPlayerStop777(st);
+  if (st.current_game === "bomb") renderPlayerBomb(st);
+  if (st.current_game === "rhythm") renderPlayerRhythm(st);
+  if (st.current_game === "quiz") renderPlayerQuiz(st);
+}
+
+// --- PLAYER GAME 1: 7.77s ---
+function renderPlayerStop777(st) {
+  const gs = st.game_state;
+  const timerEl = document.getElementById("pStopTimer");
+  const btn = document.getElementById("pStopBtn");
+  const msg = document.getElementById("pStopMsg");
+  cancelAnimationFrame(stop777Raf);
+
+  if (gs.phase === "ready") {
+    pStopSubmitted = false;
+    timerEl.textContent = "7.77";
+    btn.disabled = true;
+    msg.textContent = "사회자가 시작을 누르면 카운트다운이 시작됩니다!";
+  } else if (gs.phase === "running") {
+    const myRes = gs.results && gs.results[myPlayerId];
+    if (myRes) {
+      pStopSubmitted = true;
+      btn.disabled = true;
+      timerEl.textContent = "🔒";
+      msg.textContent = "기록 제출 완료! 사회자 화면의 결과 공개를 기다려주세요.";
+      return;
+    }
+    pStopSubmitted = false;
+    const offset = gs.server_now ? (Date.now()/1000 - gs.server_now) : 0;
+    pStopLocalStart = gs.start_ts + offset;
+    const tick = () => {
+      const diff = Date.now()/1000 - pStopLocalStart;
+      if (diff < 0) {
+        btn.disabled = true;
+        timerEl.textContent = `준비 ${Math.ceil(-diff)}`;
+        msg.textContent = "곧 시작합니다!";
+      } else {
+        btn.disabled = false;
+        if (diff < 3.0) {
+          timerEl.textContent = diff.toFixed(2);
+          msg.textContent = "3초부터 가려집니다! 집중하세요!";
+        } else {
+          timerEl.textContent = "?.??";
+          msg.textContent = "지금! 7.77초라고 느낄 때 STOP!";
+        }
+      }
+      if (!pStopSubmitted && appState && appState.current_game === "stop777" && appState.game_state.phase === "running") {
+        stop777Raf = requestAnimationFrame(tick);
+      }
+    };
+    tick();
+  } else if (gs.phase === "reveal") {
+    btn.disabled = true;
+    const myItem = (gs.ordered || []).find(x => x.id === myPlayerId);
+    timerEl.textContent = myItem && !myItem.dnf ? myItem.time.toFixed(2) + "초" : "마감";
+    msg.textContent = "사회자 화면에서 순위가 공개되고 있습니다! 👀";
+  }
+}
+
+function playerPressStop777() {
+  if (pStopSubmitted) return;
+  const elapsed = Math.max(0, Date.now()/1000 - pStopLocalStart);
+  pStopSubmitted = true;
+  playTone(660, 0.12, 'triangle', 0.2);
+  sendWS({type: "stop777_press", elapsed: Number(elapsed.toFixed(2))});
+}
+
+// --- PLAYER GAME 2: BOMB ---
+function renderPlayerBomb(st) {
+  const gs = st.game_state;
+  const statusEl = document.getElementById("pBombStatus");
+  const passBtn = document.getElementById("pBombPassBtn");
+  const safeBox = document.getElementById("pBombSafeBox");
+
+  if (gs.phase === "ready") {
+    statusEl.textContent = "사회자가 계약서를 배포할 때까지 대기 중...";
+    passBtn.classList.add("hidden");
+    safeBox.classList.remove("hidden");
+  } else if (gs.phase === "running") {
+    const isHolder = gs.holder === myPlayerId;
+    if (isHolder) {
+      statusEl.innerHTML = `<span style="color:#f87171;">🚨 ${gs.doc_type} 계약서가 내게 왔습니다!</span>`;
+      document.getElementById("pBombDocIcon").textContent = gs.doc_type === "Spot" ? "📄" : "📑";
+      document.getElementById("pBombPassText").textContent = `${gs.doc_type} 계약서 넘기기!`;
+      passBtn.classList.remove("hidden");
+      safeBox.classList.add("hidden");
+      if (navigator.vibrate) navigator.vibrate(100);
+    } else {
+      statusEl.textContent = `🔥 ${gs.doc_type} 계약서가 돌아가는 중...`;
+      passBtn.classList.add("hidden");
+      safeBox.classList.remove("hidden");
+    }
+  } else if (gs.phase === "exploded") {
+    passBtn.classList.add("hidden");
+    safeBox.classList.add("hidden");
+    if (gs.loser === myPlayerId) {
+      statusEl.innerHTML = `<span style="color:#f87171;">💥 쾅! ${gs.doc_type} 계약서가 내 손에서 터졌습니다!</span>`;
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } else {
+      statusEl.innerHTML = `<span style="color:var(--green);">🎉 생존 성공! +50점 획득!</span>`;
+    }
+  }
+}
+
+function playerPassBomb() {
+  playTone(520, 0.08, 'square', 0.14);
+  sendWS({type: "bomb_pass", mode: "random"});
+}
+
+// --- PLAYER GAME 3: RHYTHM ENGINE ---
+let rhythmRunning = false;
+let rhythmRaf = null;
+let rhythmStartLocal = 0;
+let rhythmNotes = [];
+let rhythmScore = 0;
+let rhythmCombo = 0;
+let rhythmPerfect = 0;
+let rhythmJudgeText = "";
+let rhythmJudgeColor = "#fff";
+let rhythmJudgeUntil = 0;
+let rhythmLastSync = 0;
+let rhythmSessionId = null;
+
+function buildRhythmChart() {
+  // Deterministic 38s escalating chart: LV1(0-10s) -> LV2(10-20s) -> LV3(20-30s) -> LV4(30-38s)
+  const notes = [];
+  let t = 1.2;
+  let idx = 0;
+  while (t < 37.2) {
+    let step, dblProb;
+    if (t < 10) { step = 0.72; dblProb = 0.0; }
+    else if (t < 20) { step = 0.48; dblProb = 0.12; }
+    else if (t < 30) { step = 0.34; dblProb = 0.25; }
+    else { step = 0.24; dblProb = 0.38; }
+
+    const lane = (idx * 7 + Math.floor(t * 13)) % 4;
+    notes.push({ t, lane, hit: false, missed: false });
+    if (((idx * 17) % 100) / 100 < dblProb) {
+      notes.push({ t, lane: (lane + 2) % 4, hit: false, missed: false });
+    }
+    t += step;
+    idx++;
+  }
+  return notes;
+}
+
+function renderPlayerRhythm(st) {
+  const gs = st.game_state;
+  if (gs.phase === "running") {
+    if (rhythmSessionId !== gs.start_ts) {
+      rhythmSessionId = gs.start_ts;
+      const offset = gs.server_now ? (Date.now()/1000 - gs.server_now) : 0;
+      rhythmStartLocal = gs.start_ts + offset;
+      rhythmNotes = buildRhythmChart();
+      rhythmScore = 0;
+      rhythmCombo = 0;
+      rhythmPerfect = 0;
+      rhythmRunning = true;
+      rhythmLoop();
+    }
+  } else {
+    stopRhythmEngine();
+    const ctx = document.getElementById("rhythmCanvas").getContext("2d");
+    ctx.fillStyle = "#070b18";
+    ctx.fillRect(0, 0, 360, 420);
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "bold 20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(gs.phase === "finished" ? `완료! 최종 ${rhythmScore}점` : "사회자가 시작하면 노트가 내려옵니다!", 180, 210);
+  }
+}
+
+function stopRhythmEngine() {
+  rhythmRunning = false;
+  cancelAnimationFrame(rhythmRaf);
+}
+
+function rhythmLoop() {
+  if (!rhythmRunning) return;
+  const canvas = document.getElementById("rhythmCanvas");
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const hitY = H - 56;
+  const now = Date.now() / 1000;
+  const elapsed = now - rhythmStartLocal;
+
+  ctx.fillStyle = "#070b18";
+  ctx.fillRect(0, 0, W, H);
+
+  // Lanes
+  const laneColors = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899"];
+  const laneW = W / 4;
+  for (let i = 0; i < 4; i++) {
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.strokeRect(i * laneW, 0, laneW, H);
+  }
+  // Hit line
+  ctx.fillStyle = "rgba(255,255,255,0.22)";
+  ctx.fillRect(0, hitY - 4, W, 8);
+
+  if (elapsed < 0) {
+    ctx.fillStyle = "#fbbf24";
+    ctx.font = "900 58px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(Math.ceil(-elapsed), W / 2, H / 2);
+    rhythmRaf = requestAnimationFrame(rhythmLoop);
+    return;
+  }
+
+  // Level & speed
+  let lvLabel = "LV.1 워밍업", speed = 280;
+  if (elapsed >= 30) { lvLabel = "LV.4 극한 챌린지 🔥"; speed = 520; }
+  else if (elapsed >= 20) { lvLabel = "LV.3 피버 타임 ⚡"; speed = 430; }
+  else if (elapsed >= 10) { lvLabel = "LV.2 리듬 업 🎵"; speed = 350; }
+  document.getElementById("pRhythmLv").textContent = lvLabel;
+
+  // Draw notes
+  for (const note of rhythmNotes) {
+    if (note.hit || note.missed) continue;
+    const dt = note.t - elapsed;
+    const y = hitY - dt * speed;
+    if (dt < -0.18) {
+      note.missed = true;
+      rhythmCombo = 0;
+      rhythmJudgeText = "MISS";
+      rhythmJudgeColor = "#ef4444";
+      rhythmJudgeUntil = now + 0.35;
+      continue;
+    }
+    if (y > -30 && y < H + 30) {
+      ctx.fillStyle = laneColors[note.lane];
+      ctx.beginPath();
+      ctx.roundRect(note.lane * laneW + 8, y - 12, laneW - 16, 24, 8);
+      ctx.fill();
+    }
+  }
+
+  // Judge popup
+  if (now < rhythmJudgeUntil) {
+    ctx.fillStyle = rhythmJudgeColor;
+    ctx.font = "900 28px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(rhythmJudgeText, W / 2, hitY - 60);
+  }
+
+  document.getElementById("pRhythmScore").textContent = rhythmScore;
+  document.getElementById("pRhythmCombo").textContent = rhythmCombo;
+
+  // Sync score to server every 0.55s
+  if (now - rhythmLastSync > 0.55) {
+    rhythmLastSync = now;
+    sendWS({type: "rhythm_score", score: rhythmScore, combo: rhythmCombo, perfect: rhythmPerfect});
+  }
+
+  if (elapsed > 38.5) {
+    sendWS({type: "rhythm_score", score: rhythmScore, combo: rhythmCombo, perfect: rhythmPerfect});
+    stopRhythmEngine();
+    return;
+  }
+  rhythmRaf = requestAnimationFrame(rhythmLoop);
+}
+
+function hitLane(lane, ev) {
+  if (ev) ev.preventDefault();
+  const btn = document.querySelector(`.rhythm-key[data-lane="${lane}"]`);
+  if (btn) { btn.classList.add("pressed"); setTimeout(() => btn.classList.remove("pressed"), 90); }
+  if (!rhythmRunning) return;
+
+  const now = Date.now() / 1000;
+  const elapsed = now - rhythmStartLocal;
+  const freqs = [330, 392, 440, 523];
+
+  let best = null, bestAbs = 999;
+  for (const note of rhythmNotes) {
+    if (note.hit || note.missed || note.lane !== lane) continue;
+    const ad = Math.abs(note.t - elapsed);
+    if (ad < bestAbs) { bestAbs = ad; best = note; }
+  }
+
+  if (best && bestAbs <= 0.22) {
+    best.hit = true;
+    rhythmCombo++;
+    const bonus = Math.min(2.0, 1 + rhythmCombo * 0.03);
+    if (bestAbs <= 0.085) {
+      rhythmScore += Math.round(100 * bonus);
+      rhythmPerfect++;
+      rhythmJudgeText = "PERFECT!";
+      rhythmJudgeColor = "#34d399";
+      playTone(freqs[lane], 0.09, 'triangle', 0.16);
+    } else {
+      rhythmScore += Math.round(60 * bonus);
+      rhythmJudgeText = "GOOD";
+      rhythmJudgeColor = "#fbbf24";
+      playTone(freqs[lane] * 0.9, 0.07, 'sine', 0.12);
+    }
+    rhythmJudgeUntil = now + 0.35;
+  } else {
+    playTone(140, 0.05, 'sine', 0.06);
+  }
+}
+
+// --- PLAYER GAME 4: QUIZ ---
+function renderPlayerQuiz(st) {
+  const gs = st.game_state;
+  const qObj = (st.quizzes || [])[gs.index || 0];
+  const qEl = document.getElementById("pQuizQ");
+  const btnO = document.getElementById("btnChoiceO");
+  const btnX = document.getElementById("btnChoiceX");
+  const msg = document.getElementById("pQuizMsg");
+  const myChoice = gs.choices && gs.choices[myPlayerId];
+
+  btnO.style.outline = myChoice === "O" ? "4px solid #fbbf24" : "none";
+  btnX.style.outline = myChoice === "X" ? "4px solid #fbbf24" : "none";
+
+  if (gs.phase === "ready") {
+    qEl.textContent = "사회자가 문제를 출제할 때까지 기다려주세요.";
+    btnO.disabled = true; btnX.disabled = true;
+    msg.textContent = "";
+  } else if (gs.phase === "open") {
+    qEl.textContent = qObj ? `Q${(gs.index||0)+1}. ${qObj.q}` : "";
+    btnO.disabled = false; btnX.disabled = false;
+    msg.textContent = myChoice ? `현재 선택: ${myChoice} (마감 전까지 변경 가능!)` : "O 또는 X를 선택하세요! (사회자 화면에서 눈치 보기 가능)";
+  } else if (gs.phase === "locked") {
+    qEl.textContent = qObj ? `Q${(gs.index||0)+1}. ${qObj.q}` : "";
+    btnO.disabled = true; btnX.disabled = true;
+    msg.textContent = "🔒 선택이 마감되었습니다! 곧 정답이 공개됩니다.";
+  } else if (gs.phase === "revealed") {
+    qEl.textContent = qObj ? `정답: ${qObj.a}` : "";
+    btnO.disabled = true; btnX.disabled = true;
+    const won = (gs.winners || []).includes(myPlayerId);
+    msg.innerHTML = won
+      ? `<span style="color:var(--green);">🎉 정답입니다! +50점 획득!</span>`
+      : `<span style="color:#f87171;">아쉽습니다! 다음 문제를 노려보세요.</span>`;
+  }
+}
+
+function playerChooseQuiz(ch) {
+  playTone(ch === "O" ? 580 : 420, 0.08, 'sine', 0.14);
+  sendWS({type: "quiz_choose", choice: ch});
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+</script>
+</body>
+</html>
