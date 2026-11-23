@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v9 — 40분 풀코스 8종 게임</title>
+<title>팀파워 레크레이션 v10 — 40분 풀코스 8종 게임</title>
 <style>
   :root {
     --bg: #070b18;
@@ -592,16 +592,80 @@
     text-shadow: 0 0 22px rgba(251, 191, 36, 0.4);
     margin: 10px 0;
   }
+
+  /* SCOREBOARD BONUS BUTTONS */
+  .lb-row-wrap {
+    background: rgba(255,255,255,0.04); border-radius: 10px;
+    margin-bottom: 6px; padding: 6px 9px; border: 1px solid transparent;
+  }
+  .lb-row-wrap.top1 { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.45); }
+  .lb-row-wrap.top2 { background: rgba(203, 213, 225, 0.11); border-color: rgba(203, 213, 225, 0.28); }
+  .lb-row-wrap.top3 { background: rgba(217, 119, 6, 0.13); border-color: rgba(217, 119, 6, 0.32); }
+  .lb-top { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+  .lb-bonus {
+    display: flex; gap: 4px; margin-top: 5px; justify-content: flex-end;
+  }
+  .bonus-btn {
+    padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 800;
+    background: rgba(59, 130, 246, 0.18); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+  .bonus-btn:hover { background: rgba(59, 130, 246, 0.38); color: #fff; }
+  .bonus-btn.big { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.32); }
+  .bonus-btn.minus { background: rgba(244, 63, 94, 0.16); color: #fda4af; border-color: rgba(244, 63, 94, 0.3); }
+
+  /* FLOATING REACTIONS (HOST) */
+  #reactionLayer {
+    position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 9990;
+  }
+  .float-react {
+    position: absolute; bottom: -40px; display: flex; flex-direction: column; align-items: center;
+    animation: floatUp 2.6s ease-out forwards;
+  }
+  .float-react .fr-emoji { font-size: 38px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+  .float-react .fr-name {
+    font-size: 11px; font-weight: 800; color: #fff;
+    background: rgba(15, 23, 42, 0.78); padding: 2px 7px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18); white-space: nowrap; margin-top: 2px;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.7); opacity: 0; }
+    15% { opacity: 1; transform: translateY(-60px) scale(1.1); }
+    100% { transform: translateY(-78vh) scale(0.95); opacity: 0; }
+  }
+
+  /* MOBILE REACTION BAR */
+  .react-bar {
+    position: sticky; bottom: 10px; margin-top: 14px;
+    display: flex; align-items: center; justify-content: space-around; gap: 6px;
+    background: rgba(15, 23, 42, 0.92); border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px; padding: 6px 10px; backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+  .react-btn {
+    flex: 1; height: 42px; border-radius: 999px; font-size: 22px;
+    background: rgba(255, 255, 255, 0.06); display: flex; align-items: center; justify-content: center;
+  }
+  .react-btn:active { transform: scale(1.25); background: rgba(56, 189, 248, 0.25); }
+
+  /* PODIUM MYSTERY SLOT */
+  .podium-hidden {
+    opacity: 0.35; filter: blur(1px);
+  }
+  .podium-pop {
+    animation: popIn 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
 </style>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
+<div id="reactionLayer"></div>
 
 <div id="toast" class="toast hidden"></div>
 
 <!-- ==================== LANDING ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v9</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v10</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>실사 얼굴 졸라맨 코디 콘테스트(한 줄 컨셉!)부터 7.77초·계약 돌리기·리듬게임·우리 그룹 TMI 눈치 O/X 퀴즈까지!</p>
   <div class="landing-grid">
@@ -928,8 +992,18 @@
 
       <!-- PODIUM -->
       <div id="hostPodium" class="card hidden" style="text-align:center;">
-        <span class="badge">FINAL RANKING</span>
+        <span class="badge">FINAL RANKING · 익명 정체 공개!</span>
         <h2 style="font-size:clamp(22px, 5vw, 32px); margin:8px 0;">🏆 팀파워 최종 시상식 🏆</h2>
+        <div class="step-wizard" style="text-align:left; margin-bottom:14px;">
+          <div class="step-info">
+            <span class="step-tag" id="podiumStepTag">시상식 진행 · 3등부터 공개!</span>
+            <span class="step-desc" id="podiumStepDesc">두구두구! 버튼을 눌러 3등부터 순서대로 발표하세요.</span>
+          </div>
+          <div class="step-actions">
+            <button id="btnPodiumNext" class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'podium_reveal_next'})">🥉 3등 공개하기</button>
+            <button id="btnPodiumAll" class="btn btn-secondary btn-sm" onclick="sendWS({type:'podium_reveal_all'})">한 번에 공개</button>
+          </div>
+        </div>
         <div class="podium-grid" id="hostPodiumGrid"></div>
         <div id="hostPodiumRest" style="max-width:480px; margin:0 auto;"></div>
       </div>
@@ -1146,6 +1220,15 @@
     <h2 style="margin:6px 0;">최종 순위 발표!</h2>
     <div id="pPodiumMyRank" style="font-size:16px; font-weight:900; color:var(--accent); margin-bottom:12px;"></div>
     <div id="pPodiumTop3" class="live-hud"></div>
+  </div>
+
+  <!-- Live Emoji Reaction Bar -->
+  <div class="react-bar" aria-label="리액션 보내기">
+    <button class="react-btn" onclick="sendReaction('👏')">👏</button>
+    <button class="react-btn" onclick="sendReaction('😂')">😂</button>
+    <button class="react-btn" onclick="sendReaction('🔥')">🔥</button>
+    <button class="react-btn" onclick="sendReaction('😱')">😱</button>
+    <button class="react-btn" onclick="sendReaction('💸')">💸</button>
   </div>
 </section>
 
@@ -1393,12 +1476,13 @@ function connectWS(onOpenCb) {
     if (msg.type === "pong") return;
     if (msg.type === "error") { showToast(msg.message); return; }
     if (msg.type === "toast") { showToast(msg.message); return; }
+    if (msg.type === "reaction") { spawnReaction(msg.emoji, msg.name); return; }
     if (msg.type === "joined") {
       myPlayerId = msg.player_id;
       roomCode = msg.room;
       role = "player";
-      sessionStorage.setItem("tp_room", roomCode);
-      sessionStorage.setItem("tp_pid", myPlayerId);
+      localStorage.setItem("tp_room", roomCode);
+      localStorage.setItem("tp_pid", myPlayerId); localStorage.setItem("tp_draft", JSON.stringify(draft));
       document.getElementById("viewLanding").classList.add("hidden");
       document.getElementById("viewPlayerStep1").classList.add("hidden");
       document.getElementById("viewPlayerStudio").classList.add("hidden");
@@ -1436,9 +1520,27 @@ function sendWS(obj) {
 (function init() {
   const params = new URLSearchParams(location.search);
   const urlRoom = params.get("room");
+  const savedRoom = localStorage.getItem("tp_room");
+  const savedPid = localStorage.getItem("tp_pid");
+  const savedDraftRaw = localStorage.getItem("tp_draft");
+  if (savedDraftRaw) {
+    try { Object.assign(draft, JSON.parse(savedDraftRaw)); } catch (e) {}
+  }
   if (urlRoom) {
-    document.getElementById("joinRoomInput").value = urlRoom.toUpperCase();
-    goToAvatarStudio();
+    const upRoom = urlRoom.toUpperCase();
+    document.getElementById("joinRoomInput").value = upRoom;
+    if (savedRoom === upRoom && savedPid && draft.name && draft.face_id) {
+      roomCode = upRoom;
+      myPlayerId = savedPid;
+      role = "player";
+      connectWS(() => sendWS({
+        type: "player_join", room: roomCode, player_id: myPlayerId,
+        name: draft.name, concept: draft.concept, face_id: draft.face_id,
+        emoji: draft.emoji, outfit: draft.outfit, hat: draft.hat, item: draft.item
+      }));
+    } else {
+      goToAvatarStudio();
+    }
   }
   window.addEventListener("keydown", (e) => {
     if (role === "host" && appState && appState.current_game === "stop777" && appState.game_state.phase === "reveal") {
@@ -1541,8 +1643,8 @@ function pickDraft(key, val) {
 function finalizePlayerJoin() {
   if (!draft.name) { showToast("아바타 설명(익명 캐릭터 이름)을 입력해주세요!"); document.getElementById("studioConceptInput").focus(); return; }
   if (!draft.face_id || draft.face_id === "emoji_fallback") { showToast("사진 캐릭터를 선택해주세요! (모두 품절이면 사회자에게 사진 추가를 요청하세요)"); return; }
-  const savedRoom = sessionStorage.getItem("tp_room");
-  const savedPid = myPlayerId || (savedRoom === roomCode ? sessionStorage.getItem("tp_pid") : null);
+  const savedRoom = localStorage.getItem("tp_room");
+  const savedPid = myPlayerId || (savedRoom === roomCode ? localStorage.getItem("tp_pid") : null);
   sendWS({
     type: "player_join",
     room: roomCode,
@@ -1639,12 +1741,19 @@ function renderHost(st) {
   `).join("") || '<div style="grid-column:1/-1; color:var(--muted); font-size:14px;">아직 입장한 참여자가 없습니다. QR을 스캔하거나 AI 봇을 추가해서 테스트해보세요!</div>';
 
   document.getElementById("hostScoreboard").innerHTML = players.map((p, i) => `
-    <div class="lb-row ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
-      <div style="display:flex; align-items:center; overflow:hidden;">
-        <b style="margin-right:4px;">${i+1}.</b> ${renderMiniFace(p)}
-        <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</span>
+    <div class="lb-row-wrap ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
+      <div class="lb-top">
+        <div style="display:flex; align-items:center; overflow:hidden;">
+          <b style="margin-right:4px;">${i+1}.</b> ${renderMiniFace(p)}
+          <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</span>
+        </div>
+        <div style="font-weight:900; color:var(--accent); flex-shrink:0;">${p.score}점</div>
       </div>
-      <div style="font-weight:900; color:var(--accent); flex-shrink:0;">${p.score}점</div>
+      <div class="lb-bonus">
+        <button class="bonus-btn" onclick="hostAdjustScore('${p.id}', 10)">+10</button>
+        <button class="bonus-btn big" onclick="hostAdjustScore('${p.id}', 50)">+50</button>
+        <button class="bonus-btn minus" onclick="hostAdjustScore('${p.id}', -10)">-10</button>
+      </div>
     </div>
   `).join("") || '<div style="color:var(--muted); font-size:13px;">참여자 대기 중...</div>';
 
@@ -2008,30 +2117,67 @@ function submitBulkQuiz(replace) {
   showToast(`TMI 퀴즈 ${items.length}개 ${replace ? '교체' : '추가'} 완료!`);
 }
 
-// --- HOST PODIUM ---
+// --- HOST PODIUM (3등 -> 2등 -> 1등 순차 공개) ---
 function renderHostPodium(st) {
-  if ((st.players || []).length > 0) maybeCelebrate("podium_" + st.players[0].id + "_" + st.players[0].score);
+  const gs = st.game_state || {};
+  const rev = gs.revealed || 0;
   const players = st.players || [];
-  const top = [players[1], players[0], players[2]];
-  const heights = [120, 165, 95];
-  const labels = ["🥈 2등", "🥇 1등", "🥉 3등"];
-  const colors = ["linear-gradient(180deg,#cbd5e1,#64748b)", "linear-gradient(180deg,#fde047,#d97706)", "linear-gradient(180deg,#fdba74,#9a3412)"];
+  const pTag = document.getElementById("podiumStepTag");
+  const pDesc = document.getElementById("podiumStepDesc");
+  const btnNext = document.getElementById("btnPodiumNext");
+  const btnAll = document.getElementById("btnPodiumAll");
 
-  document.getElementById("hostPodiumGrid").innerHTML = top.map((p, i) => {
-    if (!p) return "";
+  if (rev === 0) {
+    pTag.textContent = "시상식 진행 · 1단계 / 3";
+    pDesc.textContent = "두구두구! 먼저 영예의 3등부터 공개하세요!";
+    btnNext.textContent = "🥉 3등 공개하기"; btnNext.classList.remove("hidden"); btnAll.classList.remove("hidden");
+  } else if (rev === 1) {
+    pTag.textContent = "시상식 진행 · 2단계 / 3";
+    pDesc.textContent = "3등 공개 완료! 이제 2등을 발표합니다!";
+    btnNext.textContent = "🥈 2등 공개하기"; btnNext.classList.remove("hidden"); btnAll.classList.remove("hidden");
+  } else if (rev === 2) {
+    pTag.textContent = "시상식 진행 · 마지막 1등 공개!";
+    pDesc.textContent = "대망의 1등! 과연 익명 우승자의 정체는?!";
+    btnNext.textContent = "👑 1등 우승자 공개!!"; btnNext.classList.remove("hidden"); btnAll.classList.add("hidden");
+  } else {
+    pTag.textContent = "시상식 완료! 🎉";
+    pDesc.textContent = players[0] ? `👑 최종 우승: ${players[0].name} (${players[0].score}점)! 정체를 밝혀주세요!` : "시상식 완료!";
+    btnNext.classList.add("hidden"); btnAll.classList.add("hidden");
+    if (players[0]) maybeCelebrate("podium_" + players[0].id + "_" + players[0].score);
+  }
+
+  // Order on stage: [2nd (rev>=2), 1st (rev>=3), 3rd (rev>=1)]
+  const slots = [
+    { p: players[1], need: 2, h: 120, label: "🥈 2등", color: "linear-gradient(180deg,#cbd5e1,#64748b)" },
+    { p: players[0], need: 3, h: 165, label: "🥇 1등", color: "linear-gradient(180deg,#fde047,#d97706)" },
+    { p: players[2], need: 1, h: 95,  label: "🥉 3등", color: "linear-gradient(180deg,#fdba74,#9a3412)" },
+  ];
+
+  document.getElementById("hostPodiumGrid").innerHTML = slots.map(s => {
+    if (!s.p) return "";
+    const shown = rev >= s.need;
+    if (!shown) {
+      return `
+        <div class="podium-col podium-hidden">
+          <div style="font-size:48px; margin-bottom:14px;">❓</div>
+          <div style="font-weight:900; font-size:15px; margin-bottom:6px;">???</div>
+          <div class="podium-bar" style="height:${s.h}px; background:${s.color};">${s.label}</div>
+        </div>
+      `;
+    }
     return `
-      <div class="podium-col">
-        ${renderStickmanSVG(p, 84, true)}
-        <div style="font-weight:900; font-size:17px; margin:4px 0 2px;">${escapeHtml(p.name)}</div>
-        <div style="color:var(--accent); font-weight:800; margin-bottom:6px;">${p.score}점</div>
-        <div class="podium-bar" style="height:${heights[i]}px; background:${colors[i]};">${labels[i]}</div>
+      <div class="podium-col podium-pop">
+        ${renderStickmanSVG(s.p, 84, true)}
+        <div style="font-weight:900; font-size:17px; margin:4px 0 2px;">${escapeHtml(s.p.name)}</div>
+        <div style="color:var(--accent); font-weight:800; margin-bottom:6px;">${s.p.score}점</div>
+        <div class="podium-bar" style="height:${s.h}px; background:${s.color};">${s.label}</div>
       </div>
     `;
   }).join("");
 
-  document.getElementById("hostPodiumRest").innerHTML = players.slice(3).map((p, i) => `
+  document.getElementById("hostPodiumRest").innerHTML = rev >= 3 ? players.slice(3).map((p, i) => `
     <div class="lb-row"><div><b>${i+4}등</b> ${renderMiniFace(p)}${escapeHtml(p.name)}</div><div style="font-weight:800;">${p.score}점</div></div>
-  `).join("");
+  `).join("") : "";
 }
 
 // ==================== PLAYER RENDERING (ENHANCED LIVE HUD) ====================
@@ -2809,6 +2955,32 @@ function maybeCelebrate(key) {
     lastCelebrationKey = key;
     fireConfetti(true);
   }
+}
+
+
+function hostAdjustScore(pid, delta) {
+  playTone(delta > 0 ? 640 : 320, 0.08, 'triangle', 0.14);
+  sendWS({type: "adjust_score", player_id: pid, delta});
+}
+
+let lastReactTs = 0;
+function sendReaction(emoji) {
+  const now = Date.now();
+  if (now - lastReactTs < 280) return;
+  lastReactTs = now;
+  playTone(580, 0.05, 'sine', 0.08);
+  sendWS({type: "reaction", emoji});
+}
+
+function spawnReaction(emoji, name) {
+  const layer = document.getElementById("reactionLayer");
+  if (!layer) return;
+  const el = document.createElement("div");
+  el.className = "float-react";
+  el.style.left = (12 + Math.random() * 76) + "%";
+  el.innerHTML = `<span class="fr-emoji">${emoji}</span>${name ? `<span class="fr-name">${escapeHtml(name)}</span>` : ''}`;
+  layer.appendChild(el);
+  setTimeout(() => el.remove(), 2700);
 }
 
 function escapeHtml(s) {
