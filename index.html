@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v13 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v14 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -714,16 +714,98 @@
     padding: 14px;
   }
 
+
+  /* v14 LIVE RANKING OVERLAY (DISPLAY) */
+  .ranking-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(5, 8, 20, 0.86);
+    backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    animation: fadeSlideIn 0.22s ease-out;
+  }
+  .ranking-modal {
+    width: 100%; max-width: 760px; max-height: 88vh; overflow-y: auto;
+    background: linear-gradient(180deg, rgba(20, 30, 62, 0.96), rgba(10, 15, 32, 0.98));
+    border: 2px solid rgba(251, 191, 36, 0.55);
+    border-radius: 24px; padding: 26px 28px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.65), 0 0 40px rgba(251, 191, 36, 0.18);
+  }
+  .ranking-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px; margin-top: 16px;
+  }
+  .rk-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-radius: 13px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border);
+    font-size: 14px; font-weight: 800;
+  }
+  .rk-item.top1 { background: rgba(251, 191, 36, 0.2); border-color: rgba(251, 191, 36, 0.65); }
+  .rk-item.top2 { background: rgba(203, 213, 225, 0.16); border-color: rgba(203, 213, 225, 0.45); }
+  .rk-item.top3 { background: rgba(217, 119, 6, 0.18); border-color: rgba(217, 119, 6, 0.5); }
+
+  /* v14 23-CARD QUIZ CATEGORY BOARD */
+  .quiz-card-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+    gap: 10px; margin-top: 14px;
+  }
+  .quiz-name-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(30, 44, 88, 0.92), rgba(16, 24, 48, 0.95));
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
+    border-radius: 14px; padding: 14px 8px; text-align: center;
+    font-size: 16px; font-weight: 900; color: #f8fafc;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.32);
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  }
+  .quiz-name-card.random-card {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.42), rgba(236, 72, 153, 0.38));
+    border-color: rgba(244, 114, 182, 0.65);
+    color: #fde68a;
+  }
+  .quiz-name-card.clickable { cursor: pointer; }
+  .quiz-name-card.clickable:hover {
+    transform: translateY(-3px) scale(1.03);
+    border-color: var(--gold);
+    box-shadow: 0 8px 22px rgba(251, 191, 36, 0.32);
+  }
+  .quiz-name-card.used {
+    opacity: 0.28; filter: grayscale(0.9); cursor: not-allowed;
+    text-decoration: line-through;
+    border-color: rgba(148, 163, 184, 0.15);
+  }
+  .quiz-name-card .done-tag {
+    position: absolute; top: 4px; right: 5px;
+    font-size: 9.5px; font-weight: 900; color: #94a3b8;
+  }
+  .picker-banner {
+    display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(251, 191, 36, 0.18), rgba(236, 72, 153, 0.16));
+    border: 1.5px solid rgba(251, 191, 36, 0.55);
+    border-radius: 15px; padding: 12px 16px; margin-top: 12px;
+    font-size: 16px; font-weight: 900; color: #fde68a;
+  }
+
 </style>
 </head>
 <body>
 <canvas id="confettiCanvas"></canvas>
 <div id="reactionLayer"></div>
+<div id="dispRankingOverlay" class="ranking-overlay hidden">
+  <div class="ranking-modal">
+    <div style="text-align:center;">
+      <span class="badge" style="background:rgba(251,191,36,0.2); color:#fde68a; border-color:rgba(251,191,36,0.45);">⚡ LIVE INTERIM RANKING</span>
+      <h2 style="margin:8px 0 4px; font-size:28px;">📊 실시간 중간 누적 순위</h2>
+      <div style="font-size:13px; color:var(--muted);">아직 역전 기회는 충분합니다! 끝까지 집중하세요 🔥</div>
+    </div>
+    <div id="dispRankingGrid" class="ranking-grid"></div>
+  </div>
+</div>
 <div id="toast" class="toast hidden"></div>
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v13</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v14</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -875,25 +957,34 @@
       <div id="dispChosungWinners" class="reveal-stage"></div>
     </div>
 
-    <!-- DISPLAY GAME 8: QUIZ -->
+    <!-- DISPLAY GAME 8: QUIZ (23-CARD CATEGORY + OX) -->
     <div id="dispQuiz" class="card hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <div>
-          <span class="badge">GAME 8 · OX QUIZ</span>
-          <h2 style="margin:6px 0 0;">❓ 눈치 O/X 상식 & 우리 그룹 TMI 퀴즈</h2>
+          <span class="badge">GAME 8 · TMI CATEGORY OX</span>
+          <h2 style="margin:6px 0 0;">❓ 부서원 카드 선택 & 눈치 O/X 퀴즈</h2>
         </div>
-        <span id="dispQuizMeta" class="badge" style="font-size:13px;">문제 1 / 10</span>
+        <span id="dispQuizMeta" class="badge" style="font-size:13px;">남은 카드 23장</span>
       </div>
-      <div class="quiz-qbox" id="dispQuizQ" style="margin-top:12px;">곧 문제가 출제됩니다!</div>
-      <div id="dispQuizExp" class="hidden" style="margin-top:10px; padding:12px 16px; border-radius:12px; background:rgba(16,185,129,0.18); border:1px solid var(--green); font-weight:800; font-size:16px; text-align:center;"></div>
-      <div class="ox-zones">
-        <div class="ox-zone zone-o" id="dispZoneO">
-          <div class="ox-title" style="color:#60a5fa;">O <span style="font-size:18px;" id="dispCountO">(0명)</span></div>
-          <div class="ox-crowd" id="dispPlayersO"></div>
+      <div id="dispQuizCardBoard">
+        <div id="dispQuizPickerBanner" class="picker-banner">🎯 이번 카드 선택권: 대기 중...</div>
+        <div id="dispQuizCardGrid" class="quiz-card-grid"></div>
+      </div>
+      <div id="dispQuizActiveWrap" class="hidden">
+        <div style="text-align:center; margin-top:10px;">
+          <span id="dispQuizSelectedCardBadge" class="badge" style="background:rgba(251,191,36,0.2); color:#fde68a; border-color:rgba(251,191,36,0.45); font-size:14px; padding:6px 16px;">🃏 선택된 카드</span>
         </div>
-        <div class="ox-zone zone-x" id="dispZoneX">
-          <div class="ox-title" style="color:#f87171;">X <span style="font-size:18px;" id="dispCountX">(0명)</span></div>
-          <div class="ox-crowd" id="dispPlayersX"></div>
+        <div class="quiz-qbox" id="dispQuizQ" style="margin-top:10px;">곧 문제가 출제됩니다!</div>
+        <div id="dispQuizExp" class="hidden" style="margin-top:10px; padding:12px 16px; border-radius:12px; background:rgba(16,185,129,0.18); border:1px solid var(--green); font-weight:800; font-size:16px; text-align:center;"></div>
+        <div class="ox-zones">
+          <div class="ox-zone zone-o" id="dispZoneO">
+            <div class="ox-title" style="color:#60a5fa;">O <span style="font-size:18px;" id="dispCountO">(0명)</span></div>
+            <div class="ox-crowd" id="dispPlayersO"></div>
+          </div>
+          <div class="ox-zone zone-x" id="dispZoneX">
+            <div class="ox-title" style="color:#f87171;">X <span style="font-size:18px;" id="dispCountX">(0명)</span></div>
+            <div class="ox-crowd" id="dispPlayersX"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -949,6 +1040,7 @@
       <button class="btn btn-secondary btn-sm" data-mc-nav="chosung" onclick="mcSwitchGame('chosung')">⌨️ 7.초성</button>
       <button class="btn btn-secondary btn-sm" data-mc-nav="quiz" onclick="mcSwitchGame('quiz')">❓ 8.O/X</button>
       <button class="btn btn-amber btn-sm" data-mc-nav="podium" onclick="mcSwitchGame('podium')">🏆 시상식</button>
+      <button id="mcBtnToggleRank" class="btn btn-secondary btn-sm" onclick="sendWS({type:'toggle_ranking'})" title="공유화면에 중간 순위 공개/숨기기">📊 순위 공개</button>
       <button class="btn btn-pink btn-sm" onclick="sendWS({type:'trigger_confetti'})" title="전체화면에 폭죽 발사">🎉 폭죽</button>
     </nav>
   </header>
@@ -997,7 +1089,7 @@
             <button class="btn btn-secondary btn-sm" onclick="toggleAddQuizModal()">+ 1문제 추가</button>
           </div>
           <div id="bulkQuizBox" class="hidden" style="background:var(--panel2); padding:12px; border-radius:12px; margin-bottom:8px; border:1px solid rgba(139,92,246,0.45);">
-            <div style="font-weight:800; font-size:13px; margin-bottom:6px;">📋 TMI 퀴즈 일괄 붙여넣기 (문제 | O/X | 해설)</div>
+            <div style="font-weight:800; font-size:13px; margin-bottom:6px;">📋 TMI 퀴즈 일괄 등록 (이름 | 문제 | O/X | 해설  또는  문제 | O/X | 해설)</div>
             <textarea id="bulkQuizText" class="input-field" rows="4" style="font-size:13px; margin-bottom:8px;" placeholder="우리 팀장님 최애 회식 메뉴는 삼겹살이다. | O | 삼겹살에 소맥파!"></textarea>
             <div style="display:flex; gap:6px; flex-wrap:wrap;">
               <button class="btn btn-purple btn-sm" onclick="submitBulkQuiz(false)">➕ 뒤에 추가</button>
@@ -1164,22 +1256,29 @@
     </div>
   </div>
 
-  <!-- Player Game 5: Quiz (with Live O/X Ratio Bar!) -->
+  <!-- Player Game 8: Quiz (23-Card Picker + Live O/X) -->
   <div id="pQuiz" class="card hidden" style="text-align:center;">
-    <span class="badge">GAME 5 · 눈치 O/X 퀴즈</span>
-    <div id="pQuizQ" style="font-size:18px; font-weight:800; margin:12px 0 14px; line-height:1.45;">사회자가 문제를 출제할 때까지 기다려주세요.</div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-      <button id="btnChoiceO" class="btn huge-action-btn" style="min-height:135px; font-size:56px; background:#2563eb;" onclick="playerChooseQuiz('O')">O</button>
-      <button id="btnChoiceX" class="btn huge-action-btn" style="min-height:135px; font-size:56px; background:#dc2626;" onclick="playerChooseQuiz('X')">X</button>
+    <span class="badge">GAME 8 · 부서원 카드 & 눈치 O/X 퀴즈</span>
+    <div id="pQuizPickWrap">
+      <div id="pQuizPickerInfo" class="picker-banner" style="font-size:14px; padding:10px;">🎯 카드 선택 차례 확인 중...</div>
+      <div id="pQuizCardGrid" class="quiz-card-grid" style="grid-template-columns:repeat(3, 1fr); gap:7px; margin-top:10px;"></div>
     </div>
-    <div id="pQuizMsg" style="margin-top:10px; font-weight:700; color:var(--muted); font-size:14px;"></div>
-    <div id="pQuizLiveHud" class="live-hud hidden">
-      <div class="live-pill"><span class="live-dot"></span> 실시간 눈치 현황</div>
-      <div class="ratio-bar">
-        <div id="pQuizBarO" class="ratio-o" style="width:50%;">O 0명</div>
-        <div id="pQuizBarX" class="ratio-x" style="width:50%;">X 0명</div>
+    <div id="pQuizPlayWrap" class="hidden">
+      <div style="margin-top:10px;"><span id="pQuizSelectedBadge" class="badge" style="background:rgba(251,191,36,0.2); color:#fde68a; border-color:rgba(251,191,36,0.45);">🃏 카드</span></div>
+      <div id="pQuizQ" style="font-size:18px; font-weight:800; margin:10px 0 14px; line-height:1.45;">사회자가 문제를 출제할 때까지 기다려주세요.</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <button id="btnChoiceO" class="btn huge-action-btn" style="min-height:135px; font-size:56px; background:#2563eb;" onclick="playerChooseQuiz('O')">O</button>
+        <button id="btnChoiceX" class="btn huge-action-btn" style="min-height:135px; font-size:56px; background:#dc2626;" onclick="playerChooseQuiz('X')">X</button>
       </div>
-      <div id="pQuizExpBox" class="hidden" style="margin-top:8px; font-size:13px; color:#6ee7b7; font-weight:700;"></div>
+      <div id="pQuizMsg" style="margin-top:10px; font-weight:700; color:var(--muted); font-size:14px;"></div>
+      <div id="pQuizLiveHud" class="live-hud hidden">
+        <div class="live-pill"><span class="live-dot"></span> 실시간 눈치 현황</div>
+        <div class="ratio-bar">
+          <div id="pQuizBarO" class="ratio-o" style="width:50%;">O 0명</div>
+          <div id="pQuizBarX" class="ratio-x" style="width:50%;">X 0명</div>
+        </div>
+        <div id="pQuizExpBox" class="hidden" style="margin-top:8px; font-size:13px; color:#6ee7b7; font-weight:700;"></div>
+      </div>
     </div>
   </div>
 
@@ -1956,6 +2055,22 @@ function finalizePlayerJoin() {
 // ==================== SCREEN 1: DISPLAY RENDERER (공유용 전체화면) ====================
 function renderDisplay(st) {
   const players = st.players || [];
+  const rkOverlay = document.getElementById("dispRankingOverlay");
+  if (rkOverlay) {
+    rkOverlay.classList.toggle("hidden", !st.show_ranking);
+    if (st.show_ranking) {
+      document.getElementById("dispRankingGrid").innerHTML = players.map((p, i) => `
+        <div class="rk-item ${i===0?'top1':i===1?'top2':i===2?'top3':''}">
+          <div style="display:flex; align-items:center; overflow:hidden;">
+            <span style="margin-right:6px; color:${i===0?'#fbbf24':'var(--muted)'};">${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'위'}</span>
+            ${renderMiniFace(p)}
+            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</span>
+          </div>
+          <span style="color:var(--accent); font-weight:900; flex-shrink:0;">${p.score}점</span>
+        </div>
+      `).join("") || '<div style="grid-column:1/-1; text-align:center; color:var(--muted);">참여자가 없습니다.</div>';
+    }
+  }
   document.getElementById("dispRoomCode").textContent = st.room;
   document.getElementById("dispTopCount").textContent = players.length;
   document.getElementById("dispPlayerCount").textContent = players.length;
@@ -2584,13 +2699,37 @@ function renderDispChosung(st) {
 }
 
 function renderDispQuiz(st) {
-  const gs = st.game_state;
-  const quizzes = st.quizzes || [];
-  const idx = gs.index || 0;
-  const qObj = quizzes[idx] || {q: "문제가 없습니다.", a: "O", exp: ""};
+  const gs = st.game_state || {};
+  const cards = st.quiz_cards || [];
+  const used = gs.used_cards || [];
+  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
+  const boardEl = document.getElementById("dispQuizCardBoard");
+  const activeEl = document.getElementById("dispQuizActiveWrap");
+  const remain = Math.max(0, cards.length - used.length);
+  document.getElementById("dispQuizMeta").textContent = `남은 카드 ${remain} / ${cards.length}장`;
 
-  document.getElementById("dispQuizMeta").textContent = `문제 ${idx + 1} / ${quizzes.length}`;
-  document.getElementById("dispQuizQ").textContent = gs.phase === "ready" ? "곧 눈치 O/X 퀴즈가 출제됩니다!" : `Q${idx+1}. ${qObj.q}`;
+  if (gs.phase === "pick" || gs.phase === "ready") {
+    boardEl.classList.remove("hidden");
+    activeEl.classList.add("hidden");
+    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
+    const turnNum = (gs.pick_turn || 0) + 1;
+    document.getElementById("dispQuizPickerBanner").innerHTML = picker
+      ? `🎯 ${turnNum}번째 카드 선택권 (낮은 점수 우선): ${renderMiniFace(picker)} <span style="color:#fff;">${escapeHtml(picker.name)}</span> 님! 카드를 골라주세요!`
+      : `🎯 카드를 선택해주세요!`;
+    document.getElementById("dispQuizCardGrid").innerHTML = cards.map(c => {
+      const isUsed = used.includes(c);
+      const isRand = c === "랜덤";
+      return `<div class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''}">${isRand?'🎲 랜덤':escapeHtml(c)}${isUsed?'<span class="done-tag">완료</span>':''}</div>`;
+    }).join("");
+    return;
+  }
+
+  boardEl.classList.add("hidden");
+  activeEl.classList.remove("hidden");
+  const selCard = gs.selected_card || "랜덤";
+  document.getElementById("dispQuizSelectedCardBadge").textContent = selCard === "랜덤" ? "🎲 랜덤 카드 질문" : `🃏 [ ${selCard} ] 카드 질문`;
+  const qObj = gs.current_q || (st.quizzes || [])[gs.index || 0] || {q: "문제가 없습니다.", a: "O", exp: ""};
+  document.getElementById("dispQuizQ").textContent = `Q. ${qObj.q}`;
 
   const expBox = document.getElementById("dispQuizExp");
   const zO = document.getElementById("dispZoneO");
@@ -2601,7 +2740,6 @@ function renderDispQuiz(st) {
     if (qObj.a === "O") zO.classList.add("correct-glow"); else zX.classList.add("correct-glow");
   } else expBox.classList.add("hidden");
 
-  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
   const choices = gs.choices || {};
   const listO = [], listX = [];
   Object.entries(choices).forEach(([pid, ch]) => {
@@ -2674,6 +2812,11 @@ function renderMc(st) {
 
   document.getElementById("mcRoomCode").textContent = st.room;
   document.getElementById("mcSideCount").textContent = `${players.length}명`;
+  const rkBtn = document.getElementById("mcBtnToggleRank");
+  if (rkBtn) {
+    rkBtn.textContent = st.show_ranking ? "🙈 순위 숨기기" : "📊 순위 공개";
+    rkBtn.className = st.show_ranking ? "btn btn-amber btn-sm" : "btn btn-secondary btn-sm";
+  }
   document.querySelectorAll("[data-mc-nav]").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.mcNav === cur);
   });
@@ -2821,19 +2964,32 @@ function renderMc(st) {
       <button class="btn btn-green" onclick="mcSwitchGame('quiz')">➡ 다음 게임: 8. O/X 퀴즈</button>
     `;
   } else if (cur === "quiz") {
-    const quizzes = st.quizzes || [];
-    if (gs.index !== undefined) hostQuizIdx = gs.index;
-    const qObj = quizzes[hostQuizIdx] || {q:"", a:"O", exp:""};
-    const ch = Object.values(gs.choices || {});
-    const oCnt = ch.filter(x => x === "O").length, xCnt = ch.filter(x => x === "X").length;
-    telEl.innerHTML = `<b>문제 ${hostQuizIdx+1} / ${quizzes.length}</b> (정답: <b style="color:var(--gold);">${qObj.a}</b>)<br/>Q. ${escapeHtml(qObj.q)}<br/>눈치 현황: <b>O ${oCnt}명</b> vs <b>X ${xCnt}명</b>`;
-    if (gs.phase === "ready") btnsEl.innerHTML = `<button class="btn btn-green btn-next-pulse" onclick="hostQuizOpenCurrent()">▶ 1단계: 문제 출제</button>`;
-    else if (gs.phase === "open") btnsEl.innerHTML = `<button class="btn btn-red" onclick="sendWS({type:'quiz_lock'})">🔒 2단계: 선택 마감 (STOP)</button>`;
-    else if (gs.phase === "locked") btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'quiz_reveal'})">✨ 3단계: 정답 공개</button>`;
-    else btnsEl.innerHTML = `
-      <button class="btn btn-primary" onclick="hostQuizNext()">➡ 다음 문제 출제</button>
-      <button class="btn btn-amber" onclick="mcSwitchGame('podium')">🏆 최종 시상식으로!</button>
-    `;
+    const cards = st.quiz_cards || [];
+    const used = gs.used_cards || [];
+    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
+    if (gs.phase === "pick" || gs.phase === "ready") {
+      const turnNum = (gs.pick_turn || 0) + 1;
+      telEl.innerHTML = `<b>🃏 카드 선택 단계 (남은 카드 ${cards.length - used.length}/${cards.length})</b><br/>` +
+        `이번 선택권 (${turnNum}번 · 낮은 점수 순): <b style="color:var(--gold);">${picker ? escapeHtml(picker.name) + ' (' + picker.score + '점)' : '대기 중'}</b><br/>` +
+        `<span style="font-size:12px; color:var(--muted);">해당 참여자가 폰에서 카드를 고르거나, 아래 카드를 사회자가 대신 눌러 출제할 수 있습니다.</span>`;
+      btnsEl.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(76px, 1fr)); gap:6px; width:100%;">` +
+        cards.map(c => {
+          const isUsed = used.includes(c);
+          const isRand = c === "랜덤";
+          return `<button class="btn ${isRand?'btn-purple':'btn-secondary'} btn-sm" style="padding:8px 4px; font-size:12px; ${isUsed?'opacity:0.25;text-decoration:line-through;':''}" ${isUsed?'disabled':''} onclick="sendWS({type:'quiz_pick_card', card:'${c}'})">${isRand?'🎲 랜덤':escapeHtml(c)}</button>`;
+        }).join("") + `</div>`;
+    } else {
+      const qObj = gs.current_q || {q:"", a:"O", exp:""};
+      const ch = Object.values(gs.choices || {});
+      const oCnt = ch.filter(x => x === "O").length, xCnt = ch.filter(x => x === "X").length;
+      telEl.innerHTML = `<b>🃏 선택 카드: ${escapeHtml(gs.selected_card || '')}</b> (정답: <b style="color:var(--gold);">${qObj.a}</b>)<br/>Q. ${escapeHtml(qObj.q)}<br/>눈치 현황: <b>O ${oCnt}명</b> vs <b>X ${xCnt}명</b>`;
+      if (gs.phase === "open") btnsEl.innerHTML = `<button class="btn btn-red" onclick="sendWS({type:'quiz_lock'})">🔒 1단계: 선택 마감 (STOP)</button>`;
+      else if (gs.phase === "locked") btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'quiz_reveal'})">✨ 2단계: 정답 공개</button>`;
+      else btnsEl.innerHTML = `
+        <button class="btn btn-green btn-next-pulse" onclick="sendWS({type:'quiz_back_to_pick'})">🃏 다음 카드 선택으로 (다음 순번)</button>
+        <button class="btn btn-amber" onclick="mcSwitchGame('podium')">🏆 최종 시상식으로!</button>
+      `;
+    }
   } else if (cur === "podium") {
     const rev = gs.revealed || 0;
     const p1 = players[0] ? `${escapeHtml(players[0].name)} (${players[0].score}점)` : "-";
@@ -2917,9 +3073,12 @@ function submitBulkQuiz(replace) {
   const items = [];
   for (const line of lines) {
     const parts = line.split("|").map(s => s.trim());
-    if (parts.length >= 2) {
-      const q = parts[0];
-      const a = parts[1].toUpperCase();
+    if (parts.length >= 3 && (parts[2].toUpperCase() === "O" || parts[2].toUpperCase() === "X")) {
+      const card = parts[0], q = parts[1], a = parts[2].toUpperCase();
+      const exp = parts[3] || `정답은 ${a} 입니다!`;
+      items.push({ card, q, a, exp });
+    } else if (parts.length >= 2) {
+      const q = parts[0], a = parts[1].toUpperCase();
       const exp = parts[2] || `정답은 ${a} 입니다!`;
       if (q && (a === "O" || a === "X")) items.push({ q, a, exp });
     }
@@ -3310,8 +3469,44 @@ function hitLane(lane, ev) {
 
 // --- PLAYER GAME 5: QUIZ (with Live O/X Ratio Bar) ---
 function renderPlayerQuiz(st) {
-  const gs = st.game_state;
-  const qObj = (st.quizzes || [])[gs.index || 0];
+  const gs = st.game_state || {};
+  const pickWrap = document.getElementById("pQuizPickWrap");
+  const playWrap = document.getElementById("pQuizPlayWrap");
+  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
+
+  if (gs.phase === "pick" || gs.phase === "ready") {
+    pickWrap.classList.remove("hidden");
+    playWrap.classList.add("hidden");
+    const cards = st.quiz_cards || [];
+    const used = gs.used_cards || [];
+    const isMyTurn = gs.current_picker === myPlayerId;
+    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
+    const infoEl = document.getElementById("pQuizPickerInfo");
+    if (isMyTurn) {
+      infoEl.innerHTML = `✨ <b>내 차례입니다!</b> 아래 23개 카드 중 1장을 탭해서 골라주세요!`;
+      infoEl.style.borderColor = "#10b981";
+      infoEl.style.color = "#6ee7b7";
+    } else {
+      infoEl.innerHTML = picker
+        ? `🎯 현재 <b>${escapeHtml(picker.name)}</b> 님이 카드를 고르는 중...`
+        : `🎯 카드 선택 대기 중...`;
+      infoEl.style.borderColor = "rgba(251,191,36,0.55)";
+      infoEl.style.color = "#fde68a";
+    }
+    document.getElementById("pQuizCardGrid").innerHTML = cards.map(c => {
+      const isUsed = used.includes(c);
+      const isRand = c === "랜덤";
+      const canClick = isMyTurn && !isUsed;
+      return `<div class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''} ${canClick?'clickable':''}" style="padding:10px 4px; font-size:13px;" ${canClick ? `onclick="playerPickQuizCard('${c}')"` : ''}>${isRand?'🎲 랜덤':escapeHtml(c)}</div>`;
+    }).join("");
+    return;
+  }
+
+  pickWrap.classList.add("hidden");
+  playWrap.classList.remove("hidden");
+  const selCard = gs.selected_card || "랜덤";
+  document.getElementById("pQuizSelectedBadge").textContent = selCard === "랜덤" ? "🎲 랜덤 카드" : `🃏 [ ${selCard} ] 카드`;
+  const qObj = gs.current_q || (st.quizzes || [])[gs.index || 0];
   const qEl = document.getElementById("pQuizQ");
   const btnO = document.getElementById("btnChoiceO");
   const btnX = document.getElementById("btnChoiceX");
@@ -3333,28 +3528,28 @@ function renderPlayerQuiz(st) {
   document.getElementById("pQuizBarX").style.width = Math.max(15, xPct) + "%";
   document.getElementById("pQuizBarX").textContent = `X ${xCnt}명`;
 
-  if (gs.phase === "ready") {
-    qEl.textContent = "사회자가 문제를 출제할 때까지 기다려주세요.";
-    btnO.disabled = true; btnX.disabled = true; msg.textContent = "";
-    hud.classList.add("hidden"); expBox.classList.add("hidden");
-  } else if (gs.phase === "open") {
-    qEl.textContent = qObj ? `Q${(gs.index||0)+1}. ${qObj.q}` : "";
+  if (gs.phase === "open") {
+    qEl.textContent = qObj ? `Q. ${qObj.q}` : "";
     btnO.disabled = false; btnX.disabled = false;
     msg.textContent = myChoice ? `현재 선택: ${myChoice} (마감 전까지 변경 가능!)` : "O 또는 X를 선택하세요!";
     hud.classList.remove("hidden"); expBox.classList.add("hidden");
   } else if (gs.phase === "locked") {
-    qEl.textContent = qObj ? `Q${(gs.index||0)+1}. ${qObj.q}` : "";
+    qEl.textContent = qObj ? `Q. ${qObj.q}` : "";
     btnO.disabled = true; btnX.disabled = true; msg.textContent = "🔒 선택이 마감되었습니다!";
     hud.classList.remove("hidden"); expBox.classList.add("hidden");
   } else if (gs.phase === "revealed") {
     qEl.textContent = qObj ? `정답: ${qObj.a}` : "";
     btnO.disabled = true; btnX.disabled = true;
     const won = (gs.winners || []).includes(myPlayerId);
-    msg.innerHTML = won ? `<span style="color:var(--green);">🎉 정답입니다! +50점 획득!</span>` : `<span style="color:#f87171;">아쉽습니다! 다음 문제를 노려보세요.</span>`;
+    msg.innerHTML = won ? `<span style="color:var(--green);">🎉 정답입니다! +50점 획득!</span>` : `<span style="color:#f87171;">아쉽습니다! 다음 카드를 노려보세요.</span>`;
     hud.classList.remove("hidden");
     expBox.textContent = qObj ? qObj.exp : "";
     expBox.classList.remove("hidden");
   }
+}
+function playerPickQuizCard(card) {
+  playTone(620, 0.08, 'triangle', 0.16);
+  sendWS({type: "quiz_pick_card", card});
 }
 function playerChooseQuiz(ch) { playTone(ch === "O" ? 580 : 420, 0.08, 'sine', 0.14); sendWS({type: "quiz_choose", choice: ch}); }
 
