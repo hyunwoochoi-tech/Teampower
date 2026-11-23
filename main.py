@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v16")
+app = FastAPI(title="Team Power Recreation Server v17")
 
 MC_PIN = "5401"
 
@@ -126,6 +126,8 @@ class Room:
         self.faces: List[dict] = [dict(f) for f in DEFAULT_FACES]
         self.current_game: str = "lobby"
         self.show_ranking: bool = False
+        self.show_qr: bool = False
+        self.rush_dirty: bool = False
         self.quizzes: List[dict] = [dict(q) for q in DEFAULT_QUIZZES]
         self.card_quizzes: Dict[str, dict] = {}
         self.balances: List[dict] = [dict(b) for b in DEFAULT_BALANCES]
@@ -193,6 +195,7 @@ class Room:
             "room": self.code,
             "current_game": self.current_game,
             "show_ranking": self.show_ranking,
+            "show_qr": self.show_qr,
             "quiz_cards": QUIZ_CARDS,
             "studio_count": len(self.lobby_ws),
             "total_connected": len(self.players) + len(self.lobby_ws),
@@ -452,15 +455,19 @@ async def run_bot_quiz(room: Room):
 
 
 
-async def run_rush_loop(room: Room, duration: float = 28.0):
+async def run_rush_loop(room: Room, duration: float = 32.0):
     try:
         start = time.time()
         next_toggle = start + random.uniform(2.5, 4.2)
+        next_bot_tick = start + 0.28
         bot_ids = [pid for pid, p in room.players.items() if p.get("is_bot")]
         while time.time() - start < duration:
             if room.current_game != "rush" or room.game_state.get("phase") != "running":
                 return
             now = time.time()
+            changed = room.rush_dirty
+            room.rush_dirty = False
+
             if now >= next_toggle:
                 cur_light = room.game_state.get("light", "green")
                 if cur_light == "green":
@@ -471,36 +478,35 @@ async def run_rush_loop(room: Room, duration: float = 28.0):
                     room.game_state["light"] = "green"
                     room.game_state["light_changed_ts"] = now
                     next_toggle = now + random.uniform(2.4, 4.0)
-                await room.broadcast()
+                changed = True
 
-            # Bot movement
-            changed = False
-            for bid in bot_ids:
-                if bid in room.game_state["finished_order"]:
-                    continue
-                if room.game_state.get("light") == "green":
-                    if random.random() < 0.68:
-                        prog = round(room.game_state["progress"].get(bid, 0) + random.uniform(2.2, 4.4), 1)
-                        if prog >= 100:
-                            prog = 100
-                            room.game_state["finished_order"].append(bid)
-                        room.game_state["progress"][bid] = prog
-                        changed = True
-                else:
-                    # Small chance bot gets caught by boss!
-                    if now - room.game_state.get("light_changed_ts", 0) > 0.35 and random.random() < 0.06:
-                        room.game_state["progress"][bid] = max(0, room.game_state["progress"].get(bid, 0) - 18)
-                        room.game_state["caught"][bid] = now
-                        changed = True
+            # Bot movement every ~0.28s
+            if now >= next_bot_tick:
+                next_bot_tick = now + 0.28
+                for bid in bot_ids:
+                    if bid in room.game_state["finished_order"]:
+                        continue
+                    if room.game_state.get("light") == "green":
+                        if random.random() < 0.68:
+                            prog = round(room.game_state["progress"].get(bid, 0) + random.uniform(2.2, 4.4), 1)
+                            if prog >= 100:
+                                prog = 100.0
+                                room.game_state["finished_order"].append(bid)
+                            room.game_state["progress"][bid] = prog
+                            changed = True
+                    else:
+                        if now - room.game_state.get("light_changed_ts", 0) > 0.35 and random.random() < 0.06:
+                            room.game_state["progress"][bid] = max(0, room.game_state["progress"].get(bid, 0) - 18)
+                            room.game_state["caught"][bid] = now
+                            changed = True
 
-            # Check if at least 3 finished or all finished
             if len(room.game_state["finished_order"]) >= len(room.players) and len(room.players) > 0:
                 await finish_rush(room)
                 return
 
             if changed:
                 await room.broadcast()
-            await asyncio.sleep(0.28)
+            await asyncio.sleep(0.10)
 
         if room.current_game == "rush" and room.game_state.get("phase") == "running":
             await finish_rush(room)
@@ -556,6 +562,17 @@ async def run_bot_chosung(room: Room, idx: int):
                 room.players[bid]["score"] += pts
                 room.game_state["winners"].append({"id": bid, "rank": rank, "pts": pts})
                 await room.broadcast()
+    except asyncio.CancelledError:
+        pass
+
+
+async def run_auto_lock_countdown(room: Room, expected_game: str, seconds: float = 5.0):
+    try:
+        await asyncio.sleep(seconds)
+        if room.current_game == expected_game and room.game_state.get("phase") == "open":
+            room.game_state["phase"] = "locked"
+            room.game_state.pop("countdown_end_ts", None)
+            await room.broadcast()
     except asyncio.CancelledError:
         pass
 
@@ -994,6 +1011,22 @@ async def websocket_endpoint(ws: WebSocket):
                         room.show_ranking = not room.show_ranking
                     await room.broadcast()
 
+                elif mtype == "toggle_qr":
+                    if "show" in msg:
+                        room.show_qr = bool(msg.get("show"))
+                    else:
+                        room.show_qr = not room.show_qr
+                    await room.broadcast()
+
+                elif mtype == "start_countdown":
+                    if room.current_game in ("balance", "quiz") and room.game_state.get("phase") == "open":
+                        sec = float(msg.get("seconds", 5.0))
+                        room.game_state["countdown_end_ts"] = time.time() + sec
+                        room.game_state["server_now"] = time.time()
+                        await room.broadcast()
+                        t = asyncio.create_task(run_auto_lock_countdown(room, room.current_game, sec))
+                        room.bg_tasks.append(t)
+
                 elif mtype == "quiz_pick_card":
                     room.cancel_tasks()
                     card = (msg.get("card") or "").strip()
@@ -1290,8 +1323,8 @@ async def websocket_endpoint(ws: WebSocket):
                             cur = room.game_state["progress"].get(player_id, 0)
                             room.game_state["progress"][player_id] = max(0, cur - 18)
                             room.game_state["caught"][player_id] = now
-                            await ws.send_text(json.dumps({"type": "toast", "message": "🚨 팀장님한테 걸렸다! 강제 야근 (-18% 후퇴!)"}, ensure_ascii=False))
-                            await room.broadcast()
+                            await ws.send_text(json.dumps({"type": "toast", "message": "🚨 이정훈 상무님한테 걸렸다! 강제 야근 (-18m 후퇴!)"}, ensure_ascii=False))
+                            room.rush_dirty = True
                         else:
                             cur = round(room.game_state["progress"].get(player_id, 0) + 3.2, 1)
                             if cur >= 100:
@@ -1301,7 +1334,7 @@ async def websocket_endpoint(ws: WebSocket):
                             if len(room.game_state["finished_order"]) >= len(room.players):
                                 await finish_rush(room)
                             else:
-                                await room.broadcast()
+                                room.rush_dirty = True
 
                 elif mtype == "balance_choose":
                     if room.current_game == "balance" and room.game_state.get("phase") == "open":
