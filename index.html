@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v4 — 네온 아케이드 — 졸라맨 코디 & 5종 게임</title>
+<title>팀파워 레크레이션 v5 — 네온 아케이드 — 졸라맨 코디 & 5종 게임</title>
 <style>
   :root {
     --bg: #080514;
@@ -180,14 +180,34 @@
     font-size: 12px; font-weight: 800;
   }
 
-  /* STICKMAN STAGE SPOTLIGHT & ANIMATION */
-  @keyframes stickBounce {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
+  /* STICKMAN STAGE SPOTLIGHT & GOOFY OPPOSITE WOBBLE ("까딱까딱") */
+  @keyframes stickBodyWobble {
+    0%, 100% { transform: rotate(-11deg) translateY(0px); }
+    25% { transform: rotate(0deg) translateY(-4px) scaleY(1.03); }
+    50% { transform: rotate(11deg) translateY(0px); }
+    75% { transform: rotate(0deg) translateY(-4px) scaleY(1.03); }
+  }
+  @keyframes stickHeadCounter {
+    0%, 100% { transform: rotate(27deg) translateY(1px); }
+    25% { transform: rotate(0deg) translateY(-3px); }
+    50% { transform: rotate(-27deg) translateY(1px); }
+    75% { transform: rotate(0deg) translateY(-3px); }
+  }
+  @keyframes stickArmL {
+    0%, 100% { transform: rotate(16deg); }
+    50% { transform: rotate(-16deg); }
+  }
+  @keyframes stickArmR {
+    0%, 100% { transform: rotate(-18deg); }
+    50% { transform: rotate(18deg); }
   }
   .stick-wrap {
     position: relative; display: inline-flex; align-items: center; justify-content: center;
     padding-bottom: 4px;
+  }
+  .stick-wrap svg {
+    overflow: visible;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
   }
   .stick-wrap::after {
     content: ""; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -195,7 +215,28 @@
     background: radial-gradient(ellipse at center, rgba(0, 245, 212, 0.45) 0%, rgba(155, 93, 229, 0.15) 55%, transparent 80%);
     pointer-events: none;
   }
-  .stick-anim svg { animation: stickBounce 1.7s ease-in-out infinite; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45)); }
+  .stick-anim .stick-upper {
+    transform-box: view-box;
+    transform-origin: 60px 124px;
+    animation: stickBodyWobble var(--wobble-dur, 1.05s) ease-in-out var(--wobble-delay, 0s) infinite;
+  }
+  .stick-anim .stick-head {
+    transform-box: view-box;
+    transform-origin: 60px 76px;
+    animation: stickHeadCounter var(--wobble-dur, 1.05s) ease-in-out var(--wobble-delay, 0s) infinite;
+  }
+  .stick-anim .stick-arm-l {
+    transform-box: view-box;
+    transform-origin: 42px 86px;
+    animation: stickArmL var(--wobble-dur, 1.05s) ease-in-out var(--wobble-delay, 0s) infinite;
+  }
+  .stick-anim .stick-arm-r {
+    transform-box: view-box;
+    transform-origin: 78px 86px;
+    animation: stickArmR var(--wobble-dur, 1.05s) ease-in-out var(--wobble-delay, 0s) infinite;
+  }
+  /* Panic speed when holding bomb! */
+  .seat-node.holding .stick-anim { --wobble-dur: 0.42s !important; }
 
   /* LANDING */
   .landing {
@@ -507,7 +548,7 @@
 
 <!-- ==================== LANDING ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v4</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v5</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>실사 얼굴 졸라맨 코디 콘테스트(한 줄 컨셉!)부터 7.77초·계약 돌리기·리듬게임·우리 그룹 TMI 눈치 O/X 퀴즈까지!</p>
   <div class="landing-grid">
@@ -560,7 +601,7 @@
             <span class="badge">STEP 1. 참여자 입장 & 졸라맨 꾸미기</span>
             <h2 style="font-size:25px; margin:8px 0;">QR 스캔 후 선착순 얼굴을 선점하세요!</h2>
             <p style="color:var(--muted); margin:0 0 12px; font-size:14px;">
-              등록된 얼굴 사진: <b id="hostFaceCount" style="color:var(--accent);">3</b>장 (중복 선택 불가 · 선착순 마감)
+              등록된 얼굴 사진: <b id="hostFaceCount" style="color:var(--accent);">11</b>장 (중복 선택 불가 · 선착순 마감)
             </p>
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn btn-purple btn-sm" onclick="sendWS({type:'add_bot'})">🤖 AI 봇 추가 (테스트)</button>
@@ -977,6 +1018,13 @@ function renderStickmanSVG(p, width = 90, anim = true) {
   const item = p.item || "none";
   const faceImg = p.face_id && facesMap[p.face_id] ? facesMap[p.face_id] : null;
 
+  // Deterministic phase & tempo per player so a 22-person crowd wobbles hilariously out of sync
+  const seedStr = String(p.id || p.name || "x");
+  let hash = 0;
+  for (let i = 0; i < seedStr.length; i++) hash = ((hash << 5) - hash + seedStr.charCodeAt(i)) | 0;
+  const delaySec = -((Math.abs(hash) % 100) / 100).toFixed(2);
+  const durSec = (0.94 + ((Math.abs(hash >> 3) % 24) / 100)).toFixed(2);
+
   const capeSvg = outfit === "hero"
     ? `<path d="M40 80 L18 140 L102 140 L80 80 Z" fill="#dc2626" opacity="0.92"/>` : "";
 
@@ -1023,13 +1071,29 @@ function renderStickmanSVG(p, width = 90, anim = true) {
   }
 
   const limbColor = "#e2e8f0";
-  const limbsSvg = `
-    <path d="M42 86 L20 108" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
-    <path d="M78 86 L100 100" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
-    <path d="M51 124 L42 156" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
-    <path d="M69 124 L78 156" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
-    <ellipse cx="38" cy="158" rx="8" ry="4" fill="#38bdf8"/>
-    <ellipse cx="82" cy="158" rx="8" ry="4" fill="#38bdf8"/>
+  const legsSvg = `
+    <g class="stick-legs">
+      <path d="M51 124 L42 156" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M69 124 L78 156" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
+      <ellipse cx="38" cy="158" rx="8" ry="4" fill="#38bdf8"/>
+      <ellipse cx="82" cy="158" rx="8" ry="4" fill="#38bdf8"/>
+    </g>
+  `;
+
+  const itemEmojiMap = { contract: "📄", coffee: "☕", beer: "🍺", mic: "🎤", money: "💰" };
+  const itemSvg = itemEmojiMap[item]
+    ? `<text x="103" y="106" text-anchor="middle" font-size="24">${itemEmojiMap[item]}</text>` : "";
+
+  const armLSvg = `
+    <g class="stick-arm-l">
+      <path d="M42 86 L20 108" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  `;
+  const armRSvg = `
+    <g class="stick-arm-r">
+      <path d="M78 86 L100 100" stroke="${limbColor}" stroke-width="6" stroke-linecap="round"/>
+      ${itemSvg}
+    </g>
   `;
 
   const headSvg = faceImg
@@ -1065,14 +1129,20 @@ function renderStickmanSVG(p, width = 90, anim = true) {
     `;
   }
 
-  const itemEmojiMap = { contract: "📄", coffee: "☕", beer: "🍺", mic: "🎤", money: "💰" };
-  const itemSvg = itemEmojiMap[item]
-    ? `<text x="103" y="106" text-anchor="middle" font-size="24">${itemEmojiMap[item]}</text>` : "";
-
   return `
-    <span class="stick-wrap ${anim ? 'stick-anim' : ''}">
-      <svg viewBox="0 0 120 166" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        ${capeSvg}${limbsSvg}${bodySvg}${headSvg}${hatSvg}${itemSvg}
+    <span class="stick-wrap ${anim ? 'stick-anim' : ''}" style="--wobble-delay:${delaySec}s; --wobble-dur:${durSec}s;">
+      <svg viewBox="-12 -8 144 176" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        ${legsSvg}
+        <g class="stick-upper">
+          ${capeSvg}
+          ${armLSvg}
+          ${armRSvg}
+          ${bodySvg}
+          <g class="stick-head">
+            ${headSvg}
+            ${hatSvg}
+          </g>
+        </g>
       </svg>
     </span>
   `;
@@ -1471,7 +1541,7 @@ function renderHostStop777(st) {
       return `
         <div class="reveal-card ${isFirst ? 'rank-1' : ''}">
           <div style="font-size:12px; font-weight:900; color:${isFirst?'#fbbf24':'var(--muted)'};">${isFirst ? '👑 1등 우승!' : item.rank + '등'}</div>
-          ${renderStickmanSVG(p, 62, false)}
+          ${renderStickmanSVG(p, 62, true)}
           <div style="font-weight:800; font-size:14px;">${escapeHtml(p.name)}</div>
           <div style="font-size:19px; font-weight:900; margin:3px 0; color:${item.dnf?'#f87171':'#fff'};">
             ${item.dnf ? '미입력' : item.time.toFixed(2) + '초'}
@@ -1508,7 +1578,7 @@ function renderHostBomb(st) {
     node.style.left = x + "%";
     node.style.top = y + "%";
     node.innerHTML = `
-      ${renderStickmanSVG(p, 42, gs.phase === "running" && gs.holder === pid)}
+      ${renderStickmanSVG(p, 42, gs.phase !== "exploded" || gs.loser !== pid)}
       <div style="font-size:11px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
       ${gs.phase === "running" && gs.holder === pid ? `<div style="font-size:10px; color:#fecaca; font-weight:900;">💣 ${gs.doc_type}</div>` : ''}
       ${gs.phase === "exploded" && gs.loser === pid ? `<div style="font-size:10px; color:#fde047; font-weight:900;">💥 폭발!</div>` : ''}
