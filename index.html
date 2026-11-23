@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v12 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v13 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -723,7 +723,7 @@
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v12</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v13</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -803,12 +803,18 @@
       <div id="dispStop777RevealStage" class="reveal-stage"></div>
     </div>
 
-    <!-- DISPLAY GAME 3: RUSH -->
+    <!-- DISPLAY GAME 3: RUSH (DRONE TOP-DOWN TRACK) -->
     <div id="dispRush" class="card hidden">
-      <span class="badge">GAME 3 · RED LIGHT GREEN LIGHT</span>
-      <h2 style="margin:6px 0 0;">🏃‍♂️ 칼퇴 눈치 달리기</h2>
-      <div id="dispRushLight" class="rush-banner green">🟢 준비 완료!</div>
-      <div id="dispRushTrack"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div>
+          <span class="badge">GAME 3 · DRONE VIEW RACING</span>
+          <h2 style="margin:6px 0 0;">🏃‍♂️ 칼퇴 눈치 달리기 (드론 전체 중계)</h2>
+        </div>
+        <span class="badge" style="background:rgba(251,191,36,0.16); color:#fde68a; border-color:rgba(251,191,36,0.35);">🚁 전지적 드론 시점</span>
+      </div>
+      <div id="dispRushLight" class="rush-banner green" style="margin:10px 0;">🟢 준비 완료!</div>
+      <canvas id="dispRushCanvas" width="1160" height="540" style="width:100%; height:auto; border-radius:18px; border:1.5px solid rgba(56,189,248,0.35); background:#0b1224; display:block;"></canvas>
+      <div id="dispRushResults" class="reveal-stage hidden"></div>
     </div>
 
     <!-- DISPLAY GAME 4: DOUBLE BOMB -->
@@ -1178,17 +1184,19 @@
   </div>
 
 
-  <!-- Player Game 3: Rush -->
-  <div id="pRush" class="card hidden" style="text-align:center;">
-    <span class="badge">GAME 3 · 칼퇴 눈치 달리기</span>
-    <div id="pRushLight" class="rush-banner green" style="font-size:20px; padding:12px;">🟢 초록불! 미친 듯이 연타!</div>
-    <div style="font-size:14px; font-weight:800; margin-bottom:8px;">내 진행률: <b id="pRushMyPct" style="color:var(--gold); font-size:20px;">0%</b></div>
-    <div class="rush-track" style="height:20px; margin-bottom:14px;"><div id="pRushMyBar" class="rush-fill" style="width:0%;"></div></div>
-    <button id="pRushBtn" class="btn btn-green huge-action-btn" disabled onclick="playerTapRush()">
-      <span style="font-size:46px;">🏃‍♂️</span>
-      <span>칼퇴 달리기! (연타)</span>
+  <!-- Player Game 3: Rush (KARTRIDER CHASE CAM) -->
+  <div id="pRush" class="card hidden" style="text-align:center; padding:14px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span class="badge">GAME 3 · 칼퇴 레이싱</span>
+      <span id="pRushDistBadge" class="badge" style="background:rgba(251,191,36,0.18); color:#fde68a; border-color:rgba(251,191,36,0.4);">남은 거리 100m</span>
+    </div>
+    <div id="pRushLight" class="rush-banner green" style="font-size:17px; padding:9px; margin:0 0 10px;">🟢 대기 중...</div>
+    <canvas id="playerRushCanvas" width="380" height="340" style="width:100%; max-width:420px; height:auto; border-radius:16px; border:1.5px solid rgba(56,189,248,0.38); background:#0b1224; display:block; margin:0 auto 10px;"></canvas>
+    <button id="pRushBtn" class="btn btn-green huge-action-btn" style="min-height:108px; font-size:23px;" disabled onclick="playerTapRush()">
+      <span style="font-size:32px;">🏃‍♂️💨</span>
+      <span>칼퇴 질주! (광클 연타)</span>
     </button>
-    <div id="pRushMsg" style="margin-top:10px; font-size:13px; font-weight:700; color:var(--muted);">사회자가 시작을 누를 때까지 대기 중...</div>
+    <div id="pRushMsg" style="margin-top:8px; font-size:13px; font-weight:700; color:var(--muted);">사회자가 시작을 누를 때까지 대기 중...</div>
   </div>
 
   <!-- Player Game 6: Balance -->
@@ -1988,6 +1996,7 @@ function renderDisplay(st) {
   `).join("") || '<div style="grid-column:1/-1; color:var(--muted); font-size:15px; padding:16px 0;">참여자 QR 코드를 스캔해서 입장해주세요!</div>';
 
   if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
+  if (st.current_game !== "rush") stopRushCanvases();
   if (st.current_game === "fashion") renderDispFashion(st);
   if (st.current_game === "stop777") renderDispStop777(st);
   if (st.current_game === "rush") renderDispRush(st);
@@ -2093,48 +2102,317 @@ function renderDispStop777(st) {
   }
 }
 
+// ==================== v13 KARTRIDER & DRONE RUSH ENGINE ====================
+const faceImgCache = {};
+function getCachedFaceImg(faceId) {
+  if (!faceId || !facesMap[faceId]) return null;
+  if (!faceImgCache[faceId]) {
+    const img = new Image();
+    img.src = facesMap[faceId];
+    faceImgCache[faceId] = img;
+  }
+  const img = faceImgCache[faceId];
+  return (img.complete && img.naturalWidth > 0) ? img : null;
+}
+
+const OUTFIT_COLORS = {
+  suit: "#1e293b", vest: "#1d4ed8", muscle: "#f5b895", dress: "#ec4899",
+  tweed: "#f9a8d4", blouse: "#f8fafc", princess: "#60a5fa",
+  tracksuit: "#059669", hero: "#2563eb", none: "#64748b",
+};
+
+let rushSmoothPos = {};
+let rushLastBurst = {};
+let dispRushRaf = null;
+let playerRushRaf = null;
+
+function drawRacerSprite(ctx, p, x, y, scale, isRunning, isCaught, isMe, tSec) {
+  ctx.save();
+  ctx.translate(x, y);
+  if (isCaught) {
+    ctx.translate(Math.sin(tSec * 45) * 4, 0);
+  }
+  const r = 16 * scale;
+  const stride = isRunning ? Math.sin(tSec * 18 + (p.name.length * 1.7)) : 0;
+
+  // Ground shadow
+  ctx.fillStyle = isMe ? "rgba(251, 191, 36, 0.42)" : "rgba(0, 0, 0, 0.42)";
+  ctx.beginPath();
+  ctx.ellipse(0, 18 * scale, 14 * scale, 5 * scale, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (isMe) {
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.ellipse(0, 18 * scale, 18 * scale, 7 * scale, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Animated legs
+  ctx.strokeStyle = "#e2e8f0";
+  ctx.lineWidth = 3.2 * scale;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-3 * scale, 6 * scale);
+  ctx.lineTo((-7 - stride * 7) * scale, 17 * scale);
+  ctx.moveTo(3 * scale, 6 * scale);
+  ctx.lineTo((7 + stride * 7) * scale, 17 * scale);
+  ctx.stroke();
+
+  // Body
+  ctx.fillStyle = OUTFIT_COLORS[p.outfit] || "#64748b";
+  ctx.beginPath();
+  ctx.roundRect(-7 * scale, -4 * scale, 14 * scale, 12 * scale, 4 * scale);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.45)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Head (Real Face Image clipped in circle)
+  const headY = -15 * scale + Math.abs(stride) * -2.2 * scale;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, headY, r, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.fillStyle = isCaught ? "#ef4444" : "#1e293b";
+  ctx.fill();
+  ctx.clip();
+  const fImg = getCachedFaceImg(p.face_id);
+  if (fImg) {
+    ctx.drawImage(fImg, -r, headY - r, r * 2, r * 2);
+  } else {
+    ctx.fillStyle = "#fff";
+    ctx.font = `${Math.round(18 * scale)}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(p.emoji || "🙂", 0, headY + 1);
+  }
+  ctx.restore();
+
+  // Head ring
+  ctx.strokeStyle = isCaught ? "#ff3b5c" : (isMe ? "#fbbf24" : "#38bdf8");
+  ctx.lineWidth = isMe ? 2.6 : 1.8;
+  ctx.beginPath();
+  ctx.arc(0, headY, r, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Name tag pill
+  const label = p.name.length > 7 ? p.name.slice(0, 7) + "…" : p.name;
+  ctx.font = `800 ${Math.round(11 * scale)}px sans-serif`;
+  const tw = ctx.measureText(label).width;
+  const pillW = tw + 10;
+  const pillH = 15 * scale;
+  const pillY = 21 * scale;
+  ctx.fillStyle = isMe ? "rgba(251, 191, 36, 0.92)" : "rgba(15, 23, 42, 0.85)";
+  ctx.beginPath();
+  ctx.roundRect(-pillW / 2, pillY, pillW, pillH, 6);
+  ctx.fill();
+  ctx.fillStyle = isMe ? "#0f172a" : "#f8fafc";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, 0, pillY + pillH / 2);
+
+  // Caught by boss alert!
+  if (isCaught) {
+    ctx.fillStyle = "#e11d48";
+    ctx.beginPath();
+    ctx.roundRect(-28 * scale, headY - r - 20 * scale, 56 * scale, 17 * scale, 6);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = `900 ${Math.round(10 * scale)}px sans-serif`;
+    ctx.fillText("🚨 야근!", 0, headY - r - 11.5 * scale);
+  }
+
+  ctx.restore();
+}
+
+function stopRushCanvases() {
+  if (dispRushRaf) { cancelAnimationFrame(dispRushRaf); dispRushRaf = null; }
+  if (playerRushRaf) { cancelAnimationFrame(playerRushRaf); playerRushRaf = null; }
+}
+
 function renderDispRush(st) {
   const gs = st.game_state;
   const players = st.players || [];
   const pMap = Object.fromEntries(players.map(p => [p.id, p]));
   const lightEl = document.getElementById("dispRushLight");
-  const trackEl = document.getElementById("dispRushTrack");
+  const resEl = document.getElementById("dispRushResults");
 
   if (gs.phase === "ready") {
     lightEl.className = "rush-banner green";
-    lightEl.textContent = "🟢 초록불엔 광클! 빨간불(팀장님 등장)에 누르면 강제 야근(-18%)!";
+    lightEl.textContent = "🟢 초록불엔 광클! 빨간불(팀장님 등장)에 누르면 강제 야근(-18% 후퇴)!";
+    resEl.classList.add("hidden");
   } else if (gs.phase === "running") {
+    resEl.classList.add("hidden");
     if (gs.light === "red") {
       lightEl.className = "rush-banner red";
-      lightEl.textContent = "🚨 팀장님 등장!! 멈추세요!! (누르면 강제 야근!)";
+      lightEl.textContent = "🚨 팀장님 등장!! 전원 정지!! (움직이면 강제 야근!)";
     } else {
       lightEl.className = "rush-banner green";
-      lightEl.textContent = "🟢 초록불! 지금 달려요!! 🏃‍♂️💨";
+      lightEl.textContent = "🟢 초록불! 칼퇴 게이트를 향해 전력 질주!! 🏃‍♂️💨";
     }
   } else if (gs.phase === "finished") {
     const first = (gs.ranked && gs.ranked[0]) ? pMap[gs.ranked[0]] : null;
     lightEl.className = "rush-banner green";
     lightEl.textContent = first ? `🏆 1등 칼퇴왕: ${first.name} (+120점)!` : "🏁 레이스 종료!";
     if (first) maybeCelebrate("rush_" + first.id);
+    const top5 = (gs.ranked || []).slice(0, 5);
+    resEl.classList.remove("hidden");
+    resEl.innerHTML = top5.map((pid, idx) => {
+      const p = pMap[pid];
+      if (!p) return "";
+      const pts = (gs.awarded && gs.awarded[pid]) || 0;
+      const pct = Math.round((gs.progress && gs.progress[pid]) || 0);
+      return `
+        <div class="reveal-card ${idx===0?'rank-1':''}">
+          <div style="font-size:12px; font-weight:900; color:${idx===0?'#fbbf24':'var(--cyan)'};">${idx===0?'👑 1등 칼퇴!':(idx+1)+'등'}</div>
+          ${renderStickmanSVG(p, 58, true)}
+          <div style="font-weight:800; font-size:13px;">${escapeHtml(p.name)}</div>
+          <div style="font-size:11px; color:var(--muted);">${pct}% 완주</div>
+          <div style="font-size:12px; font-weight:800; color:var(--green);">+${pts}점</div>
+        </div>
+      `;
+    }).join("");
   }
 
+  if (!dispRushRaf) loopDispRushCanvas();
+}
+
+function loopDispRushCanvas() {
+  if (!appState || appState.current_game !== "rush" || role !== "display") {
+    dispRushRaf = null;
+    return;
+  }
+  const canvas = document.getElementById("dispRushCanvas");
+  if (!canvas) { dispRushRaf = null; return; }
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const gs = appState.game_state || {};
+  const players = appState.players || [];
   const prog = gs.progress || {};
-  const list = players.map(p => ({ p, pct: prog[p.id] || 0, pts: (gs.awarded && gs.awarded[p.id]) || 0 }))
-    .sort((a, b) => b.pct - a.pct);
-  trackEl.innerHTML = list.map((it, idx) => `
-    <div class="rush-lane">
-      <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-        ${idx+1}. ${renderMiniFace(it.p)}${escapeHtml(it.p.name)}
-      </div>
-      <div class="rush-track">
-        <div class="rush-fill" style="width:${it.pct}%;"></div>
-        <span class="rush-runner" style="left:${Math.max(5, Math.min(95, it.pct))}%;">🏃‍♂️</span>
-      </div>
-      <div style="text-align:right; font-weight:900; font-size:13px;">
-        ${it.pct}% ${gs.phase==='finished' ? `<span style="color:var(--green);font-size:11px;">+${it.pts}</span>` : ''}
-      </div>
-    </div>
-  `).join("");
+  const lanes = gs.lanes || {};
+  const caught = gs.caught || {};
+  const tSec = Date.now() / 1000;
+  const isRed = gs.phase === "running" && gs.light === "red";
+
+  // 1. Stadium turf background
+  ctx.fillStyle = "#0b1a1e";
+  ctx.fillRect(0, 0, W, H);
+
+  const trackTop = 44, trackBot = H - 34, trackH = trackBot - trackTop;
+  const startX = 88, finishX = W - 96, trackLen = finishX - startX;
+
+  // Red/White KartRider curbs
+  const segW = 28;
+  for (let x = 20; x < W - 20; x += segW) {
+    const isRedCurb = Math.floor(x / segW) % 2 === 0;
+    ctx.fillStyle = isRedCurb ? "#e11d48" : "#f8fafc";
+    ctx.fillRect(x, trackTop - 10, segW, 10);
+    ctx.fillRect(x, trackBot, segW, 10);
+  }
+
+  // Asphalt road surface
+  ctx.fillStyle = isRed ? "#1e1022" : "#131c33";
+  ctx.fillRect(20, trackTop, W - 40, trackH);
+
+  // Distance marker lines (25%, 50%, 75%)
+  [0.25, 0.5, 0.75].forEach(frac => {
+    const mx = startX + trackLen * frac;
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.18)";
+    ctx.setLineDash([8, 8]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(mx, trackTop);
+    ctx.lineTo(mx, trackBot);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(148, 163, 184, 0.45)";
+    ctx.font = "800 12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`${Math.round(frac * 100)}m`, mx, trackTop - 16);
+  });
+
+  // Start line
+  ctx.fillStyle = "rgba(56, 189, 248, 0.55)";
+  ctx.fillRect(startX - 3, trackTop, 6, trackH);
+  ctx.fillStyle = "#7dd3fc";
+  ctx.font = "900 12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("START", startX, trackTop - 16);
+
+  // Checkered Finish Gate ("칼퇴 게이트")
+  const sq = 12;
+  for (let y = trackTop; y < trackBot; y += sq) {
+    for (let col = 0; col < 2; col++) {
+      ctx.fillStyle = ((Math.floor((y - trackTop) / sq) + col) % 2 === 0) ? "#f8fafc" : "#0f172a";
+      ctx.fillRect(finishX + col * sq, y, sq, Math.min(sq, trackBot - y));
+    }
+  }
+  ctx.fillStyle = "#fbbf24";
+  ctx.font = "900 13px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("🏁 칼퇴 게이트", finishX + 12, trackTop - 16);
+
+  // Horizontal subtle lane lines
+  const n = Math.max(1, players.length);
+  const laneStep = trackH / Math.max(n, 4);
+  for (let i = 1; i < n; i++) {
+    const ly = trackTop + (trackH / n) * i;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(20, ly);
+    ctx.lineTo(W - 20, ly);
+    ctx.stroke();
+  }
+
+  // Smoothly update & draw all players sorted by Y for clean overlap
+  const racers = players.map((p, idx) => {
+    const target = Number(prog[p.id] || 0);
+    if (rushSmoothPos[p.id] === undefined) rushSmoothPos[p.id] = target;
+    rushSmoothPos[p.id] += (target - rushSmoothPos[p.id]) * 0.22;
+    const laneIdx = lanes[p.id] !== undefined ? lanes[p.id] : idx;
+    const y = trackTop + ((laneIdx + 0.5) / n) * trackH;
+    const x = startX + (Math.min(100, Math.max(0, rushSmoothPos[p.id])) / 100) * trackLen;
+    const isMoving = Math.abs(target - rushSmoothPos[p.id]) > 0.25 || (gs.phase === "running" && !isRed && target < 100 && target > 0);
+    const isCaught = caught[p.id] && (tSec - caught[p.id] < 1.5);
+    return { p, x, y, isMoving, isCaught };
+  }).sort((a, b) => a.y - b.y);
+
+  const spriteScale = n > 16 ? 0.66 : (n > 10 ? 0.78 : 0.92);
+  for (const r of racers) {
+    // Dust particles when running
+    if (r.isMoving && gs.phase === "running" && !r.isCaught) {
+      ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+      ctx.beginPath();
+      ctx.arc(r.x - 16 * spriteScale, r.y + 12 * spriteScale, 5 * spriteScale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    drawRacerSprite(ctx, r.p, r.x, r.y, spriteScale, r.isMoving && gs.phase === "running", r.isCaught, false, tSec);
+  }
+
+  // Red Light Boss Spotlight Overlay
+  if (isRed) {
+    ctx.fillStyle = `rgba(244, 63, 94, ${0.12 + Math.sin(tSec * 12) * 0.05})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#f43f5e";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(3, 3, W - 6, H - 6);
+  }
+
+  // Top-left Drone HUD pill
+  ctx.fillStyle = "rgba(15, 23, 42, 0.78)";
+  ctx.beginPath();
+  ctx.roundRect(14, 8, 200, 24, 999);
+  ctx.fill();
+  ctx.fillStyle = isRed ? "#fda4af" : "#7dd3fc";
+  ctx.font = "800 12px sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(isRed ? "🔴 BOSS SCAN · 움직이지 마세요!" : "🚁 DRONE CAM · 전체 트랙 중계", 24, 20);
+
+  dispRushRaf = requestAnimationFrame(loopDispRushCanvas);
 }
 
 function renderDispBomb(st) {
@@ -2709,6 +2987,7 @@ function renderPlayer(st) {
 
   if (st.current_game !== "rhythm") stopRhythmEngine();
   if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
+  if (st.current_game !== "rush") stopRushCanvases();
 
   if (st.current_game === "fashion") renderPlayerFashion(st);
   if (st.current_game === "stop777") renderPlayerStop777(st);
@@ -3104,40 +3383,213 @@ function renderPlayerPodium(st, myIdx) {
 function renderPlayerRush(st) {
   const gs = st.game_state;
   const lightEl = document.getElementById("pRushLight");
+  const distBadge = document.getElementById("pRushDistBadge");
   const btn = document.getElementById("pRushBtn");
   const msg = document.getElementById("pRushMsg");
-  const pct = (gs.progress && gs.progress[myPlayerId]) || 0;
-  document.getElementById("pRushMyPct").textContent = pct + "%";
-  document.getElementById("pRushMyBar").style.width = pct + "%";
+  const pct = Math.min(100, Math.max(0, Number((gs.progress && gs.progress[myPlayerId]) || 0)));
+  const remain = Math.max(0, Math.round(100 - pct));
+  distBadge.textContent = remain === 0 ? "🏁 칼퇴 완료!" : `남은 거리 ${remain}m`;
 
   if (gs.phase === "ready") {
     btn.disabled = true;
-    lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 대기 중...";
-    msg.textContent = "사회자가 시작을 누르면 연타하세요!";
+    btn.className = "btn btn-green huge-action-btn";
+    lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 출발선 대기 중...";
+    msg.textContent = "사회자가 시작을 누르면 광클해서 달려나가세요!";
   } else if (gs.phase === "running") {
     const done = (gs.finished_order || []).includes(myPlayerId);
     btn.disabled = done;
     if (done) {
-      lightEl.className = "rush-banner green"; lightEl.textContent = "🎉 칼퇴 성공!! (100% 도착!)";
-      msg.textContent = "다른 참여자들이 도착할 때까지 기다려주세요!";
+      lightEl.className = "rush-banner green"; lightEl.textContent = "🎉 칼퇴 게이트 통과!!";
+      msg.textContent = "순위는 레이스 종료 후 공개됩니다! 다른 팀원들 기다리는 중...";
     } else if (gs.light === "red") {
-      lightEl.className = "rush-banner red"; lightEl.textContent = "🚨 팀장님 등장! 손 떼세요!!";
+      lightEl.className = "rush-banner red"; lightEl.textContent = "🚨 팀장님 등장!! 멈추세요!!";
       btn.className = "btn btn-red huge-action-btn";
-      msg.textContent = "지금 누르면 강제 야근(-18% 후퇴)!";
+      msg.textContent = "지금 누르면 강제 야근(-18m 후퇴)!";
     } else {
-      lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 초록불! 광클하세요!!";
+      lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 초록불! 미친 듯이 질주!!";
       btn.className = "btn btn-green huge-action-btn";
-      msg.textContent = "미친 듯이 탭해서 칼퇴하세요!";
+      msg.textContent = "옆에 보이는 라이벌들을 제치고 칼퇴하세요!";
     }
   } else if (gs.phase === "finished") {
     btn.disabled = true;
     const pts = (gs.awarded && gs.awarded[myPlayerId]) || 0;
     const rank = (gs.ranked || []).indexOf(myPlayerId) + 1;
-    lightEl.className = "rush-banner green"; lightEl.textContent = `🏁 종료! ${rank}등 (+${pts}점)`;
+    lightEl.className = "rush-banner green"; lightEl.textContent = `🏁 레이스 종료! ${rank}등 (+${pts}점)`;
     msg.textContent = "수고하셨습니다! 다음 게임을 기다려주세요.";
   }
+
+  if (!playerRushRaf) loopPlayerRushCanvas();
 }
-function playerTapRush() { playTone(520, 0.04, 'sine', 0.1); sendWS({type: "rush_tap"}); }
+
+let pRushTapFlash = 0;
+function playerTapRush() {
+  playTone(540, 0.04, 'sine', 0.1);
+  pRushTapFlash = Date.now() / 1000;
+  sendWS({type: "rush_tap"});
+}
+
+function loopPlayerRushCanvas() {
+  if (!appState || appState.current_game !== "rush" || role !== "player") {
+    playerRushRaf = null;
+    return;
+  }
+  const canvas = document.getElementById("playerRushCanvas");
+  if (!canvas) { playerRushRaf = null; return; }
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const gs = appState.game_state || {};
+  const players = appState.players || [];
+  const prog = gs.progress || {};
+  const lanes = gs.lanes || {};
+  const caught = gs.caught || {};
+  const tSec = Date.now() / 1000;
+  const isRed = gs.phase === "running" && gs.light === "red";
+
+  // Smoothly interpolate all player positions
+  players.forEach(p => {
+    const target = Number(prog[p.id] || 0);
+    if (rushSmoothPos[p.id] === undefined) rushSmoothPos[p.id] = target;
+    rushSmoothPos[p.id] += (target - rushSmoothPos[p.id]) * 0.24;
+  });
+
+  const myProg = rushSmoothPos[myPlayerId] || 0;
+  const myY = H * 0.72;
+  const pxPerMeter = 12.5; // 1% = 1m = 12.5px -> visible window ~20m ahead & ~8m behind!
+
+  // 1. Grass shoulders
+  ctx.fillStyle = "#0a1d1f";
+  ctx.fillRect(0, 0, W, H);
+
+  const roadL = 36, roadR = W - 36, roadW = roadR - roadL;
+
+  // Asphalt road
+  ctx.fillStyle = isRed ? "#221024" : "#141e36";
+  ctx.fillRect(roadL, 0, roadW, H);
+
+  // Scrolling Red/White Racing Curbs on left & right
+  const curbH = 26;
+  const scrollPx = (myProg * pxPerMeter) % (curbH * 2);
+  for (let y = -curbH * 2; y < H + curbH * 2; y += curbH) {
+    const drawY = y + scrollPx;
+    const isRedSeg = Math.floor((y + curbH * 100) / curbH) % 2 === 0;
+    ctx.fillStyle = isRedSeg ? "#e11d48" : "#f8fafc";
+    ctx.fillRect(roadL - 10, drawY, 10, curbH);
+    ctx.fillRect(roadR, drawY, 10, curbH);
+  }
+
+  // Scrolling vertical lane dashes (5 visual columns)
+  const colW = roadW / 5;
+  ctx.strokeStyle = "rgba(148, 163, 184, 0.22)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([16, 18]);
+  ctx.lineDashOffset = -(myProg * pxPerMeter);
+  for (let c = 1; c < 5; c++) {
+    ctx.beginPath();
+    ctx.moveTo(roadL + colW * c, 0);
+    ctx.lineTo(roadL + colW * c, H);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // Distance lines (0m Start, 25m, 50m, 75m, 100m Finish Gate)
+  [0, 25, 50, 75, 100].forEach(m => {
+    const lineY = myY - (m - myProg) * pxPerMeter;
+    if (lineY < -40 || lineY > H + 40) return;
+    if (m === 100) {
+      // Checkered Finish Gate!
+      const sq = 14;
+      for (let x = roadL; x < roadR; x += sq) {
+        for (let row = 0; row < 2; row++) {
+          ctx.fillStyle = ((Math.floor((x - roadL) / sq) + row) % 2 === 0) ? "#f8fafc" : "#0f172a";
+          ctx.fillRect(x, lineY - sq + row * sq, Math.min(sq, roadR - x), sq);
+        }
+      }
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "900 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("🏁 칼퇴 게이트 FINISH 🏁", W / 2, lineY - 22);
+    } else if (m === 0) {
+      ctx.fillStyle = "rgba(56, 189, 248, 0.65)";
+      ctx.fillRect(roadL, lineY - 2, roadW, 4);
+      ctx.fillStyle = "#7dd3fc";
+      ctx.font = "900 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("START LINE", W / 2, lineY + 14);
+    } else {
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(roadL, lineY);
+      ctx.lineTo(roadR, lineY);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(226, 232, 240, 0.55)";
+      ctx.font = "800 11px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(`${m}m`, roadL + 6, lineY - 6);
+    }
+  });
+
+  // Speed lines when tapping rapidly
+  if (tSec - pRushTapFlash < 0.22 && !isRed && gs.phase === "running") {
+    ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 6; i++) {
+      const sx = roadL + ((i * 61 + Math.floor(tSec * 200)) % Math.floor(roadW));
+      const sy = ((i * 83 + Math.floor(tSec * 500)) % H);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx, sy + 28);
+      ctx.stroke();
+    }
+  }
+
+  // Place nearby rivals + me on road (Me always in center column 2, rivals distributed to cols 0,1,3,4!)
+  const rivalCols = [0, 1, 3, 4];
+  const visibleRacers = [];
+  players.forEach((p, idx) => {
+    const isMe = p.id === myPlayerId;
+    const pPos = rushSmoothPos[p.id] || 0;
+    const relY = myY - (pPos - myProg) * pxPerMeter;
+    if (!isMe && (relY < -35 || relY > H + 35)) return; // Only show nearby rivals!
+    const laneIdx = lanes[p.id] !== undefined ? lanes[p.id] : idx;
+    const col = isMe ? 2 : rivalCols[laneIdx % rivalCols.length];
+    // Slight horizontal jitter per player ID so two rivals in same column remain distinguishable
+    const jitter = isMe ? 0 : (((laneIdx * 13) % 15) - 7);
+    const x = roadL + colW * (col + 0.5) + jitter;
+    const isCaught = caught[p.id] && (tSec - caught[p.id] < 1.5);
+    const isMoving = gs.phase === "running" && !isRed && (isMe ? (tSec - pRushTapFlash < 0.45) : (pPos > 0 && pPos < 100));
+    visibleRacers.push({ p, x, y: relY, isMe, isMoving, isCaught });
+  });
+
+  // Sort top-to-bottom so closer runners draw in front
+  visibleRacers.sort((a, b) => a.y - b.y);
+  for (const r of visibleRacers) {
+    drawRacerSprite(ctx, r.p, r.x, r.y, r.isMe ? 1.05 : 0.9, r.isMoving, r.isCaught, r.isMe, tSec);
+  }
+
+  // Red Light Boss Alert Overlay
+  if (isRed) {
+    ctx.fillStyle = `rgba(244, 63, 94, ${0.15 + Math.sin(tSec * 14) * 0.06})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = "#f43f5e";
+    ctx.lineWidth = 5;
+    ctx.strokeRect(2.5, 2.5, W - 5, H - 5);
+  }
+
+  // Nearby rivals counter pill (top-left, no rank spoilers!)
+  const nearbyCount = visibleRacers.length - 1;
+  ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
+  ctx.beginPath();
+  ctx.roundRect(10, 10, 146, 22, 999);
+  ctx.fill();
+  ctx.fillStyle = "#7dd3fc";
+  ctx.font = "800 11px sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(nearbyCount > 0 ? `👀 주변 라이벌 ${nearbyCount}명` : "🏃‍♂️ 단독 질주 중!", 19, 21);
+
+  playerRushRaf = requestAnimationFrame(loopPlayerRushCanvas);
+}
 
 // ==================== GAME 6: BALANCE (다수결 텔레파시) ====================
 

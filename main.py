@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v12")
+app = FastAPI(title="Team Power Recreation Server v13")
 
 MC_PIN = "5401"
 
@@ -451,8 +451,8 @@ async def run_rush_loop(room: Room, duration: float = 28.0):
                 if bid in room.game_state["finished_order"]:
                     continue
                 if room.game_state.get("light") == "green":
-                    if random.random() < 0.72:
-                        prog = room.game_state["progress"].get(bid, 0) + random.randint(3, 6)
+                    if random.random() < 0.68:
+                        prog = round(room.game_state["progress"].get(bid, 0) + random.uniform(2.2, 4.4), 1)
                         if prog >= 100:
                             prog = 100
                             room.game_state["finished_order"].append(bid)
@@ -750,7 +750,17 @@ async def websocket_endpoint(ws: WebSocket):
                     elif target == "rhythm":
                         room.game_state = {"phase": "ready", "scores": {}, "duration": 38, "awarded": {}, "ranked": []}
                     elif target == "rush":
-                        room.game_state = {"phase": "ready", "light": "green", "progress": {pid: 0 for pid in room.players.keys()}, "finished_order": [], "caught": {}, "ranked": [], "awarded": {}}
+                        pids = list(room.players.keys())
+                        room.game_state = {
+                            "phase": "ready",
+                            "light": "green",
+                            "lanes": {pid: i for i, pid in enumerate(pids)},
+                            "progress": {pid: 0 for pid in pids},
+                            "finished_order": [],
+                            "caught": {},
+                            "ranked": [],
+                            "awarded": {},
+                        }
                     elif target == "balance":
                         room.game_state = {"phase": "ready", "index": 0, "mode": "majority", "choices": {}, "winners": [], "win_side": None}
                     elif target == "chosung":
@@ -980,18 +990,22 @@ async def websocket_endpoint(ws: WebSocket):
 
                 elif mtype == "rush_start":
                     room.cancel_tasks()
+                    pids = list(room.players.keys())
+                    random.shuffle(pids)
                     room.game_state = {
                         "phase": "running",
                         "light": "green",
                         "light_changed_ts": time.time(),
-                        "progress": {pid: 0 for pid in room.players.keys()},
+                        "start_ts": time.time(),
+                        "lanes": {pid: i for i, pid in enumerate(pids)},
+                        "progress": {pid: 0.0 for pid in pids},
                         "finished_order": [],
                         "caught": {},
                         "ranked": [],
                         "awarded": {},
                     }
                     await room.broadcast()
-                    t = asyncio.create_task(run_rush_loop(room, 28.0))
+                    t = asyncio.create_task(run_rush_loop(room, 32.0))
                     room.bg_tasks.append(t)
 
                 elif mtype == "rush_finish":
@@ -1158,9 +1172,9 @@ async def websocket_endpoint(ws: WebSocket):
                             await ws.send_text(json.dumps({"type": "toast", "message": "🚨 팀장님한테 걸렸다! 강제 야근 (-18% 후퇴!)"}, ensure_ascii=False))
                             await room.broadcast()
                         else:
-                            cur = room.game_state["progress"].get(player_id, 0) + 4
+                            cur = round(room.game_state["progress"].get(player_id, 0) + 3.2, 1)
                             if cur >= 100:
-                                cur = 100
+                                cur = 100.0
                                 room.game_state["finished_order"].append(player_id)
                             room.game_state["progress"][player_id] = cur
                             if len(room.game_state["finished_order"]) >= len(room.players):
