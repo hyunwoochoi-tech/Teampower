@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v15 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v16 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -786,6 +786,67 @@
     font-size: 16px; font-weight: 900; color: #fde68a;
   }
 
+
+  /* v16 GLOBAL MOTION GRAPHICS POLISH */
+  @keyframes timerHeartbeat {
+    0%, 100% { transform: scale(1); text-shadow: 0 0 24px rgba(56, 189, 248, 0.55); }
+    50% { transform: scale(1.06); text-shadow: 0 0 42px rgba(244, 63, 94, 0.85); }
+  }
+  .big-timer.blind-pulse {
+    animation: timerHeartbeat 0.85s ease-in-out infinite;
+    color: #fde68a;
+  }
+
+  @keyframes crowdJumpIn {
+    0% { opacity: 0; transform: scale(0.4) translateY(18px); }
+    65% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .ox-mini-card {
+    animation: crowdJumpIn 0.34s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  @keyframes correctZonePulse {
+    0%, 100% { box-shadow: 0 0 26px rgba(16, 185, 129, 0.5); }
+    50% { box-shadow: 0 0 48px rgba(16, 185, 129, 0.92), inset 0 0 24px rgba(16, 185, 129, 0.25); }
+  }
+  .ox-zone.correct-glow {
+    animation: correctZonePulse 1.1s ease-in-out infinite;
+  }
+
+  @keyframes bombDangerRing {
+    0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.85), 0 0 24px rgba(244, 63, 94, 0.8); }
+    70% { box-shadow: 0 0 0 18px rgba(244, 63, 94, 0), 0 0 32px rgba(244, 63, 94, 0.95); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0), 0 0 24px rgba(244, 63, 94, 0.8); }
+  }
+  @keyframes bpaDangerRing {
+    0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.85), 0 0 24px rgba(168, 85, 247, 0.8); }
+    70% { box-shadow: 0 0 0 18px rgba(168, 85, 247, 0), 0 0 32px rgba(168, 85, 247, 0.95); }
+    100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0), 0 0 24px rgba(168, 85, 247, 0.8); }
+  }
+  .seat-node.holding {
+    animation: shake 0.24s infinite, bombDangerRing 0.9s ease-out infinite;
+  }
+  .seat-node.holding-bpa {
+    animation: shake 0.24s infinite, bpaDangerRing 0.9s ease-out infinite;
+  }
+
+  @keyframes chosungNeon {
+    0%, 100% { text-shadow: 0 0 18px rgba(251, 191, 36, 0.45); transform: scale(1); }
+    50% { text-shadow: 0 0 36px rgba(251, 191, 36, 0.92), 0 0 14px rgba(56, 189, 248, 0.5); transform: scale(1.02); }
+  }
+  .chosung-box {
+    animation: chosungNeon 1.8s ease-in-out infinite;
+  }
+
+  @keyframes winnerFloat {
+    0%, 100% { transform: translateY(0px) scale(1.04); }
+    50% { transform: translateY(-6px) scale(1.06); }
+  }
+  .fashion-card.rank-1, .reveal-card.rank-1 {
+    animation: popIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), winnerFloat 2.2s ease-in-out 0.4s infinite;
+  }
+
 </style>
 </head>
 <body>
@@ -805,7 +866,7 @@
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v15</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v16</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -912,12 +973,18 @@
       </div>
     </div>
 
-    <!-- DISPLAY GAME 5: RHYTHM -->
+    <!-- DISPLAY GAME 5: RHYTHM (60FPS OVERTAKING DANCE RACE) -->
     <div id="dispRhythm" class="card hidden">
-      <span class="badge">GAME 5 · TEMPO CHALLENGE</span>
-      <h2 style="margin:6px 0 0;">🎵 리듬게임: 템포 챌린지 (38초)</h2>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <div>
+          <span class="badge" style="background:rgba(139,92,246,0.22); color:#ddd6fe; border-color:rgba(139,92,246,0.45);">GAME 5 · NEON DANCE RACE</span>
+          <h2 style="margin:6px 0 0;">🎵 리듬게임: 템포 챌린지 (실시간 엎치락뒤치락!)</h2>
+        </div>
+        <span id="dispRhythmTempoBadge" class="badge" style="background:rgba(251,191,36,0.18); color:#fde68a; border-color:rgba(251,191,36,0.4);">🎵 대기 중</span>
+      </div>
       <div id="dispRhythmBanner" class="disp-status-banner">휴대폰 화면을 보고 떨어지는 노트를 터치하세요!</div>
-      <div id="dispRhythmRace" style="margin-top:12px;"></div>
+      <canvas id="dispRhythmCanvas" width="1160" height="540" style="width:100%; height:auto; border-radius:18px; border:1.5px solid rgba(139,92,246,0.45); background:#070a18; display:block; margin-top:12px;"></canvas>
+      <div id="dispRhythmResults" class="reveal-stage hidden"></div>
     </div>
 
     <!-- DISPLAY GAME 6: BALANCE -->
@@ -2122,6 +2189,7 @@ function renderDisplay(st) {
 
   if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
   if (st.current_game !== "rush") stopRushCanvases();
+  if (st.current_game !== "rhythm") stopRhythmDisplayCanvas();
   if (st.current_game === "fashion") renderDispFashion(st);
   if (st.current_game === "stop777") renderDispStop777(st);
   if (st.current_game === "rush") renderDispRush(st);
@@ -2183,7 +2251,7 @@ function renderDispStop777(st) {
   cancelAnimationFrame(stop777Raf);
 
   if (gs.phase === "ready") {
-    timerEl.textContent = "7.77";
+    timerEl.textContent = "7.77"; timerEl.classList.remove("blind-pulse");
     statusEl.textContent = "⏱️ 3초 뒤 숫자가 가려집니다! 정확히 7.77초에 STOP을 누르세요!";
     revStage.innerHTML = "";
   } else if (gs.phase === "running") {
@@ -2194,7 +2262,7 @@ function renderDispStop777(st) {
       const diff = Date.now()/1000 - localStart;
       if (diff < 0) timerEl.textContent = `준비 ${Math.ceil(-diff)}`;
       else if (diff < 3.0) timerEl.textContent = diff.toFixed(2);
-      else timerEl.textContent = "?.??";
+      else { timerEl.textContent = "?.??"; timerEl.classList.add("blind-pulse"); }
       if (appState && appState.current_game === "stop777" && appState.game_state.phase === "running") stop777Raf = requestAnimationFrame(tick);
     };
     tick();
@@ -2203,7 +2271,7 @@ function renderDispStop777(st) {
   } else if (gs.phase === "reveal") {
     const ordered = gs.ordered || [];
     const shown = ordered.slice(0, gs.revealed_count || 0);
-    timerEl.textContent = "🎯 7.77";
+    timerEl.textContent = "🎯 7.77"; timerEl.classList.remove("blind-pulse");
     statusEl.textContent = shown.length >= ordered.length && ordered.length > 0
       ? "🎉 1등 공개 완료!"
       : `👏 꼴등부터 역순 공개 중! (${shown.length} / ${ordered.length})`;
@@ -2688,36 +2756,245 @@ function renderDispBomb(st) {
   }
 }
 
+// ==================== v16 60FPS RHYTHM OVERTAKING MOTION STAGE ====================
+let dispRhythmRaf = null;
+let rhythmAnimState = {}; // pid -> { x, y, prevRank, overtakeUntil, scoreSmooth }
+
+function stopRhythmDisplayCanvas() {
+  if (dispRhythmRaf) { cancelAnimationFrame(dispRhythmRaf); dispRhythmRaf = null; }
+}
+
 function renderDispRhythm(st) {
-  const gs = st.game_state;
+  const gs = st.game_state || {};
+  const players = st.players || [];
+  const pMap = Object.fromEntries(players.map(p => [p.id, p]));
   const banner = document.getElementById("dispRhythmBanner");
-  const race = document.getElementById("dispRhythmRace");
+  const resEl = document.getElementById("dispRhythmResults");
+  const tempoBadge = document.getElementById("dispRhythmTempoBadge");
+
   if (gs.phase === "ready") {
-    banner.textContent = "🎵 휴대폰 화면을 보고 떨어지는 노트를 터치하세요! 곧 시작합니다.";
-    race.innerHTML = "";
+    rhythmAnimState = {};
+    banner.textContent = "🎵 휴대폰 화면을 보고 떨어지는 노트를 터치하세요! 곧 38초 리듬 레이싱이 시작됩니다.";
+    tempoBadge.textContent = "🎵 대기 중";
+    resEl.classList.add("hidden");
+  } else if (gs.phase === "running") {
+    banner.textContent = "🔥 엎치락뒤치락 실시간 리듬 레이싱 진행 중! 콤보를 이어가면 추월합니다! 🔥";
+    resEl.classList.add("hidden");
+  } else if (gs.phase === "finished") {
+    const ranked = gs.ranked || [];
+    const winnerId = ranked[0] ? ranked[0][0] : null;
+    const winner = winnerId ? pMap[winnerId] : null;
+    banner.textContent = winner ? `🏆 리듬게임 1등: ${winner.name} (${ranked[0][1]}점 / +120점)!` : "🏁 리듬게임 종료!";
+    tempoBadge.textContent = "🏁 레이스 완료";
+    if (winner) maybeCelebrate("rhythm_" + winner.id + "_" + ranked[0][1]);
+    resEl.classList.remove("hidden");
+    resEl.innerHTML = ranked.slice(0, 5).map((entry, idx) => {
+      const pid = entry[0], sc = entry[1];
+      const p = pMap[pid];
+      if (!p) return "";
+      const pts = (gs.awarded && gs.awarded[pid]) || 0;
+      return `
+        <div class="reveal-card ${idx===0?'rank-1':''}">
+          <div style="font-size:12px; font-weight:900; color:${idx===0?'#fbbf24':'var(--cyan)'};">${idx===0?'👑 1등 리듬왕!':(idx+1)+'등'}</div>
+          ${renderStickmanSVG(p, 58, true)}
+          <div style="font-weight:800; font-size:13px;">${escapeHtml(p.name)}</div>
+          <div style="font-size:13px; font-weight:900; color:#c4b5fd;">${sc}점</div>
+          <div style="font-size:12px; font-weight:800; color:var(--green);">+${pts}점</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  if (!dispRhythmRaf) loopDispRhythmCanvas();
+}
+
+function loopDispRhythmCanvas() {
+  if (!appState || appState.current_game !== "rhythm" || role !== "display") {
+    dispRhythmRaf = null;
     return;
   }
-  banner.textContent = gs.phase === "running"
-    ? "🔥 실시간 리듬 레이싱 진행 중! 🔥"
-    : "🏁 리듬게임 종료! 이번 라운드 순위가 확정되었습니다!";
+  const canvas = document.getElementById("dispRhythmCanvas");
+  if (!canvas) { dispRhythmRaf = null; return; }
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  const gs = appState.game_state || {};
+  const players = appState.players || [];
   const scores = gs.scores || {};
-  const list = (st.players || []).map(p => ({
-    p,
-    sc: (scores[p.id] && scores[p.id].score) || 0,
-    pts: (gs.awarded && gs.awarded[p.id]) || 0,
-  })).sort((a, b) => b.sc - a.sc);
-  const maxSc = Math.max(1000, ...list.map(x => x.sc));
-  race.innerHTML = list.map((item, idx) => `
-    <div class="race-row">
-      <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-        ${idx+1}. ${renderMiniFace(item.p)}${escapeHtml(item.p.name)}
-      </div>
-      <div class="race-track"><div class="race-fill" style="width:${Math.max(4, (item.sc / maxSc) * 100)}%;"></div></div>
-      <div style="text-align:right; font-weight:900; font-size:14px;">
-        ${item.sc} ${gs.phase==='finished' ? `<span style="color:var(--green); font-size:11px;">(+${item.pts})</span>` : ''}
-      </div>
-    </div>
-  `).join("");
+  const tSec = Date.now() / 1000;
+  const isRunning = gs.phase === "running";
+
+  // Tempo phase calculation
+  let bpm = 105, lvText = "🎵 대기 중", accentColor = "#38bdf8";
+  if (isRunning && gs.start_ts) {
+    const offset = gs.server_now ? (tSec - gs.server_now) : 0;
+    const elapsed = tSec - (gs.start_ts + offset);
+    if (elapsed < 0) { lvText = `⏳ 카운트다운 ${Math.ceil(-elapsed)}`; bpm = 90; }
+    else if (elapsed < 10) { lvText = "LV.1 워밍업 🎵"; bpm = 115; accentColor = "#38bdf8"; }
+    else if (elapsed < 20) { lvText = "LV.2 리듬업 ⚡"; bpm = 135; accentColor = "#10b981"; }
+    else if (elapsed < 30) { lvText = "LV.3 피버 🔥"; bpm = 160; accentColor = "#f59e0b"; }
+    else { lvText = "LV.4 극한 🚀"; bpm = 185; accentColor = "#f43f5e"; }
+    const tb = document.getElementById("dispRhythmTempoBadge");
+    if (tb) tb.textContent = lvText;
+  }
+  const beat = Math.abs(Math.sin(tSec * (bpm / 60) * Math.PI));
+
+  // 1. Neon club stage background
+  const bgGrd = ctx.createLinearGradient(0, 0, 0, H);
+  bgGrd.addColorStop(0, "#0a0d24");
+  bgGrd.addColorStop(1, "#130b29");
+  ctx.fillStyle = bgGrd;
+  ctx.fillRect(0, 0, W, H);
+
+  // Pulsing Equalizer Bars in background
+  const eqBars = 28;
+  const eqW = W / eqBars;
+  for (let i = 0; i < eqBars; i++) {
+    const wave = isRunning
+      ? (0.25 + 0.75 * Math.abs(Math.sin(tSec * 6.5 + i * 0.55) * Math.cos(tSec * 3.1 - i * 0.3))) * (0.6 + 0.4 * beat)
+      : (0.12 + 0.08 * Math.sin(tSec * 2 + i * 0.4));
+    const barH = wave * (H * 0.42);
+    const barGrd = ctx.createLinearGradient(0, H, 0, H - barH);
+    barGrd.addColorStop(0, "rgba(139, 92, 246, 0.24)");
+    barGrd.addColorStop(1, "rgba(56, 189, 248, 0.04)");
+    ctx.fillStyle = barGrd;
+    ctx.fillRect(i * eqW + 4, H - barH, eqW - 8, barH);
+  }
+
+  // Sweeping concert spotlights from top
+  for (let s = 0; s < 3; s++) {
+    const sx = W * (0.2 + s * 0.3);
+    const sway = Math.sin(tSec * (1.2 + s * 0.35) + s * 2) * 140;
+    const spotGrd = ctx.createLinearGradient(sx, 0, sx + sway, H);
+    spotGrd.addColorStop(0, s === 1 ? "rgba(251, 191, 36, 0.14)" : "rgba(56, 189, 248, 0.10)");
+    spotGrd.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = spotGrd;
+    ctx.beginPath();
+    ctx.moveTo(sx - 24, 0);
+    ctx.lineTo(sx + 24, 0);
+    ctx.lineTo(sx + sway + 130, H);
+    ctx.lineTo(sx + sway - 130, H);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Sort players dynamically by current rhythm score
+  const sorted = players.map(p => {
+    const info = scores[p.id] || { score: 0, combo: 0, perfect: 0 };
+    return { p, score: info.score || 0, combo: info.combo || 0 };
+  }).sort((a, b) => b.score - a.score || a.p.name.localeCompare(b.p.name));
+
+  // Show up to top 12 racers on the stage for crisp readability (or all if <= 12)
+  const visible = sorted.slice(0, Math.min(sorted.length, 12));
+  const maxScore = Math.max(800, ...visible.map(v => v.score));
+  const padTop = 48, padBot = 28;
+  const leftX = 115, rightX = W - 130;
+  const rowCount = Math.max(1, visible.length);
+  const rowH = (H - padTop - padBot) / Math.max(rowCount, 5);
+  const spriteScale = rowCount > 9 ? 0.62 : (rowCount > 6 ? 0.74 : 0.88);
+
+  // Subtle rank slot guides
+  for (let i = 0; i < rowCount; i++) {
+    const ry = padTop + (i + 0.5) * rowH;
+    ctx.fillStyle = i === 0 ? "rgba(251, 191, 36, 0.08)" : "rgba(255, 255, 255, 0.025)";
+    ctx.beginPath();
+    ctx.roundRect(18, ry - rowH * 0.42, W - 36, rowH * 0.84, 12);
+    ctx.fill();
+
+    // Rank badge on left
+    ctx.fillStyle = i === 0 ? "#fbbf24" : (i === 1 ? "#cbd5e1" : (i === 2 ? "#fdba74" : "#94a3b8"));
+    ctx.font = `900 ${i < 3 ? 18 : 14}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(i === 0 ? "🥇 1" : i === 1 ? "🥈 2" : i === 2 ? "🥉 3" : `${i + 1}`, 48, ry);
+  }
+
+  // Update smooth X (score) & Y (rank slot!) -> creates real overtaking swoop motion!
+  const drawList = visible.map((item, rankIdx) => {
+    const pid = item.p.id;
+    const targetY = padTop + (rankIdx + 0.5) * rowH;
+    const targetX = leftX + (item.score / maxScore) * (rightX - leftX);
+    if (!rhythmAnimState[pid]) {
+      rhythmAnimState[pid] = { x: leftX, y: targetY, prevRank: rankIdx, overtakeUntil: 0, scoreSmooth: item.score };
+    }
+    const stObj = rhythmAnimState[pid];
+    // Detect upward overtake!
+    if (rankIdx < stObj.prevRank && item.score > 0) {
+      stObj.overtakeUntil = tSec + 1.4;
+    }
+    stObj.prevRank = rankIdx;
+    stObj.x += (targetX - stObj.x) * 0.14;
+    stObj.y += (targetY - stObj.y) * 0.14;
+    stObj.scoreSmooth += (item.score - stObj.scoreSmooth) * 0.2;
+    return { ...item, rankIdx, x: stObj.x, y: stObj.y, scoreSmooth: Math.round(stObj.scoreSmooth), isOvertaking: tSec < stObj.overtakeUntil };
+  });
+
+  // Draw glowing trail bars behind each racer
+  for (const r of drawList) {
+    const trailW = Math.max(8, r.x - leftX);
+    const barH = Math.max(10, rowH * 0.34);
+    const grd = ctx.createLinearGradient(leftX, r.y, r.x, r.y);
+    if (r.rankIdx === 0) {
+      grd.addColorStop(0, "rgba(251, 191, 36, 0.18)");
+      grd.addColorStop(1, "rgba(251, 191, 36, 0.85)");
+    } else if (r.isOvertaking) {
+      grd.addColorStop(0, "rgba(244, 63, 94, 0.2)");
+      grd.addColorStop(1, "rgba(244, 63, 94, 0.9)");
+    } else {
+      grd.addColorStop(0, "rgba(56, 189, 248, 0.15)");
+      grd.addColorStop(1, "rgba(139, 92, 246, 0.8)");
+    }
+    ctx.fillStyle = grd;
+    ctx.beginPath();
+    ctx.roundRect(leftX, r.y - barH / 2, trailW, barH, 999);
+    ctx.fill();
+
+    // Score & Combo text at right of character
+    ctx.fillStyle = r.rankIdx === 0 ? "#fde047" : "#f8fafc";
+    ctx.font = `900 ${rowCount > 9 ? 13 : 15}px sans-serif`;
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    const comboStr = (isRunning && r.combo >= 5) ? `  🔥${r.combo}C` : "";
+    ctx.fillText(`${r.scoreSmooth}점${comboStr}`, r.x + 26 * spriteScale, r.y);
+  }
+
+  // Draw bouncing dancing characters on top
+  for (const r of drawList) {
+    const bounceY = isRunning ? -Math.abs(Math.sin(tSec * (bpm / 30) + r.rankIdx)) * 6 : 0;
+    drawRacerSprite(ctx, r.p, r.x, r.y + bounceY, spriteScale, isRunning && r.score > 0, false, r.rankIdx === 0, tSec);
+
+    // 1st place floating crown
+    if (r.rankIdx === 0 && r.score > 0) {
+      ctx.font = `${Math.round(22 * spriteScale)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText("👑", r.x, r.y + bounceY - 36 * spriteScale);
+    }
+
+    // Overtake flash badge!
+    if (r.isOvertaking) {
+      ctx.fillStyle = "#f43f5e";
+      ctx.beginPath();
+      ctx.roundRect(r.x - 32, r.y + bounceY - 46 * spriteScale, 64, 18, 999);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = "900 10.5px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚡ 추월!", r.x, r.y + bounceY - 46 * spriteScale + 9);
+    }
+  }
+
+  // Top-left Live Stage HUD
+  ctx.fillStyle = "rgba(15, 23, 42, 0.82)";
+  ctx.beginPath();
+  ctx.roundRect(16, 10, 230, 26, 999);
+  ctx.fill();
+  ctx.fillStyle = accentColor;
+  ctx.font = "900 12px sans-serif";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillText(`🎵 LIVE STAGE · ${lvText}`, 28, 23);
+
+  dispRhythmRaf = requestAnimationFrame(loopDispRhythmCanvas);
 }
 
 function renderDispBalance(st) {
@@ -3246,6 +3523,7 @@ function renderPlayer(st) {
   if (st.current_game !== "rhythm") stopRhythmEngine();
   if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
   if (st.current_game !== "rush") stopRushCanvases();
+  if (st.current_game !== "rhythm") stopRhythmDisplayCanvas();
 
   if (st.current_game === "fashion") renderPlayerFashion(st);
   if (st.current_game === "stop777") renderPlayerStop777(st);
@@ -3336,7 +3614,7 @@ function renderPlayerStop777(st) {
   cancelAnimationFrame(stop777Raf);
 
   if (gs.phase === "ready") {
-    pStopSubmitted = false; timerEl.textContent = "7.77"; btn.disabled = true;
+    pStopSubmitted = false; timerEl.textContent = "7.77"; timerEl.classList.remove("blind-pulse"); btn.disabled = true;
     msg.textContent = "사회자가 시작을 누르면 카운트다운이 시작됩니다!";
     hud.classList.add("hidden");
   } else if (gs.phase === "running") {
