@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v14")
+app = FastAPI(title="Team Power Recreation Server v15")
 
 MC_PIN = "5401"
 
@@ -194,6 +194,8 @@ class Room:
             "current_game": self.current_game,
             "show_ranking": self.show_ranking,
             "quiz_cards": QUIZ_CARDS,
+            "studio_count": len(self.lobby_ws),
+            "total_connected": len(self.players) + len(self.lobby_ws),
             "players": self.get_public_players(),
             "faces": [{"id": f["id"], "label": f["label"], "img": f["img"]} for f in self.faces],
             "taken_faces": self.taken_face_ids(),
@@ -621,7 +623,7 @@ async def websocket_endpoint(ws: WebSocket):
                 role = "preview"
                 if ws not in room.lobby_ws:
                     room.lobby_ws.append(ws)
-                await ws.send_text(json.dumps(room.snapshot(), ensure_ascii=False))
+                await room.broadcast()
                 continue
 
             if mtype == "player_join":
@@ -1340,8 +1342,13 @@ async def websocket_endpoint(ws: WebSocket):
         pass
     finally:
         if room:
-            if ws in room.lobby_ws:
+            was_lobby = ws in room.lobby_ws
+            if was_lobby:
                 room.lobby_ws.remove(ws)
+                try:
+                    await room.broadcast()
+                except Exception:
+                    pass
             if ws in room.display_ws:
                 room.display_ws.remove(ws)
             if ws in room.mc_ws:

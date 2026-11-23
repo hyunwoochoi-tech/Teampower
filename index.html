@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v14 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v15 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -805,7 +805,7 @@
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v14</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v15</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -840,7 +840,7 @@
     </div>
     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
       <span id="dispCurrentGamePill" class="disp-game-pill">🏠 로비 대기 중</span>
-      <span class="badge" style="font-size:12px;">참여자 <b id="dispTopCount">0</b>명</span>
+      <span class="badge" style="font-size:12px;">접속 <b id="dispTopCount">0</b>명 <span id="dispTopStudio" style="color:#fde68a;"></span></span>
     </div>
   </header>
 
@@ -862,7 +862,7 @@
         </div>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:4px;">
-        <h3 style="margin:0; font-size:17px;">🎭 입장 완료 캐릭터 (<span id="dispPlayerCount">0</span>명)</h3>
+        <h3 style="margin:0; font-size:17px;">🎭 총 접속 <span id="dispTotalConn" style="color:var(--gold);">0</span>명 <span style="font-size:14px; color:var(--muted);">(입장 완료 <span id="dispPlayerCount">0</span>명 · 코디 중 <span id="dispStudioCount">0</span>명)</span></h3>
         <span style="font-size:13px; color:var(--muted);">등록된 얼굴 사진 <b id="dispFaceCount" style="color:var(--accent);">11</b>장 · 선착순 1인 1얼굴</span>
       </div>
       <div id="dispPlayerRoster" class="lobby-roster"></div>
@@ -1142,7 +1142,7 @@
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
       <span class="badge" style="background:rgba(236,72,153,0.22); color:#f9a8d4;">STEP 2 / 2 · 졸라맨 코디 스튜디오</span>
-      <span style="font-size:12px; color:var(--muted);">방 <b id="studioRoomLabel">----</b></span>
+      <span style="font-size:12px; color:var(--muted);">방 <b id="studioRoomLabel">----</b> · <b id="studioConnBadge" style="color:#fde68a;">접속 0명</b></span>
     </div>
 
     <div class="studio-preview">
@@ -1986,6 +1986,11 @@ function updateDraftName(val) {
 
 function renderStudio(st) {
   const taken = st.taken_faces || {};
+  const sc = st.studio_count || 0;
+  const pc = (st.players || []).length;
+  const tc = st.total_connected !== undefined ? st.total_connected : (pc + sc);
+  const scBadge = document.getElementById("studioConnBadge");
+  if (scBadge) scBadge.textContent = `접속 ${tc}명 (완료 ${pc} · 코디 중 ${sc})`;
   const myCurrentFace = myPlayerId && st.players.find(p => p.id === myPlayerId)?.face_id;
 
   if (!draft.face_id || draft.face_id === "emoji_fallback" || (taken[draft.face_id] && draft.face_id !== myCurrentFace)) {
@@ -2072,7 +2077,12 @@ function renderDisplay(st) {
     }
   }
   document.getElementById("dispRoomCode").textContent = st.room;
-  document.getElementById("dispTopCount").textContent = players.length;
+  const studioCnt = st.studio_count || 0;
+  const totalConn = st.total_connected !== undefined ? st.total_connected : (players.length + studioCnt);
+  document.getElementById("dispTopCount").textContent = totalConn;
+  document.getElementById("dispTopStudio").textContent = studioCnt > 0 ? `(코디 중 ${studioCnt}명)` : "";
+  document.getElementById("dispTotalConn").textContent = totalConn;
+  document.getElementById("dispStudioCount").textContent = studioCnt;
   document.getElementById("dispPlayerCount").textContent = players.length;
   document.getElementById("dispFaceCount").textContent = (st.faces || []).length;
   document.getElementById("dispCurrentGamePill").textContent = GAME_LABELS[st.current_game] || "⚡ 팀파워 LIVE";
@@ -2241,6 +2251,89 @@ let rushLastBurst = {};
 let dispRushRaf = null;
 let playerRushRaf = null;
 
+const BOSS_IMG_DATA = "data:image/webp;base64,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";
+const bossImgObj = new Image();
+bossImgObj.src = BOSS_IMG_DATA;
+
+function drawBossShout(ctx, W, H, tSec, isMobile) {
+  const popScale = 0.94 + Math.sin(tSec * 22) * 0.06;
+  const shakeX = Math.sin(tSec * 38) * 5;
+  ctx.save();
+  // Dramatic red danger vignette
+  ctx.fillStyle = `rgba(225, 29, 72, ${0.22 + Math.sin(tSec * 14) * 0.08})`;
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#ff2e63";
+  ctx.lineWidth = isMobile ? 6 : 8;
+  ctx.strokeRect(3, 3, W - 6, H - 6);
+
+  // Boss character pop-out
+  const bossH = isMobile ? H * 0.62 : H * 0.72;
+  const aspect = (bossImgObj.complete && bossImgObj.naturalHeight > 0)
+    ? (bossImgObj.naturalWidth / bossImgObj.naturalHeight) : 0.34;
+  const bossW = bossH * aspect;
+  const bx = (isMobile ? W * 0.24 : W * 0.26) + shakeX;
+  const by = (isMobile ? H * 0.44 : H * 0.54);
+
+  ctx.save();
+  ctx.translate(bx, by);
+  ctx.scale(popScale, popScale);
+  // Glowing spotlight behind boss
+  const grd = ctx.createRadialGradient(0, 0, 10, 0, 0, bossH * 0.55);
+  grd.addColorStop(0, "rgba(251, 191, 36, 0.55)");
+  grd.addColorStop(1, "rgba(244, 63, 94, 0)");
+  ctx.fillStyle = grd;
+  ctx.beginPath();
+  ctx.arc(0, 0, bossH * 0.55, 0, Math.PI * 2);
+  ctx.fill();
+  if (bossImgObj.complete && bossImgObj.naturalWidth > 0) {
+    ctx.drawImage(bossImgObj, -bossW / 2, -bossH / 2, bossW, bossH);
+  }
+  ctx.restore();
+
+  // Speech bubble ("야! 어디가! 야근할래 철인 3종할래!")
+  const bubX = isMobile ? W * 0.37 : W * 0.36;
+  const bubY = isMobile ? H * 0.14 : H * 0.24;
+  const bubW = isMobile ? W * 0.59 : W * 0.54;
+  const bubH = isMobile ? 104 : 138;
+
+  ctx.save();
+  ctx.translate(shakeX * 0.6, 0);
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#e11d48";
+  ctx.lineWidth = isMobile ? 3.5 : 5;
+  ctx.beginPath();
+  ctx.roundRect(bubX, bubY, bubW, bubH, 18);
+  ctx.fill();
+  ctx.stroke();
+
+  // Speech bubble pointer triangle
+  ctx.beginPath();
+  ctx.moveTo(bubX + 2, bubY + bubH * 0.45);
+  ctx.lineTo(bubX - (isMobile ? 16 : 24), bubY + bubH * 0.55);
+  ctx.lineTo(bubX + 2, bubY + bubH * 0.68);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Boss name tag
+  ctx.fillStyle = "#e11d48";
+  ctx.font = `900 ${isMobile ? 12 : 17}px sans-serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillText("🚨 이정훈 상무님 등장!!", bubX + 14, bubY + (isMobile ? 10 : 14));
+
+  // Shout line 1 & 2
+  ctx.fillStyle = "#0f172a";
+  ctx.font = `900 ${isMobile ? 17 : 30}px sans-serif`;
+  ctx.fillText("야! 어디가!", bubX + 14, bubY + (isMobile ? 32 : 44));
+  ctx.fillStyle = "#be123c";
+  ctx.font = `900 ${isMobile ? 15.5 : 28}px sans-serif`;
+  ctx.fillText("야근할래 철인 3종할래!", bubX + 14, bubY + (isMobile ? 58 : 84));
+  ctx.restore();
+
+  ctx.restore();
+}
+
 function drawRacerSprite(ctx, p, x, y, scale, isRunning, isCaught, isMe, tSec) {
   ctx.save();
   ctx.translate(x, y);
@@ -2362,7 +2455,7 @@ function renderDispRush(st) {
     resEl.classList.add("hidden");
     if (gs.light === "red") {
       lightEl.className = "rush-banner red";
-      lightEl.textContent = "🚨 팀장님 등장!! 전원 정지!! (움직이면 강제 야근!)";
+      lightEl.textContent = "🚨 이정훈 상무님: 야! 어디가! 야근할래 철인 3종할래! (전원 정지!!)";
     } else {
       lightEl.className = "rush-banner green";
       lightEl.textContent = "🟢 초록불! 칼퇴 게이트를 향해 전력 질주!! 🏃‍♂️💨";
@@ -2507,13 +2600,9 @@ function loopDispRushCanvas() {
     drawRacerSprite(ctx, r.p, r.x, r.y, spriteScale, r.isMoving && gs.phase === "running", r.isCaught, false, tSec);
   }
 
-  // Red Light Boss Spotlight Overlay
+  // Red Light Boss Pop-Out (이정훈 상무님!)
   if (isRed) {
-    ctx.fillStyle = `rgba(244, 63, 94, ${0.12 + Math.sin(tSec * 12) * 0.05})`;
-    ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = "#f43f5e";
-    ctx.lineWidth = 6;
-    ctx.strokeRect(3, 3, W - 6, H - 6);
+    drawBossShout(ctx, W, H, tSec, false);
   }
 
   // Top-left Drone HUD pill
@@ -2656,11 +2745,21 @@ function renderDispBalance(st) {
   const ch = gs.choices || {};
   const listA = [], listB = [];
   Object.entries(ch).forEach(([pid, v]) => { if (!pMap[pid]) return; if (v === "A") listA.push(pMap[pid]); if (v === "B") listB.push(pMap[pid]); });
-  document.getElementById("dispBalLabelA").innerHTML = `${escapeHtml(bObj.a)} <span style="font-size:16px;">(${listA.length}명)</span>`;
-  document.getElementById("dispBalLabelB").innerHTML = `${escapeHtml(bObj.b)} <span style="font-size:16px;">(${listB.length}명)</span>`;
+  const totalVoted = listA.length + listB.length;
+  const isRevealed = gs.phase === "revealed";
+  document.getElementById("dispBalLabelA").innerHTML = `${escapeHtml(bObj.a)} <span style="font-size:16px;">(${isRevealed ? listA.length + '명' : '?명'})</span>`;
+  document.getElementById("dispBalLabelB").innerHTML = `${escapeHtml(bObj.b)} <span style="font-size:16px;">(${isRevealed ? listB.length + '명' : '?명'})</span>`;
   const cardTpl = p => `<div class="ox-mini-card">${renderStickmanSVG(p, 44, true)}<div style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div></div>`;
-  document.getElementById("dispPlayersBalA").innerHTML = listA.map(cardTpl).join("");
-  document.getElementById("dispPlayersBalB").innerHTML = listB.map(cardTpl).join("");
+  if (isRevealed) {
+    document.getElementById("dispPlayersBalA").innerHTML = listA.map(cardTpl).join("");
+    document.getElementById("dispPlayersBalB").innerHTML = listB.map(cardTpl).join("");
+  } else {
+    const secretMsg = gs.phase === "ready"
+      ? `<div style="color:var(--muted); font-size:14px; padding:26px 8px;">질문 대기 중...</div>`
+      : `<div style="color:#fde68a; font-size:15px; font-weight:800; padding:26px 8px;">🤫 비밀 눈치 투표 중!<br/><span style="font-size:12px; color:var(--muted);">(현재 총 ${totalVoted} / ${(st.players||[]).length}명 선택 완료)</span></div>`;
+    document.getElementById("dispPlayersBalA").innerHTML = secretMsg;
+    document.getElementById("dispPlayersBalB").innerHTML = secretMsg;
+  }
   document.getElementById("dispBalZoneA").classList.toggle("correct-glow", gs.phase === "revealed" && (gs.win_side === "A" || gs.win_side === "TIE"));
   document.getElementById("dispBalZoneB").classList.toggle("correct-glow", gs.phase === "revealed" && (gs.win_side === "B" || gs.win_side === "TIE"));
 }
@@ -2853,7 +2952,7 @@ function renderMc(st) {
   titleEl.textContent = GAME_LABELS[cur] || cur;
 
   if (cur === "lobby") {
-    telEl.innerHTML = `입장 완료: <b>${players.length}명</b> · 등록된 얼굴 사진: <b>${(st.faces||[]).length}장</b><br/>모두 입장했으면 1번 게임으로 넘어가세요!`;
+    const sc = st.studio_count || 0, tc = st.total_connected !== undefined ? st.total_connected : (players.length + sc); telEl.innerHTML = `총 접속자: <b style="color:var(--gold);">${tc}명</b> (입장 완료 <b>${players.length}명</b> · 아바타 코디 중 <b style="color:#7dd3fc;">${sc}명</b>)<br/>등록된 얼굴 사진: <b>${(st.faces||[]).length}장</b> · 모두 입장했으면 1번 게임으로 넘어가세요!`;
     btnsEl.innerHTML = `<button class="btn btn-green btn-next-pulse" onclick="mcSwitchGame('fashion')">▶ 1. 베스트 코디 투표로 이동</button>`;
   } else if (cur === "fashion") {
     const voted = Object.keys(gs.votes || {}).length;
@@ -3130,7 +3229,7 @@ function renderPlayer(st) {
   document.getElementById("pRoom").textContent = st.room;
 
   // Live Lobby Roster
-  document.getElementById("pLobbyCount").textContent = players.length;
+  const sc = st.studio_count || 0; document.getElementById("pLobbyCount").textContent = sc > 0 ? `${players.length + sc}명 접속 · 완료 ${players.length} · 코디 중 ${sc}` : `${players.length}`;
   document.getElementById("pLobbyRoster").innerHTML = players.map(p => `
     <span class="mini-chip">${renderMiniFace(p)}${escapeHtml(p.name)}</span>
   `).join("");
@@ -3597,7 +3696,7 @@ function renderPlayerRush(st) {
       lightEl.className = "rush-banner green"; lightEl.textContent = "🎉 칼퇴 게이트 통과!!";
       msg.textContent = "순위는 레이스 종료 후 공개됩니다! 다른 팀원들 기다리는 중...";
     } else if (gs.light === "red") {
-      lightEl.className = "rush-banner red"; lightEl.textContent = "🚨 팀장님 등장!! 멈추세요!!";
+      lightEl.className = "rush-banner red"; lightEl.textContent = "🚨 야! 어디가! 야근할래 철인 3종할래!!";
       btn.className = "btn btn-red huge-action-btn";
       msg.textContent = "지금 누르면 강제 야근(-18m 후퇴)!";
     } else {
@@ -3762,13 +3861,9 @@ function loopPlayerRushCanvas() {
     drawRacerSprite(ctx, r.p, r.x, r.y, r.isMe ? 1.05 : 0.9, r.isMoving, r.isCaught, r.isMe, tSec);
   }
 
-  // Red Light Boss Alert Overlay
+  // Red Light Boss Pop-Out (이정훈 상무님!)
   if (isRed) {
-    ctx.fillStyle = `rgba(244, 63, 94, ${0.15 + Math.sin(tSec * 14) * 0.06})`;
-    ctx.fillRect(0, 0, W, H);
-    ctx.strokeStyle = "#f43f5e";
-    ctx.lineWidth = 5;
-    ctx.strokeRect(2.5, 2.5, W - 5, H - 5);
+    drawBossShout(ctx, W, H, tSec, true);
   }
 
   // Nearby rivals counter pill (top-left, no rank spoilers!)
@@ -3814,10 +3909,10 @@ function renderPlayerBalance(st) {
   } else if (gs.phase === "open") {
     document.getElementById("pBalQ").textContent = `Q${(gs.index||0)+1}. ${bObj.q}`;
     btnA.disabled = false; btnB.disabled = false;
-    msg.textContent = myCh ? `현재 선택: ${myCh} (마감 전 변경 가능)` : "A 또는 B를 골라주세요!";
-    hud.classList.remove("hidden");
+    msg.textContent = myCh ? `현재 선택: ${myCh} (🤫 비율 비공개 · 마감 전 변경 가능)` : "🤫 눈치껏 A 또는 B를 골라주세요! (비율 비공개)";
+    hud.classList.add("hidden");
   } else if (gs.phase === "locked") {
-    btnA.disabled = true; btnB.disabled = true; msg.textContent = "🔒 선택 마감! 결과 공개 대기 중..."; hud.classList.remove("hidden");
+    btnA.disabled = true; btnB.disabled = true; msg.textContent = "🔒 선택 마감! 결과 공개 대기 중..."; hud.classList.add("hidden");
   } else if (gs.phase === "revealed") {
     btnA.disabled = true; btnB.disabled = true;
     const won = (gs.winners || []).includes(myPlayerId);
