@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v5 — 네온 아케이드 — 졸라맨 코디 & 5종 게임</title>
+<title>팀파워 레크레이션 v7 — 40분 풀코스 8종 게임</title>
 <style>
   :root {
     --bg: #080514;
@@ -539,6 +539,70 @@
     border-top: 3px solid rgba(255,255,255,0.45);
     box-shadow: 0 -8px 26px rgba(0,0,0,0.35);
   }
+
+  /* HOST STEP-BY-STEP WIZARD BAR */
+  .step-wizard {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(0, 245, 212, 0.14), rgba(155, 93, 229, 0.18));
+    border: 1.5px solid rgba(0, 245, 212, 0.45);
+    border-radius: 16px; padding: 12px 16px; margin-top: 12px;
+    box-shadow: 0 6px 22px rgba(0, 245, 212, 0.12);
+  }
+  .step-info { display: flex; flex-direction: column; gap: 2px; }
+  .step-tag { font-size: 11px; font-weight: 900; color: var(--cyan); letter-spacing: 0.5px; }
+  .step-desc { font-size: 14px; font-weight: 800; color: var(--text); }
+  .step-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn-next-pulse {
+    animation: nextPulse 1.8s ease-in-out infinite;
+  }
+  @keyframes nextPulse {
+    0%, 100% { box-shadow: 0 5px 0 #007a63, 0 0 18px rgba(0, 245, 212, 0.45); }
+    50% { box-shadow: 0 5px 0 #007a63, 0 0 32px rgba(0, 245, 212, 0.85); }
+  }
+
+
+  /* GAME 3: RUSH (RED LIGHT GREEN LIGHT) */
+  .rush-banner {
+    text-align: center; padding: 14px; border-radius: 16px; font-size: 24px; font-weight: 900;
+    margin: 12px 0; transition: all 0.15s ease;
+  }
+  .rush-banner.green {
+    background: rgba(0, 245, 212, 0.18); border: 2px solid var(--cyan); color: var(--cyan);
+    box-shadow: 0 0 24px rgba(0, 245, 212, 0.25);
+  }
+  .rush-banner.red {
+    background: rgba(255, 46, 147, 0.28); border: 2px solid var(--red); color: #ffccd5;
+    box-shadow: 0 0 36px rgba(255, 59, 92, 0.65); animation: shake 0.25s infinite;
+  }
+  .rush-lane {
+    display: grid; grid-template-columns: 120px 1fr 56px; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .rush-track {
+    position: relative; height: 34px; border-radius: 999px;
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+    overflow: hidden;
+  }
+  .rush-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #00bbf9, #00f5d4);
+    transition: width 0.18s linear;
+  }
+  .rush-runner {
+    position: absolute; top: 50%; transform: translate(-50%, -50%);
+    transition: left 0.18s linear; font-size: 20px;
+  }
+
+  /* GAME 7: CHOSUNG */
+  .chosung-box {
+    font-size: clamp(44px, 8vw, 84px); font-weight: 900; letter-spacing: 14px;
+    text-align: center; padding: 26px 16px; border-radius: 20px;
+    background: linear-gradient(135deg, rgba(155, 93, 229, 0.25), rgba(0, 187, 249, 0.2));
+    border: 2px solid var(--gold); color: var(--gold);
+    text-shadow: 0 0 24px rgba(254, 228, 64, 0.55);
+    margin: 10px 0;
+  }
+
 </style>
 </head>
 <body>
@@ -548,7 +612,7 @@
 
 <!-- ==================== LANDING ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v5</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v7</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>실사 얼굴 졸라맨 코디 콘테스트(한 줄 컨셉!)부터 7.77초·계약 돌리기·리듬게임·우리 그룹 TMI 눈치 O/X 퀴즈까지!</p>
   <div class="landing-grid">
@@ -577,14 +641,17 @@
       <span id="hostConnStatus" class="badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">연결됨</span>
     </div>
     <nav class="host-nav">
-      <button class="btn btn-secondary btn-sm" data-nav="lobby" onclick="hostSwitchGame('lobby')">🏠 로비/QR</button>
-      <button class="btn btn-secondary btn-sm" data-nav="fashion" onclick="hostSwitchGame('fashion')">👗 1. 코디투표</button>
-      <button class="btn btn-secondary btn-sm" data-nav="stop777" onclick="hostSwitchGame('stop777')">⏱️ 2. 7.77초</button>
-      <button class="btn btn-secondary btn-sm" data-nav="bomb" onclick="hostSwitchGame('bomb')">💣 3. 계약돌리기</button>
-      <button class="btn btn-secondary btn-sm" data-nav="rhythm" onclick="hostSwitchGame('rhythm')">🎵 4. 리듬게임</button>
-      <button class="btn btn-secondary btn-sm" data-nav="quiz" onclick="hostSwitchGame('quiz')">❓ 5. 눈치퀴즈</button>
-      <button class="btn btn-amber btn-sm" data-nav="podium" onclick="hostSwitchGame('podium')">🏆 최종시상</button>
-      <button class="btn btn-pink btn-sm" onclick="fireConfetti(true)" title="축하 폭죽 터뜨리기">🎉 폭죽</button>
+      <button class="btn btn-secondary btn-sm" data-nav="lobby" onclick="hostSwitchGame('lobby')">🏠 로비</button>
+      <button class="btn btn-secondary btn-sm" data-nav="fashion" onclick="hostSwitchGame('fashion')">👗 1.코디</button>
+      <button class="btn btn-secondary btn-sm" data-nav="stop777" onclick="hostSwitchGame('stop777')">⏱️ 2.7.77초</button>
+      <button class="btn btn-secondary btn-sm" data-nav="rush" onclick="hostSwitchGame('rush')">🏃‍♂️ 3.칼퇴달리기</button>
+      <button class="btn btn-secondary btn-sm" data-nav="bomb" onclick="hostSwitchGame('bomb')">💣 4.계약폭탄</button>
+      <button class="btn btn-secondary btn-sm" data-nav="rhythm" onclick="hostSwitchGame('rhythm')">🎵 5.리듬</button>
+      <button class="btn btn-secondary btn-sm" data-nav="balance" onclick="hostSwitchGame('balance')">⚖️ 6.다수결</button>
+      <button class="btn btn-secondary btn-sm" data-nav="chosung" onclick="hostSwitchGame('chosung')">⌨️ 7.초성퀴즈</button>
+      <button class="btn btn-secondary btn-sm" data-nav="quiz" onclick="hostSwitchGame('quiz')">❓ 8.O/X퀴즈</button>
+      <button class="btn btn-amber btn-sm" data-nav="podium" onclick="hostSwitchGame('podium')">🏆 시상식</button>
+      <button class="btn btn-pink btn-sm" onclick="fireConfetti(true)" title="축하 폭죽 터뜨리기">🎉</button>
     </nav>
   </header>
 
@@ -603,10 +670,20 @@
             <p style="color:var(--muted); margin:0 0 12px; font-size:14px;">
               등록된 얼굴 사진: <b id="hostFaceCount" style="color:var(--accent);">11</b>장 (중복 선택 불가 · 선착순 마감)
             </p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <div class="step-wizard" style="margin-top:0;">
+              <div class="step-info">
+                <span class="step-tag">진행 가이드 · STEP 0</span>
+                <span class="step-desc">모두 입장하면 1번 게임으로 넘어가세요!</span>
+              </div>
+              <div class="step-actions">
+                <button class="btn btn-green btn-next-pulse" onclick="hostSwitchGame('fashion')">▶ 1. 베스트 코디 투표로 이동</button>
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('hostLobbyTools').classList.toggle('hidden')">⚙️ 설정/테스트</button>
+              </div>
+            </div>
+            <div id="hostLobbyTools" class="hidden" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; padding:10px; background:rgba(0,0,0,0.25); border-radius:12px;">
               <button class="btn btn-purple btn-sm" onclick="sendWS({type:'add_bot'})">🤖 AI 봇 추가 (테스트)</button>
               <label class="btn btn-secondary btn-sm" style="cursor:pointer;">
-                📸 얼굴 사진 추가 업로드 (22명용)
+                📸 얼굴 사진 추가 업로드
                 <input type="file" id="hostFaceUpload" accept="image/*" multiple class="hidden" onchange="handleHostFaceUpload(event)" />
               </label>
               <button class="btn btn-secondary btn-sm" onclick="if(confirm('모든 점수를 0점으로 초기화할까요?')) sendWS({type:'reset_scores'})">🔄 점수 초기화</button>
@@ -619,55 +696,65 @@
 
       <!-- GAME 1: FASHION CONTEST -->
       <div id="hostFashion" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <span class="badge" style="background:rgba(236,72,153,0.22); color:#f9a8d4;">GAME 1 · BEST COORD</span>
-            <h2 style="margin:6px 0 0;">👗 베스트 코디 콘테스트</h2>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">가장 웃기고 찰떡같이 꾸민 캐릭터에게 투표하세요! (본인 투표 불가 · 1등 +120점)</p>
+        <div>
+          <span class="badge" style="background:rgba(236,72,153,0.22); color:#f9a8d4;">GAME 1 · BEST COORD</span>
+          <h2 style="margin:6px 0 0;">👗 베스트 코디 콘테스트</h2>
+        </div>
+        <div class="step-wizard">
+          <div class="step-info">
+            <span class="step-tag" id="fashionStepTag">1단계 / 3</span>
+            <span class="step-desc" id="hostFashionStatus">캐릭터를 다 같이 구경한 뒤 투표를 열어주세요!</span>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="btnFashionStart" class="btn btn-pink" onclick="sendWS({type:'fashion_start'})">🗳️ 투표 시작 (열기)</button>
-            <button id="btnFashionFinish" class="btn btn-amber hidden" onclick="sendWS({type:'fashion_finish'})">🏆 투표 마감 & 1등 발표</button>
+          <div class="step-actions">
+            <button id="btnFashionStart" class="btn btn-pink" onclick="sendWS({type:'fashion_start'})">🗳️ 1단계: 투표 시작하기</button>
+            <button id="btnFashionFinish" class="btn btn-amber hidden" onclick="sendWS({type:'fashion_finish'})">🏆 2단계: 투표 마감 & 1등 발표</button>
+            <button id="btnFashionNext" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('stop777')">➡ 다음 게임: 2. 7.77초 스탑</button>
           </div>
         </div>
-        <div id="hostFashionStatus" style="margin-top:12px; font-weight:800; color:var(--accent); font-size:16px;"></div>
         <div id="hostFashionGrid" class="fashion-grid"></div>
       </div>
 
       <!-- GAME 2: 7.77s -->
       <div id="hostStop777" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <span class="badge">GAME 2</span>
-            <h2 style="margin:6px 0 0;">⏱️ 7.77초 블라인드 스탑</h2>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">3.00초부터 <b>?.??</b>로 가려집니다! 7.77초에 가장 가깝게 멈추세요.</p>
+        <div>
+          <span class="badge">GAME 2</span>
+          <h2 style="margin:6px 0 0;">⏱️ 7.77초 블라인드 스탑</h2>
+        </div>
+        <div class="step-wizard">
+          <div class="step-info">
+            <span class="step-tag" id="stopStepTag">1단계 / 3</span>
+            <span class="step-desc" id="hostStop777Status">참여자들이 준비되면 시작을 눌러주세요!</span>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="btnStop777Start" class="btn btn-green" onclick="sendWS({type:'stop777_start'})">▶ 게임 시작</button>
-            <button id="btnStop777Finish" class="btn btn-amber hidden" onclick="sendWS({type:'stop777_finish'})">🏁 마감 & 역순 공개</button>
+          <div class="step-actions">
+            <button id="btnStop777Start" class="btn btn-green btn-next-pulse" onclick="sendWS({type:'stop777_start'})">▶ 1단계: 게임 시작</button>
+            <button id="btnStop777Finish" class="btn btn-amber hidden" onclick="sendWS({type:'stop777_finish'})">🏁 2단계: 마감 & 역순 공개</button>
+            <span id="hostStop777RevealControls" class="hidden" style="display:inline-flex; gap:6px; flex-wrap:wrap;">
+              <button id="btnStopRevealNext" class="btn btn-primary" onclick="sendWS({type:'stop777_reveal_next'})">👏 다음 순위 공개 (Space)</button>
+              <button id="btnStopRevealTop5" class="btn btn-purple btn-sm" onclick="sendWS({type:'stop777_reveal_top5'})">⚡ TOP5 직전까지</button>
+              <button id="btnStopRevealAll" class="btn btn-secondary btn-sm" onclick="sendWS({type:'stop777_reveal_all'})">전체 공개</button>
+            </span>
+            <button id="btnStopNextGame" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('rush')">➡ 다음 게임: 3. 칼퇴 달리기</button>
           </div>
         </div>
         <div id="hostStop777Timer" class="big-timer">7.77</div>
-        <div id="hostStop777Status" style="text-align:center; color:var(--muted); margin-bottom:10px;"></div>
-        <div id="hostStop777RevealControls" class="hidden" style="text-align:center; margin:12px 0; display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="sendWS({type:'stop777_reveal_next'})">👏 다음 순위 공개 (꼴등부터! / Space)</button>
-          <button class="btn btn-purple btn-sm" onclick="sendWS({type:'stop777_reveal_top5'})">⚡ TOP 5 직전까지 공개</button>
-          <button class="btn btn-secondary btn-sm" onclick="sendWS({type:'stop777_reveal_all'})">한 번에 전체 공개</button>
-        </div>
         <div id="hostStop777RevealStage" class="reveal-stage"></div>
       </div>
 
       <!-- GAME 3: BOMB -->
       <div id="hostBomb" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <span class="badge">GAME 3</span>
-            <h2 style="margin:6px 0 0;">💣 계약 돌리기 (Spot / BPA)</h2>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">계약서 폭탄을 빨리 넘기세요! 제한시간에 들고 있는 사람이 폭발, 생존자 전원 +50점!</p>
+        <div>
+          <span class="badge">GAME 3</span>
+          <h2 style="margin:6px 0 0;">💣 계약 돌리기 (Spot / BPA)</h2>
+        </div>
+        <div class="step-wizard">
+          <div class="step-info">
+            <span class="step-tag" id="bombStepTag">1단계 · 폭탄 선택</span>
+            <span class="step-desc" id="bombStepDesc">Spot 또는 BPA 계약서 중 하나를 골라 폭탄을 시작하세요!</span>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="sendWS({type:'bomb_start', doc_type:'Spot'})">📄 Spot 계약서 시작</button>
-            <button class="btn btn-purple" onclick="sendWS({type:'bomb_start', doc_type:'BPA'})">📑 BPA 계약서 시작</button>
+          <div class="step-actions">
+            <button id="btnBombSpot" class="btn btn-primary" onclick="sendWS({type:'bomb_start', doc_type:'Spot'})">📄 Spot 시작</button>
+            <button id="btnBombBpa" class="btn btn-purple" onclick="sendWS({type:'bomb_start', doc_type:'BPA'})">📑 BPA 시작</button>
+            <button id="btnBombNextGame" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('rhythm')">➡ 다음 게임: 5. 리듬게임</button>
           </div>
         </div>
         <div class="circle-arena" id="hostBombArena">
@@ -680,35 +767,47 @@
 
       <!-- GAME 4: RHYTHM -->
       <div id="hostRhythm" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div>
-            <span class="badge">GAME 4</span>
-            <h2 style="margin:6px 0 0;">🎵 리듬게임: 템포 챌린지 (38초)</h2>
-            <p style="margin:4px 0 0; color:var(--muted); font-size:14px;">LV.1 워밍업 → LV.2 리듬 업 → LV.3 피버 → LV.4 극한 챌린지!</p>
+        <div>
+          <span class="badge">GAME 4</span>
+          <h2 style="margin:6px 0 0;">🎵 리듬게임: 템포 챌린지 (38초)</h2>
+        </div>
+        <div class="step-wizard">
+          <div class="step-info">
+            <span class="step-tag" id="rhythmStepTag">1단계 / 2</span>
+            <span class="step-desc" id="hostRhythmBanner">휴대폰을 보고 떨어지는 노트를 터치하세요!</span>
           </div>
-          <div style="display:flex; gap:8px;">
-            <button id="btnRhythmStart" class="btn btn-green" onclick="sendWS({type:'rhythm_start'})">▶ 리듬게임 시작</button>
-            <button id="btnRhythmStop" class="btn btn-red hidden" onclick="sendWS({type:'rhythm_stop'})">⏹ 조기 종료</button>
+          <div class="step-actions">
+            <button id="btnRhythmStart" class="btn btn-green btn-next-pulse" onclick="sendWS({type:'rhythm_start'})">▶ 1단계: 리듬게임 시작</button>
+            <button id="btnRhythmStop" class="btn btn-red btn-sm hidden" onclick="sendWS({type:'rhythm_stop'})">⏹ 조기 종료</button>
+            <button id="btnRhythmNextGame" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('balance')">➡ 다음 게임: 6. 다수결 텔레파시</button>
           </div>
         </div>
-        <div id="hostRhythmBanner" style="text-align:center; font-size:22px; font-weight:900; margin:14px 0; color:var(--accent);">준비되면 시작을 누르세요!</div>
         <div id="hostRhythmRace"></div>
       </div>
 
       <!-- GAME 5: QUIZ -->
       <div id="hostQuiz" class="card hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <div>
             <span class="badge">GAME 5</span>
             <h2 style="margin:6px 0 0;">❓ 눈치 O/X 상식 & 우리 그룹 TMI 퀴즈</h2>
           </div>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <button class="btn btn-purple btn-sm" onclick="toggleBulkQuizModal()">📋 TMI 일괄 등록</button>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-secondary btn-sm" onclick="toggleBulkQuizModal()">📋 TMI 일괄 등록</button>
             <button class="btn btn-secondary btn-sm" onclick="toggleAddQuizModal()">+ 1문제 추가</button>
-            <button class="btn btn-green btn-sm" onclick="hostQuizOpenCurrent()">▶ 문제 출제</button>
-            <button class="btn btn-red btn-sm" onclick="sendWS({type:'quiz_lock'})">🔒 마감 (STOP)</button>
-            <button class="btn btn-amber btn-sm" onclick="sendWS({type:'quiz_reveal'})">✨ 정답 공개</button>
-            <button class="btn btn-primary btn-sm" onclick="hostQuizNext()">다음 문제 ➡</button>
+          </div>
+        </div>
+        <div class="step-wizard" style="margin-bottom:12px;">
+          <div class="step-info">
+            <span class="step-tag" id="hostQuizMeta">문제 1 / 10</span>
+            <span class="step-desc" id="hostQuizGuide">1단계: 문제 출제 버튼을 눌러주세요!</span>
+          </div>
+          <div class="step-actions">
+            <button id="btnQuizOpen" class="btn btn-green btn-next-pulse" onclick="hostQuizOpenCurrent()">▶ 1단계: 문제 출제</button>
+            <button id="btnQuizLock" class="btn btn-red hidden" onclick="sendWS({type:'quiz_lock'})">🔒 2단계: 선택 마감 (STOP)</button>
+            <button id="btnQuizReveal" class="btn btn-amber hidden" onclick="sendWS({type:'quiz_reveal'})">✨ 3단계: 정답 공개</button>
+            <button id="btnQuizNext" class="btn btn-primary hidden" onclick="hostQuizNext()">➡ 다음 문제 출제</button>
+            <button id="btnQuizPodium" class="btn btn-amber hidden" onclick="hostSwitchGame('podium')">🏆 최종 시상식으로!</button>
           </div>
         </div>
 
@@ -740,7 +839,7 @@
           </div>
         </div>
 
-        <div style="font-size:13px; color:var(--muted); margin-bottom:6px;" id="hostQuizMeta">문제 1 / 10</div>
+        
         <div class="quiz-qbox" id="hostQuizQ">문제 출제 버튼을 눌러 시작하세요!</div>
         <div id="hostQuizExp" class="hidden" style="margin-top:10px; padding:10px 14px; border-radius:12px; background:rgba(16,185,129,0.18); border:1px solid var(--green); font-weight:700; text-align:center;"></div>
 
@@ -754,6 +853,89 @@
             <div class="ox-crowd" id="playersX"></div>
           </div>
         </div>
+      </div>
+
+
+      <!-- GAME 3: RUSH (칼퇴 눈치 달리기) -->
+      <div id="hostRush" class="card hidden">
+        <div>
+          <span class="badge">GAME 3 · RED LIGHT GREEN LIGHT</span>
+          <h2 style="margin:6px 0 0;">🏃‍♂️ 칼퇴 눈치 달리기</h2>
+        </div>
+        <div class="step-wizard">
+          <div class="step-info">
+            <span class="step-tag" id="rushStepTag">1단계 / 2</span>
+            <span class="step-desc" id="rushStepDesc">초록불엔 광클! 빨간불(팀장님 등장)에 누르면 강제 야근(-18% 후퇴)!</span>
+          </div>
+          <div class="step-actions">
+            <button id="btnRushStart" class="btn btn-green btn-next-pulse" onclick="sendWS({type:'rush_start'})">▶ 1단계: 칼퇴 달리기 시작!</button>
+            <button id="btnRushFinish" class="btn btn-red btn-sm hidden" onclick="sendWS({type:'rush_finish'})">⏹ 조기 마감</button>
+            <button id="btnRushNextGame" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('bomb')">➡ 다음 게임: 4. 계약 돌리기</button>
+          </div>
+        </div>
+        <div id="hostRushLight" class="rush-banner green">🟢 준비 완료! 시작을 누르세요!</div>
+        <div id="hostRushTrack"></div>
+      </div>
+
+      <!-- GAME 6: BALANCE (다수결 텔레파시) -->
+      <div id="hostBalance" class="card hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <span class="badge">GAME 6 · TELEPATHY</span>
+            <h2 style="margin:6px 0 0;">⚖️ 다수결 텔레파시 (밸런스 게임)</h2>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button id="btnBalModeMaj" class="btn btn-primary btn-sm" onclick="setBalanceMode('majority')">👥 다수파 승리 모드</button>
+            <button id="btnBalModeMin" class="btn btn-secondary btn-sm" onclick="setBalanceMode('minority')">🦄 소수파 승리 모드</button>
+          </div>
+        </div>
+        <div class="step-wizard" style="margin-bottom:12px;">
+          <div class="step-info">
+            <span class="step-tag" id="hostBalanceMeta">라운드 1 / 8 · 다수파 승리</span>
+            <span class="step-desc" id="hostBalanceGuide">1단계: 질문 출제 버튼을 눌러주세요!</span>
+          </div>
+          <div class="step-actions">
+            <button id="btnBalOpen" class="btn btn-green btn-next-pulse" onclick="hostBalanceOpenCurrent()">▶ 1단계: 질문 출제</button>
+            <button id="btnBalLock" class="btn btn-red hidden" onclick="sendWS({type:'balance_lock'})">🔒 2단계: 선택 마감</button>
+            <button id="btnBalReveal" class="btn btn-amber hidden" onclick="sendWS({type:'balance_reveal'})">✨ 3단계: 결과 공개 (+50점)</button>
+            <button id="btnBalNext" class="btn btn-primary hidden" onclick="hostBalanceNext()">➡ 다음 질문</button>
+            <button id="btnBalNextGame" class="btn btn-green hidden" onclick="hostSwitchGame('chosung')">➡ 다음 게임: 7. 초성 퀴즈</button>
+          </div>
+        </div>
+        <div class="quiz-qbox" id="hostBalanceQ">질문 출제 버튼을 눌러 시작하세요!</div>
+        <div class="ox-zones">
+          <div class="ox-zone zone-o" id="hostBalZoneA">
+            <div class="ox-title" style="font-size:22px; color:#60a5fa;" id="hostBalLabelA">A <span id="countBalA">(0)</span></div>
+            <div class="ox-crowd" id="playersBalA"></div>
+          </div>
+          <div class="ox-zone zone-x" id="hostBalZoneB">
+            <div class="ox-title" style="font-size:22px; color:#f472b6;" id="hostBalLabelB">B <span id="countBalB">(0)</span></div>
+            <div class="ox-crowd" id="playersBalB"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAME 7: CHOSUNG (선착순 초성 퀴즈) -->
+      <div id="hostChosung" class="card hidden">
+        <div>
+          <span class="badge">GAME 7 · SPEED QUIZ</span>
+          <h2 style="margin:6px 0 0;">⌨️ 선착순 초성 퀴즈</h2>
+        </div>
+        <div class="step-wizard" style="margin-bottom:12px;">
+          <div class="step-info">
+            <span class="step-tag" id="hostChosungMeta">문제 1 / 10</span>
+            <span class="step-desc" id="hostChosungGuide">1단계: 초성 문제 출제 버튼을 누르세요! (1등 +100, 2등 +70, 3등 +50)</span>
+          </div>
+          <div class="step-actions">
+            <button id="btnChoOpen" class="btn btn-green btn-next-pulse" onclick="hostChosungOpenCurrent()">▶ 1단계: 초성 출제</button>
+            <button id="btnChoReveal" class="btn btn-amber hidden" onclick="sendWS({type:'chosung_reveal'})">✨ 2단계: 정답 공개 & 마감</button>
+            <button id="btnChoNext" class="btn btn-primary hidden" onclick="hostChosungNext()">➡ 다음 문제</button>
+            <button id="btnChoNextGame" class="btn btn-green hidden" onclick="hostSwitchGame('quiz')">➡ 다음 게임: 8. 눈치 O/X 퀴즈</button>
+          </div>
+        </div>
+        <div class="chosung-box" id="hostChosungLetters">준비 중</div>
+        <div id="hostChosungHint" style="text-align:center; font-size:17px; font-weight:800; color:var(--cyan); margin-bottom:14px;">힌트가 여기에 표시됩니다.</div>
+        <div id="hostChosungWinners" class="reveal-stage"></div>
       </div>
 
       <!-- PODIUM -->
@@ -781,13 +963,12 @@
 <!-- ==================== PLAYER STEP 1: ROOM & NAME ==================== -->
 <section id="viewPlayerStep1" class="player-shell hidden" style="justify-content:center;">
   <div class="card">
-    <span class="badge">STEP 1 / 2 · 입장 정보</span>
+    <span class="badge">STEP 1 / 2 · 익명 입장</span>
     <h2 style="margin:8px 0 14px;">팀파워 레크레이션 입장</h2>
+    <p style="font-size:13px; color:var(--muted); margin:0 0 12px;">실명 없이 익명 아바타 이름으로 진행됩니다!</p>
     <label style="font-size:13px; color:var(--muted);">방 코드 (사회자 화면 4자리)</label>
     <input id="joinRoomInput" class="input-field" maxlength="5" placeholder="예: A7K2" style="text-transform:uppercase; font-weight:900; letter-spacing:3px;" />
-    <label style="font-size:13px; color:var(--muted);">내 닉네임 (실명 또는 별명)</label>
-    <input id="joinNameInput" class="input-field" maxlength="10" placeholder="예: 최현우" />
-    <button class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;" onclick="goToAvatarStudio()">캐릭터 꾸미러 가기 🎨 ➡</button>
+    <button class="btn btn-primary" style="width:100%; padding:14px; font-size:16px;" onclick="goToAvatarStudio()">내 아바타 꾸미러 가기 🎨 ➡</button>
   </div>
 </section>
 
@@ -801,12 +982,11 @@
 
     <div class="studio-preview">
       <div id="studioStickmanPreview"></div>
-      <div id="studioNamePreview" style="font-weight:900; font-size:16px; margin-top:4px;"></div>
-      <div id="studioConceptPreview" class="concept-bubble hidden"></div>
+      <div id="studioNamePreview" style="font-weight:900; font-size:17px; margin-top:6px; color:var(--gold);">익명 캐릭터 이름을 적어주세요!</div>
     </div>
 
-    <div style="font-size:13px; font-weight:800; margin-bottom:5px;">✨ 코디 한 줄 컨셉 <span style="color:var(--muted); font-weight:600;">(코디 투표 때 같이 떠요!)</span></div>
-    <input id="studioConceptInput" class="input-field" maxlength="15" placeholder="예: 칼퇴하는 부장님, 야근 요정 (최대 15자)" oninput="updateDraftConcept(this.value)" />
+    <div style="font-size:13px; font-weight:800; margin-bottom:5px;">✨ 아바타 설명 (익명 캐릭터 이름) <span style="color:var(--pink); font-weight:700;">*필수</span></div>
+    <input id="studioConceptInput" class="input-field" maxlength="15" placeholder="예: 칼퇴하는 부장님, 야근 요정 (최대 15자)" oninput="updateDraftName(this.value)" />
 
     <div style="font-size:13px; font-weight:800; margin-bottom:6px;">1. 얼굴 선택 <span style="color:var(--accent); font-weight:600;">(선착순 1인 1얼굴!)</span></div>
     <div class="face-grid" id="studioFaceGrid"></div>
@@ -927,6 +1107,51 @@
     </div>
   </div>
 
+
+  <!-- Player Game 3: Rush -->
+  <div id="pRush" class="card hidden" style="text-align:center;">
+    <span class="badge">GAME 3 · 칼퇴 눈치 달리기</span>
+    <div id="pRushLight" class="rush-banner green" style="font-size:20px; padding:12px;">🟢 초록불! 미친 듯이 연타!</div>
+    <div style="font-size:14px; font-weight:800; margin-bottom:8px;">내 진행률: <b id="pRushMyPct" style="color:var(--gold); font-size:20px;">0%</b></div>
+    <div class="rush-track" style="height:20px; margin-bottom:14px;"><div id="pRushMyBar" class="rush-fill" style="width:0%;"></div></div>
+    <button id="pRushBtn" class="btn btn-green huge-action-btn" disabled onclick="playerTapRush()">
+      <span style="font-size:46px;">🏃‍♂️</span>
+      <span>칼퇴 달리기! (연타)</span>
+    </button>
+    <div id="pRushMsg" style="margin-top:10px; font-size:13px; font-weight:700; color:var(--muted);">사회자가 시작을 누를 때까지 대기 중...</div>
+  </div>
+
+  <!-- Player Game 6: Balance -->
+  <div id="pBalance" class="card hidden" style="text-align:center;">
+    <span class="badge" id="pBalModeBadge">GAME 6 · 다수결 텔레파시</span>
+    <div id="pBalQ" style="font-size:17px; font-weight:800; margin:12px 0; line-height:1.45;">사회자가 질문을 출제할 때까지 기다려주세요.</div>
+    <div style="display:grid; grid-template-columns:1fr; gap:10px;">
+      <button id="btnBalA" class="btn" style="padding:20px 14px; font-size:17px; background:linear-gradient(180deg,#00bbf9,#2563eb);" disabled onclick="playerChooseBalance('A')">A 선택지</button>
+      <button id="btnBalB" class="btn" style="padding:20px 14px; font-size:17px; background:linear-gradient(180deg,#ff4da6,#db2777);" disabled onclick="playerChooseBalance('B')">B 선택지</button>
+    </div>
+    <div id="pBalMsg" style="margin-top:10px; font-weight:800; font-size:14px; color:var(--muted);"></div>
+    <div id="pBalLiveHud" class="live-hud hidden">
+      <div class="live-pill"><span class="live-dot"></span> 실시간 선택 비율</div>
+      <div class="ratio-bar">
+        <div id="pBalBarA" class="ratio-o" style="width:50%;">A 0명</div>
+        <div id="pBalBarB" class="ratio-x" style="width:50%;">B 0명</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Player Game 7: Chosung -->
+  <div id="pChosung" class="card hidden" style="text-align:center;">
+    <span class="badge">GAME 7 · 선착순 초성 퀴즈</span>
+    <div id="pChoLetters" class="chosung-box" style="font-size:44px; padding:18px 10px; letter-spacing:10px;">준비 중</div>
+    <div id="pChoHint" style="font-size:14px; font-weight:700; color:var(--cyan); margin-bottom:12px;">사회자가 문제를 출제할 때까지 대기 중...</div>
+    <div style="display:flex; gap:8px;">
+      <input id="pChoInput" class="input-field" style="margin:0; font-size:17px; font-weight:800;" placeholder="정답 입력!" onkeydown="if(event.key==='Enter') playerSubmitChosung()" />
+      <button id="pChoBtn" class="btn btn-amber" style="white-space:nowrap;" disabled onclick="playerSubmitChosung()">제출!</button>
+    </div>
+    <div id="pChoMsg" style="margin-top:10px; font-weight:800; font-size:14px; color:var(--muted);"></div>
+    <div id="pChoWinnersHud" class="live-hud hidden"></div>
+  </div>
+
   <!-- Player Podium (with Live Top 3) -->
   <div id="pPodium" class="card hidden" style="text-align:center; padding:24px 16px;">
     <div style="font-size:48px;">🏆</div>
@@ -938,6 +1163,7 @@
 
 <script>
 const OUTFIT_OPTS = [
+  { id: "none", label: "없음 (기본)" },
   { id: "suit", label: "👔 정장" },
   { id: "vest", label: "🦺 포스코 조끼" },
   { id: "muscle", label: "🎽 근육맨" },
@@ -979,9 +1205,9 @@ let draft = {
   concept: "",
   face_id: null,
   emoji: FALLBACK_EMOJIS[Math.floor(Math.random() * FALLBACK_EMOJIS.length)],
-  outfit: "suit",
-  hat: "sunglasses",
-  item: "contract",
+  outfit: "none",
+  hat: "none",
+  item: "none",
 };
 
 let audioCtx = null;
@@ -1013,7 +1239,7 @@ function showToast(msg) {
 // ==================== STICKMAN SVG RENDERER ====================
 function renderStickmanSVG(p, width = 90, anim = true) {
   const height = Math.round(width * 1.38);
-  const outfit = p.outfit || "suit";
+  const outfit = p.outfit || "none";
   const hat = p.hat || "none";
   const item = p.item || "none";
   const faceImg = p.face_id && facesMap[p.face_id] ? facesMap[p.face_id] : null;
@@ -1029,7 +1255,9 @@ function renderStickmanSVG(p, width = 90, anim = true) {
     ? `<path d="M40 80 L18 140 L102 140 L80 80 Z" fill="#dc2626" opacity="0.92"/>` : "";
 
   let bodySvg = "";
-  if (outfit === "suit") {
+  if (outfit === "none") {
+    bodySvg = `<line x1="60" y1="78" x2="60" y2="125" stroke="#e2e8f0" stroke-width="7" stroke-linecap="round"/><line x1="42" y1="86" x2="78" y2="86" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>`;
+  } else if (outfit === "suit") {
     bodySvg = `
       <path d="M42 78 L78 78 L82 126 L38 126 Z" fill="#1e293b" stroke="#94a3b8" stroke-width="2" rx="6"/>
       <polygon points="52,78 68,78 60,104" fill="#ffffff"/>
@@ -1222,7 +1450,7 @@ function sendWS(obj) {
   const urlRoom = params.get("room");
   if (urlRoom) {
     document.getElementById("joinRoomInput").value = urlRoom.toUpperCase();
-    showPlayerStep1();
+    goToAvatarStudio();
   }
   window.addEventListener("keydown", (e) => {
     if (role === "host" && appState && appState.current_game === "stop777" && appState.game_state.phase === "reveal") {
@@ -1249,16 +1477,15 @@ function showPlayerStep1() {
 
 function goToAvatarStudio() {
   const code = document.getElementById("joinRoomInput").value.trim().toUpperCase();
-  const name = document.getElementById("joinNameInput").value.trim();
-  if (!code || !name) { showToast("방 코드와 닉네임을 모두 입력해주세요!"); return; }
-  draft.name = name;
+  if (!code) { showToast("방 코드를 입력해주세요!"); return; }
   roomCode = code;
   role = "preview";
+  document.getElementById("viewLanding").classList.add("hidden");
   document.getElementById("viewPlayerStep1").classList.add("hidden");
   document.getElementById("viewPlayerStudio").classList.remove("hidden");
   document.getElementById("studioRoomLabel").textContent = code;
-  document.getElementById("studioNamePreview").textContent = name;
-  document.getElementById("studioConceptInput").value = draft.concept;
+  document.getElementById("studioConceptInput").value = draft.name;
+  updateDraftName(draft.name);
   connectWS(() => sendWS({type: "player_preview", room: code}));
 }
 
@@ -1266,19 +1493,16 @@ function reopenStudio() {
   role = "preview";
   document.getElementById("viewPlayerGame").classList.add("hidden");
   document.getElementById("viewPlayerStudio").classList.remove("hidden");
-  document.getElementById("studioConceptInput").value = draft.concept;
+  document.getElementById("studioConceptInput").value = draft.name;
+  updateDraftName(draft.name);
   if (appState) renderStudio(appState);
 }
 
-function updateDraftConcept(val) {
-  draft.concept = val.trim();
-  const el = document.getElementById("studioConceptPreview");
-  if (draft.concept) {
-    el.textContent = `"${draft.concept}"`;
-    el.classList.remove("hidden");
-  } else {
-    el.classList.add("hidden");
-  }
+function updateDraftName(val) {
+  draft.name = val.trim();
+  draft.concept = "";
+  const el = document.getElementById("studioNamePreview");
+  if (el) el.textContent = draft.name || "익명 캐릭터 이름을 적어주세요!";
 }
 
 function renderStudio(st) {
@@ -1291,8 +1515,7 @@ function renderStudio(st) {
   }
 
   document.getElementById("studioStickmanPreview").innerHTML = renderStickmanSVG(draft, 126, true);
-  document.getElementById("studioNamePreview").textContent = draft.name;
-  updateDraftConcept(draft.concept);
+  updateDraftName(draft.name);
 
   const fGrid = document.getElementById("studioFaceGrid");
   const faceHtml = (st.faces || []).map(f => {
@@ -1334,6 +1557,7 @@ function pickDraft(key, val) {
 }
 
 function finalizePlayerJoin() {
+  if (!draft.name) { showToast("아바타 설명(익명 캐릭터 이름)을 입력해주세요!"); document.getElementById("studioConceptInput").focus(); return; }
   const savedRoom = sessionStorage.getItem("tp_room");
   const savedPid = myPlayerId || (savedRoom === roomCode ? sessionStorage.getItem("tp_pid") : null);
   sendWS({
@@ -1408,7 +1632,8 @@ function renderHost(st) {
 
   const map = {
     lobby: "hostLobby", fashion: "hostFashion", stop777: "hostStop777",
-    bomb: "hostBomb", rhythm: "hostRhythm", quiz: "hostQuiz", podium: "hostPodium",
+    rush: "hostRush", bomb: "hostBomb", rhythm: "hostRhythm",
+    balance: "hostBalance", chosung: "hostChosung", quiz: "hostQuiz", podium: "hostPodium",
   };
   Object.entries(map).forEach(([k, id]) => {
     document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
@@ -1443,7 +1668,10 @@ function renderHost(st) {
   if (st.current_game !== "stop777") cancelAnimationFrame(stop777Raf);
   if (st.current_game === "fashion") renderHostFashion(st);
   if (st.current_game === "stop777") renderHostStop777(st);
+  if (st.current_game === "rush") renderHostRush(st);
   if (st.current_game === "bomb") renderHostBomb(st);
+  if (st.current_game === "balance") renderHostBalance(st);
+  if (st.current_game === "chosung") renderHostChosung(st);
   if (st.current_game === "rhythm") renderHostRhythm(st);
   if (st.current_game === "quiz") renderHostQuiz(st);
   if (st.current_game === "podium") renderHostPodium(st);
@@ -1456,16 +1684,20 @@ function renderHostFashion(st) {
   const pMap = Object.fromEntries(players.map(p => [p.id, p]));
   const btnStart = document.getElementById("btnFashionStart");
   const btnFinish = document.getElementById("btnFashionFinish");
+  const btnNext = document.getElementById("btnFashionNext");
+  const stepTag = document.getElementById("fashionStepTag");
   const statusEl = document.getElementById("hostFashionStatus");
   const gridEl = document.getElementById("hostFashionGrid");
 
   if (gs.phase === "ready" || gs.phase === "voting") {
     btnStart.classList.toggle("hidden", gs.phase === "voting");
     btnFinish.classList.toggle("hidden", gs.phase !== "voting");
+    btnNext.classList.add("hidden");
     const votedCount = Object.keys(gs.votes || {}).length;
+    stepTag.textContent = gs.phase === "voting" ? "2단계 / 3 · 투표 마감 대기" : "1단계 / 3 · 투표 열기";
     statusEl.textContent = gs.phase === "voting"
-      ? `🗳️ 투표 진행 중! (${votedCount} / ${players.length}명 투표 완료)`
-      : "참여자 캐릭터와 한 줄 컨셉을 감상한 뒤 [투표 시작]을 눌러주세요!";
+      ? `🗳️ 투표 진행 중! (${votedCount} / ${players.length}명 완료) → 다 끝나면 마감 버튼을 누르세요.`
+      : "참여자 캐릭터들을 다 같이 구경한 뒤 [1단계: 투표 시작하기]를 누르세요!";
     gridEl.innerHTML = players.map(p => `
       <div class="fashion-card">
         ${renderStickmanSVG(p, 90, true)}
@@ -1474,8 +1706,10 @@ function renderHostFashion(st) {
       </div>
     `).join("");
   } else if (gs.phase === "revealed") {
-    btnStart.classList.remove("hidden");
+    btnStart.classList.add("hidden");
     btnFinish.classList.add("hidden");
+    btnNext.classList.remove("hidden");
+    stepTag.textContent = "3단계 / 3 · 결과 발표 완료!";
     const results = gs.results || [];
     const winner = results[0] ? pMap[results[0].id] : null;
     statusEl.textContent = winner ? `🎉 베스트 코디 1등: ${winner.name} (${results[0].votes}표 / +${results[0].pts}점)!` : "투표 종료!";
@@ -1505,6 +1739,8 @@ function renderHostStop777(st) {
   const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
   const btnStart = document.getElementById("btnStop777Start");
   const btnFinish = document.getElementById("btnStop777Finish");
+  const btnNextGame = document.getElementById("btnStopNextGame");
+  const stepTag = document.getElementById("stopStepTag");
   const timerEl = document.getElementById("hostStop777Timer");
   const statusEl = document.getElementById("hostStop777Status");
   const revCtrl = document.getElementById("hostStop777RevealControls");
@@ -1512,10 +1748,12 @@ function renderHostStop777(st) {
   cancelAnimationFrame(stop777Raf);
 
   if (gs.phase === "ready") {
-    btnStart.classList.remove("hidden"); btnFinish.classList.add("hidden"); revCtrl.classList.add("hidden");
-    timerEl.textContent = "7.77"; statusEl.textContent = "참여자들이 준비되면 [게임 시작]을 눌러주세요!"; revStage.innerHTML = "";
+    btnStart.classList.remove("hidden"); btnFinish.classList.add("hidden"); revCtrl.classList.add("hidden"); btnNextGame.classList.add("hidden");
+    stepTag.textContent = "1단계 / 3 · 게임 시작";
+    timerEl.textContent = "7.77"; statusEl.textContent = "참여자들이 준비되면 [1단계: 게임 시작]을 눌러주세요!"; revStage.innerHTML = "";
   } else if (gs.phase === "running") {
-    btnStart.classList.add("hidden"); btnFinish.classList.remove("hidden"); revCtrl.classList.add("hidden"); revStage.innerHTML = "";
+    btnStart.classList.add("hidden"); btnFinish.classList.remove("hidden"); revCtrl.classList.add("hidden"); btnNextGame.classList.add("hidden"); revStage.innerHTML = "";
+    stepTag.textContent = "2단계 / 3 · 진행 중 (전원 스탑 시 마감)";
     const offset = gs.server_now ? (Date.now()/1000 - gs.server_now) : 0;
     const localStart = gs.start_ts + offset;
     const tick = () => {
@@ -1529,11 +1767,16 @@ function renderHostStop777(st) {
     const stoppedIds = Object.keys(gs.results || {});
     statusEl.innerHTML = `스탑 완료: <b>${stoppedIds.length} / ${st.players.length}명</b>`;
   } else if (gs.phase === "reveal") {
-    btnStart.classList.remove("hidden"); btnFinish.classList.add("hidden"); revCtrl.classList.remove("hidden");
-    timerEl.textContent = "🎯 7.77";
+    btnFinish.classList.add("hidden");
     const ordered = gs.ordered || [];
     const shown = ordered.slice(0, gs.revealed_count || 0);
-    statusEl.textContent = `꼴등부터 역순 공개 중! (${shown.length} / ${ordered.length})`;
+    const allDone = ordered.length > 0 && shown.length >= ordered.length;
+    btnStart.classList.add("hidden");
+    revCtrl.classList.toggle("hidden", allDone);
+    btnNextGame.classList.toggle("hidden", !allDone);
+    stepTag.textContent = allDone ? "3단계 / 3 · 순위 공개 완료!" : "3단계 / 3 · 역순 공개 (Space 키)";
+    timerEl.textContent = "🎯 7.77";
+    statusEl.textContent = allDone ? "🎉 1등 공개 완료! 다음 게임으로 넘어가세요." : `꼴등부터 역순 공개 중! (${shown.length} / ${ordered.length})`;
     if (ordered.length > 0 && shown.length === ordered.length) maybeCelebrate("stop777_" + ordered[ordered.length-1].id + "_" + ordered[ordered.length-1].time);
     revStage.innerHTML = shown.map(item => {
       const p = pMap[item.id] || {name:"?"};
@@ -1586,9 +1829,18 @@ function renderHostBomb(st) {
     arena.appendChild(node);
   });
 
+  const bTag = document.getElementById("bombStepTag");
+  const bDesc = document.getElementById("bombStepDesc");
+  const bSpot = document.getElementById("btnBombSpot");
+  const bBpa = document.getElementById("btnBombBpa");
+  const bNext = document.getElementById("btnBombNextGame");
   if (gs.phase === "ready") {
+    bTag.textContent = "1단계 · 폭탄 선택"; bDesc.textContent = "Spot 또는 BPA 계약서 중 하나를 골라 시작하세요!";
+    bSpot.classList.remove("hidden"); bBpa.classList.remove("hidden"); bNext.classList.add("hidden");
     center.innerHTML = `<div style="font-size:44px;">📄</div><div style="font-weight:800; margin-top:6px;">Spot 또는 BPA<br/>시작 버튼을 누르세요</div>`;
   } else if (gs.phase === "running") {
+    bTag.textContent = "2단계 · 폭탄 진행 중 🔥"; bDesc.textContent = `${gs.doc_type} 계약서 폭탄이 돌아가고 있습니다! (폭발 대기)`;
+    bSpot.classList.add("hidden"); bBpa.classList.add("hidden"); bNext.classList.add("hidden");
     const holder = pMap[gs.holder];
     center.innerHTML = `
       <div style="font-size:46px;">${gs.doc_type === 'Spot' ? '📄' : '📑'}</div>
@@ -1597,6 +1849,8 @@ function renderHostBomb(st) {
       <div style="font-size:14px; font-weight:800; margin-top:5px; color:#fca5a5;">보유: ${holder ? escapeHtml(holder.name) : ''}</div>
     `;
   } else if (gs.phase === "exploded") {
+    bTag.textContent = "3단계 · 폭발 완료!"; bDesc.textContent = "한 판 더 하거나 다음 게임으로 넘어가세요!";
+    bSpot.classList.remove("hidden"); bBpa.classList.remove("hidden"); bNext.classList.remove("hidden");
     const loser = pMap[gs.loser];
     playTone(110, 0.4, 'sawtooth', 0.2);
     center.innerHTML = `
@@ -1613,16 +1867,21 @@ function renderHostRhythm(st) {
   const gs = st.game_state;
   const btnStart = document.getElementById("btnRhythmStart");
   const btnStop = document.getElementById("btnRhythmStop");
+  const btnNext = document.getElementById("btnRhythmNextGame");
+  const rTag = document.getElementById("rhythmStepTag");
   const banner = document.getElementById("hostRhythmBanner");
   const race = document.getElementById("hostRhythmRace");
 
   if (gs.phase === "ready") {
-    btnStart.classList.remove("hidden"); btnStop.classList.add("hidden");
+    btnStart.classList.remove("hidden"); btnStop.classList.add("hidden"); btnNext.classList.add("hidden");
+    rTag.textContent = "1단계 / 2 · 게임 시작";
     banner.textContent = "휴대폰 화면을 보고 떨어지는 노트를 터치하세요!"; race.innerHTML = "";
     return;
   }
-  btnStart.classList.toggle("hidden", gs.phase === "running");
+  btnStart.classList.add("hidden");
   btnStop.classList.toggle("hidden", gs.phase !== "running");
+  btnNext.classList.toggle("hidden", gs.phase !== "finished");
+  rTag.textContent = gs.phase === "running" ? "2단계 / 2 · 38초 레이싱 진행 중" : "완료! 다음 게임으로 이동하세요";
   banner.textContent = gs.phase === "running" ? "🔥 실시간 리듬 레이싱 진행 중! 🔥" : "🏁 리듬게임 종료! 순위별 점수가 반영되었습니다!";
 
   const scores = gs.scores || {};
@@ -1653,11 +1912,28 @@ function renderHostQuiz(st) {
   if (hostQuizIdx >= quizzes.length) hostQuizIdx = 0;
   const qObj = quizzes[hostQuizIdx] || {q: "문제가 없습니다.", a: "O", exp: ""};
 
-  document.getElementById("hostQuizMeta").textContent = `문제 ${hostQuizIdx + 1} / ${quizzes.length}  ·  상태: ${
-    gs.phase === 'open' ? '🟢 선택 중 (눈치게임!)' :
-    gs.phase === 'locked' ? '🔴 마감됨 (STOP)' :
-    gs.phase === 'revealed' ? '✨ 정답 공개됨' : '대기 중'
-  }`;
+  document.getElementById("hostQuizMeta").textContent = `문제 ${hostQuizIdx + 1} / ${quizzes.length}`;
+  const qGuide = document.getElementById("hostQuizGuide");
+  const bOpen = document.getElementById("btnQuizOpen");
+  const bLock = document.getElementById("btnQuizLock");
+  const bRev = document.getElementById("btnQuizReveal");
+  const bNext = document.getElementById("btnQuizNext");
+  const bPod = document.getElementById("btnQuizPodium");
+  [bOpen, bLock, bRev, bNext, bPod].forEach(b => b && b.classList.add("hidden"));
+  if (gs.phase === "ready") {
+    qGuide.textContent = "1단계: 문제 출제 버튼을 눌러주세요!";
+    bOpen.classList.remove("hidden");
+  } else if (gs.phase === "open") {
+    qGuide.textContent = "2단계: 참여자들이 눈치 보며 이동 중! 충분히 골랐으면 마감(STOP)을 누르세요.";
+    bLock.classList.remove("hidden");
+  } else if (gs.phase === "locked") {
+    qGuide.textContent = "3단계: 선택 마감 완료! 이제 정답을 공개하세요.";
+    bRev.classList.remove("hidden");
+  } else if (gs.phase === "revealed") {
+    qGuide.textContent = "4단계: 정답 공개 완료! 다음 문제를 내거나 최종 시상식으로 이동하세요.";
+    bNext.classList.remove("hidden");
+    bPod.classList.remove("hidden");
+  }
   document.getElementById("hostQuizQ").textContent = gs.phase === "ready" ? `[준비] Q${hostQuizIdx+1}. 문제 출제 버튼을 누르세요!` : `Q${hostQuizIdx+1}. ${qObj.q}`;
 
   const expBox = document.getElementById("hostQuizExp");
@@ -1788,7 +2064,8 @@ function renderPlayer(st) {
 
   const map = {
     lobby: "pLobby", fashion: "pFashion", stop777: "pStop777",
-    bomb: "pBomb", rhythm: "pRhythm", quiz: "pQuiz", podium: "pPodium",
+    rush: "pRush", bomb: "pBomb", rhythm: "pRhythm",
+    balance: "pBalance", chosung: "pChosung", quiz: "pQuiz", podium: "pPodium",
   };
   Object.entries(map).forEach(([k, id]) => {
     document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
@@ -1799,7 +2076,10 @@ function renderPlayer(st) {
 
   if (st.current_game === "fashion") renderPlayerFashion(st);
   if (st.current_game === "stop777") renderPlayerStop777(st);
+  if (st.current_game === "rush") renderPlayerRush(st);
   if (st.current_game === "bomb") renderPlayerBomb(st);
+  if (st.current_game === "balance") renderPlayerBalance(st);
+  if (st.current_game === "chosung") renderPlayerChosung(st);
   if (st.current_game === "rhythm") renderPlayerRhythm(st);
   if (st.current_game === "quiz") renderPlayerQuiz(st);
   if (st.current_game === "podium") renderPlayerPodium(st, myIdx);
@@ -2158,6 +2438,291 @@ function renderPlayerPodium(st, myIdx) {
     `).join("");
 }
 
+
+
+// ==================== GAME 3: RUSH (칼퇴 눈치 달리기) ====================
+function renderHostRush(st) {
+  const gs = st.game_state;
+  const players = st.players || [];
+  const pMap = Object.fromEntries(players.map(p => [p.id, p]));
+  const btnStart = document.getElementById("btnRushStart");
+  const btnFin = document.getElementById("btnRushFinish");
+  const btnNext = document.getElementById("btnRushNextGame");
+  const tag = document.getElementById("rushStepTag");
+  const desc = document.getElementById("rushStepDesc");
+  const lightEl = document.getElementById("hostRushLight");
+  const trackEl = document.getElementById("hostRushTrack");
+
+  if (gs.phase === "ready") {
+    btnStart.classList.remove("hidden"); btnFin.classList.add("hidden"); btnNext.classList.add("hidden");
+    tag.textContent = "1단계 / 2 · 게임 시작";
+    desc.textContent = "초록불엔 광클! 빨간불(팀장님 등장)에 누르면 강제 야근(-18% 후퇴)!";
+    lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 준비 완료! 시작 버튼을 누르세요!";
+  } else if (gs.phase === "running") {
+    btnStart.classList.add("hidden"); btnFin.classList.remove("hidden"); btnNext.classList.add("hidden");
+    tag.textContent = "2단계 / 2 · 칼퇴 레이스 진행 중!";
+    desc.textContent = "랜덤으로 팀장님이 등장합니다! (28초 자동 마감)";
+    if (gs.light === "red") {
+      lightEl.className = "rush-banner red";
+      lightEl.textContent = "🚨 팀장님 등장!! 멈추세요!! (누르면 야근 당첨!)";
+    } else {
+      lightEl.className = "rush-banner green";
+      lightEl.textContent = "🟢 초록불! 지금 달려요!! 🏃‍♂️💨";
+    }
+  } else if (gs.phase === "finished") {
+    btnStart.classList.add("hidden"); btnFin.classList.add("hidden"); btnNext.classList.remove("hidden");
+    tag.textContent = "완료! 칼퇴 성공자 발표!";
+    const first = (gs.ranked && gs.ranked[0]) ? pMap[gs.ranked[0]] : null;
+    desc.textContent = first ? `🎉 1등 칼퇴 성공: ${first.name} (+120점)!` : "레이스 종료!";
+    lightEl.className = "rush-banner green";
+    lightEl.textContent = first ? `🏆 1등 칼퇴왕: ${first.name}!` : "🏁 레이스 종료!";
+    if (first) maybeCelebrate("rush_" + first.id);
+  }
+
+  const prog = gs.progress || {};
+  const list = players.map(p => ({ p, pct: prog[p.id] || 0, pts: (gs.awarded && gs.awarded[p.id]) || 0 }))
+    .sort((a, b) => b.pct - a.pct);
+  trackEl.innerHTML = list.map((it, idx) => `
+    <div class="rush-lane">
+      <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+        ${idx+1}. ${renderMiniFace(it.p)}${escapeHtml(it.p.name)}
+      </div>
+      <div class="rush-track">
+        <div class="rush-fill" style="width:${it.pct}%;"></div>
+        <span class="rush-runner" style="left:${Math.max(5, Math.min(95, it.pct))}%;">🏃‍♂️</span>
+      </div>
+      <div style="text-align:right; font-weight:900; font-size:13px;">
+        ${it.pct}% ${gs.phase==='finished' ? `<span style="color:var(--green);font-size:11px;">+${it.pts}</span>` : ''}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderPlayerRush(st) {
+  const gs = st.game_state;
+  const lightEl = document.getElementById("pRushLight");
+  const btn = document.getElementById("pRushBtn");
+  const msg = document.getElementById("pRushMsg");
+  const pct = (gs.progress && gs.progress[myPlayerId]) || 0;
+  document.getElementById("pRushMyPct").textContent = pct + "%";
+  document.getElementById("pRushMyBar").style.width = pct + "%";
+
+  if (gs.phase === "ready") {
+    btn.disabled = true;
+    lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 대기 중...";
+    msg.textContent = "사회자가 시작을 누르면 연타하세요!";
+  } else if (gs.phase === "running") {
+    const done = (gs.finished_order || []).includes(myPlayerId);
+    btn.disabled = done;
+    if (done) {
+      lightEl.className = "rush-banner green"; lightEl.textContent = "🎉 칼퇴 성공!! (100% 도착!)";
+      msg.textContent = "다른 참여자들이 도착할 때까지 기다려주세요!";
+    } else if (gs.light === "red") {
+      lightEl.className = "rush-banner red"; lightEl.textContent = "🚨 팀장님 등장! 손 떼세요!!";
+      btn.className = "btn btn-red huge-action-btn";
+      msg.textContent = "지금 누르면 강제 야근(-18% 후퇴)!";
+    } else {
+      lightEl.className = "rush-banner green"; lightEl.textContent = "🟢 초록불! 광클하세요!!";
+      btn.className = "btn btn-green huge-action-btn";
+      msg.textContent = "미친 듯이 탭해서 칼퇴하세요!";
+    }
+  } else if (gs.phase === "finished") {
+    btn.disabled = true;
+    const pts = (gs.awarded && gs.awarded[myPlayerId]) || 0;
+    const rank = (gs.ranked || []).indexOf(myPlayerId) + 1;
+    lightEl.className = "rush-banner green"; lightEl.textContent = `🏁 종료! ${rank}등 (+${pts}점)`;
+    msg.textContent = "수고하셨습니다! 다음 게임을 기다려주세요.";
+  }
+}
+function playerTapRush() { playTone(520, 0.04, 'sine', 0.1); sendWS({type: "rush_tap"}); }
+
+// ==================== GAME 6: BALANCE (다수결 텔레파시) ====================
+let hostBalanceIdx = 0;
+let hostBalanceMode = "majority";
+function setBalanceMode(m) {
+  hostBalanceMode = m;
+  document.getElementById("btnBalModeMaj").className = m === "majority" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm";
+  document.getElementById("btnBalModeMin").className = m === "minority" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm";
+  showToast(m === "majority" ? "👥 다수파 승리 모드로 설정!" : "🦄 소수파 승리 모드로 설정!");
+}
+function hostBalanceOpenCurrent() { sendWS({type: "balance_open", index: hostBalanceIdx, mode: hostBalanceMode}); }
+function hostBalanceNext() {
+  const total = (appState && appState.balances) ? appState.balances.length : 1;
+  hostBalanceIdx = (hostBalanceIdx + 1) % total;
+  sendWS({type: "balance_open", index: hostBalanceIdx, mode: hostBalanceMode});
+}
+
+function renderHostBalance(st) {
+  const gs = st.game_state;
+  const list = st.balances || [];
+  if (gs.index !== undefined) hostBalanceIdx = gs.index;
+  if (hostBalanceIdx >= list.length) hostBalanceIdx = 0;
+  const bObj = list[hostBalanceIdx] || {q:"질문 없음", a:"A", b:"B"};
+  const modeTxt = (gs.mode || hostBalanceMode) === "majority" ? "👥 다수파 승리" : "🦄 소수파 승리";
+
+  document.getElementById("hostBalanceMeta").textContent = `라운드 ${hostBalanceIdx + 1} / ${list.length} · ${modeTxt}`;
+  const guide = document.getElementById("hostBalanceGuide");
+  const bOpen = document.getElementById("btnBalOpen"), bLock = document.getElementById("btnBalLock"),
+        bRev = document.getElementById("btnBalReveal"), bNext = document.getElementById("btnBalNext"),
+        bNextG = document.getElementById("btnBalNextGame");
+  [bOpen, bLock, bRev, bNext, bNextG].forEach(x => x.classList.add("hidden"));
+
+  if (gs.phase === "ready") { guide.textContent = "1단계: 질문 출제 버튼을 눌러주세요!"; bOpen.classList.remove("hidden"); }
+  else if (gs.phase === "open") { guide.textContent = "2단계: 참여자 선택 중! 충분히 골랐으면 마감을 누르세요."; bLock.classList.remove("hidden"); }
+  else if (gs.phase === "locked") { guide.textContent = "3단계: 선택 마감! 이제 결과를 공개하세요."; bRev.classList.remove("hidden"); }
+  else if (gs.phase === "revealed") {
+    guide.textContent = gs.win_side === "TIE" ? "무승부! 전원 +50점!" : `🎉 ${gs.win_side} 선택자 전원 +50점 획득!`;
+    bNext.classList.remove("hidden"); bNextG.classList.remove("hidden");
+  }
+
+  document.getElementById("hostBalanceQ").textContent = gs.phase === "ready" ? `[준비] Q${hostBalanceIdx+1}. 질문 출제를 눌러주세요!` : `Q${hostBalanceIdx+1}. ${bObj.q}`;
+  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
+  const ch = gs.choices || {};
+  const listA = [], listB = [];
+  Object.entries(ch).forEach(([pid, v]) => { if (!pMap[pid]) return; if (v === "A") listA.push(pMap[pid]); if (v === "B") listB.push(pMap[pid]); });
+
+  document.getElementById("hostBalLabelA").innerHTML = `${escapeHtml(bObj.a)} <span style="font-size:16px;">(${listA.length}명)</span>`;
+  document.getElementById("hostBalLabelB").innerHTML = `${escapeHtml(bObj.b)} <span style="font-size:16px;">(${listB.length}명)</span>`;
+  const cardTpl = p => `<div class="ox-mini-card">${renderStickmanSVG(p, 44, true)}<div style="font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(p.name)}</div></div>`;
+  document.getElementById("playersBalA").innerHTML = listA.map(cardTpl).join("");
+  document.getElementById("playersBalB").innerHTML = listB.map(cardTpl).join("");
+  document.getElementById("hostBalZoneA").classList.toggle("correct-glow", gs.phase === "revealed" && (gs.win_side === "A" || gs.win_side === "TIE"));
+  document.getElementById("hostBalZoneB").classList.toggle("correct-glow", gs.phase === "revealed" && (gs.win_side === "B" || gs.win_side === "TIE"));
+}
+
+function renderPlayerBalance(st) {
+  const gs = st.game_state;
+  const bObj = (st.balances || [])[gs.index || 0] || {q:"", a:"A", b:"B"};
+  const btnA = document.getElementById("btnBalA"), btnB = document.getElementById("btnBalB");
+  const msg = document.getElementById("pBalMsg"), hud = document.getElementById("pBalLiveHud");
+  document.getElementById("pBalModeBadge").textContent = gs.mode === "minority" ? "GAME 6 · 🦄 소수파 승리!" : "GAME 6 · 👥 다수파 승리!";
+  btnA.textContent = "A. " + bObj.a; btnB.textContent = "B. " + bObj.b;
+  const myCh = gs.choices && gs.choices[myPlayerId];
+  btnA.style.outline = myCh === "A" ? "4px solid #fee440" : "none";
+  btnB.style.outline = myCh === "B" ? "4px solid #fee440" : "none";
+
+  const vals = Object.values(gs.choices || {});
+  const aCnt = vals.filter(v => v === "A").length, bCnt = vals.filter(v => v === "B").length;
+  const tot = Math.max(1, aCnt + bCnt);
+  const aPct = aCnt + bCnt === 0 ? 50 : Math.round((aCnt / tot) * 100);
+  document.getElementById("pBalBarA").style.width = Math.max(15, aPct) + "%";
+  document.getElementById("pBalBarA").textContent = `A ${aCnt}명`;
+  document.getElementById("pBalBarB").style.width = Math.max(15, 100 - aPct) + "%";
+  document.getElementById("pBalBarB").textContent = `B ${bCnt}명`;
+
+  if (gs.phase === "ready") {
+    document.getElementById("pBalQ").textContent = "사회자가 질문을 출제할 때까지 기다려주세요.";
+    btnA.disabled = true; btnB.disabled = true; msg.textContent = ""; hud.classList.add("hidden");
+  } else if (gs.phase === "open") {
+    document.getElementById("pBalQ").textContent = `Q${(gs.index||0)+1}. ${bObj.q}`;
+    btnA.disabled = false; btnB.disabled = false;
+    msg.textContent = myCh ? `현재 선택: ${myCh} (마감 전 변경 가능)` : "A 또는 B를 골라주세요!";
+    hud.classList.remove("hidden");
+  } else if (gs.phase === "locked") {
+    btnA.disabled = true; btnB.disabled = true; msg.textContent = "🔒 선택 마감! 결과 공개 대기 중..."; hud.classList.remove("hidden");
+  } else if (gs.phase === "revealed") {
+    btnA.disabled = true; btnB.disabled = true;
+    const won = (gs.winners || []).includes(myPlayerId);
+    msg.innerHTML = won ? `<span style="color:var(--green);">🎉 텔레파시 성공! +50점 획득!</span>` : `<span style="color:#f87171;">아쉽습니다! 다음 라운드를 노려보세요.</span>`;
+    hud.classList.remove("hidden");
+  }
+}
+function playerChooseBalance(ch) { playTone(ch === "A" ? 560 : 440, 0.08, 'sine', 0.14); sendWS({type: "balance_choose", choice: ch}); }
+
+// ==================== GAME 7: CHOSUNG (선착순 초성 퀴즈) ====================
+let hostChosungIdx = 0;
+function hostChosungOpenCurrent() { sendWS({type: "chosung_open", index: hostChosungIdx}); }
+function hostChosungNext() {
+  const total = (appState && appState.chosungs) ? appState.chosungs.length : 1;
+  hostChosungIdx = (hostChosungIdx + 1) % total;
+  sendWS({type: "chosung_open", index: hostChosungIdx});
+}
+
+function renderHostChosung(st) {
+  const gs = st.game_state;
+  const list = st.chosungs || [];
+  if (gs.index !== undefined) hostChosungIdx = gs.index;
+  if (hostChosungIdx >= list.length) hostChosungIdx = 0;
+  const cObj = list[hostChosungIdx] || {c:"?", display:"?", hint:""};
+  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
+
+  document.getElementById("hostChosungMeta").textContent = `문제 ${hostChosungIdx + 1} / ${list.length}`;
+  const guide = document.getElementById("hostChosungGuide");
+  const bOpen = document.getElementById("btnChoOpen"), bRev = document.getElementById("btnChoReveal"),
+        bNext = document.getElementById("btnChoNext"), bNextG = document.getElementById("btnChoNextGame");
+  [bOpen, bRev, bNext, bNextG].forEach(x => x.classList.add("hidden"));
+
+  if (gs.phase === "ready") {
+    guide.textContent = "1단계: 초성 출제 버튼을 눌러주세요!";
+    bOpen.classList.remove("hidden");
+    document.getElementById("hostChosungLetters").textContent = "준비 중";
+    document.getElementById("hostChosungHint").textContent = "초성 출제 버튼을 누르면 문제가 시작됩니다.";
+  } else if (gs.phase === "open") {
+    guide.textContent = "2단계: 선착순 정답 입력 중! 충분히 맞혔으면 정답 공개를 누르세요.";
+    bRev.classList.remove("hidden");
+    document.getElementById("hostChosungLetters").textContent = cObj.c;
+    document.getElementById("hostChosungHint").textContent = "💡 힌트: " + cObj.hint;
+  } else if (gs.phase === "revealed") {
+    guide.textContent = "정답 공개 완료! 다음 문제를 내거나 8번 게임으로 이동하세요.";
+    bNext.classList.remove("hidden"); bNextG.classList.remove("hidden");
+    document.getElementById("hostChosungLetters").textContent = cObj.display;
+    document.getElementById("hostChosungHint").textContent = `정답은 [ ${cObj.display} ] 입니다!`;
+  }
+
+  const winners = gs.winners || [];
+  document.getElementById("hostChosungWinners").innerHTML = winners.map(w => {
+    const p = pMap[w.id] || {name:"?"};
+    return `
+      <div class="reveal-card ${w.rank===1?'rank-1':''}">
+        <div style="font-size:12px;font-weight:900;color:${w.rank===1?'#fbbf24':'var(--cyan)'};">${w.rank}등 정답!</div>
+        ${renderStickmanSVG(p, 58, true)}
+        <div style="font-weight:800;font-size:13px;">${escapeHtml(p.name)}</div>
+        <div style="font-size:12px;font-weight:800;color:var(--green);">+${w.pts}점</div>
+      </div>
+    `;
+  }).join("") || (gs.phase === "open" ? '<div style="color:var(--muted);font-size:14px;">가장 먼저 정답을 맞히는 사람은 누구?!</div>' : '');
+}
+
+function renderPlayerChosung(st) {
+  const gs = st.game_state;
+  const cObj = (st.chosungs || [])[gs.index || 0] || {c:"?", display:"?", hint:""};
+  const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
+  const inp = document.getElementById("pChoInput"), btn = document.getElementById("pChoBtn");
+  const msg = document.getElementById("pChoMsg"), hud = document.getElementById("pChoWinnersHud");
+  const winners = gs.winners || [];
+  const myWin = winners.find(w => w.id === myPlayerId);
+
+  if (gs.phase === "ready") {
+    document.getElementById("pChoLetters").textContent = "준비 중";
+    document.getElementById("pChoHint").textContent = "사회자가 문제를 출제할 때까지 대기 중...";
+    inp.disabled = true; btn.disabled = true; msg.textContent = ""; hud.classList.add("hidden");
+  } else if (gs.phase === "open") {
+    document.getElementById("pChoLetters").textContent = cObj.c;
+    document.getElementById("pChoHint").textContent = "💡 " + cObj.hint;
+    inp.disabled = !!myWin; btn.disabled = !!myWin;
+    msg.innerHTML = myWin ? `<span style="color:var(--green);">🎉 ${myWin.rank}등 정답! (+${myWin.pts}점)</span>` : "정답을 빠르게 입력하고 제출하세요!";
+    hud.classList.remove("hidden");
+  } else if (gs.phase === "revealed") {
+    document.getElementById("pChoLetters").textContent = cObj.display;
+    document.getElementById("pChoHint").textContent = `정답: ${cObj.display}`;
+    inp.disabled = true; btn.disabled = true;
+    msg.textContent = myWin ? `🎉 ${myWin.rank}등 정답 (+${myWin.pts}점)!` : "마감되었습니다! 다음 문제를 준비하세요.";
+    hud.classList.remove("hidden");
+  }
+
+  hud.innerHTML = `<div class="live-pill"><span class="live-dot"></span> 실시간 정답자 (${winners.length}명)</div>` +
+    (winners.length ? winners.slice(0, 5).map(w => {
+      const p = pMap[w.id] || {name:"?"};
+      return `<div class="lb-row ${w.rank===1?'top1':''}"><div><b>${w.rank}등</b> ${renderMiniFace(p)}${escapeHtml(p.name)}</div><div style="color:var(--green);font-weight:900;">+${w.pts}점</div></div>`;
+    }).join("") : '<div style="font-size:12px;color:var(--muted);">아직 정답자가 없습니다!</div>');
+}
+function playerSubmitChosung() {
+  const inp = document.getElementById("pChoInput");
+  const val = inp.value.trim();
+  if (!val) return;
+  sendWS({type: "chosung_answer", answer: val});
+  inp.value = "";
+}
 
 // ==================== v4 CONFETTI & FANFARE ENGINE ====================
 let confettiParticles = [];
