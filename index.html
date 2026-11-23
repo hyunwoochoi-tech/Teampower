@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v7 — 40분 풀코스 8종 게임</title>
+<title>팀파워 레크레이션 v8 — 40분 풀코스 8종 게임</title>
 <style>
   :root {
     --bg: #080514;
@@ -414,6 +414,13 @@
     transform: translate(-50%, -50%) scale(1.26);
     animation: shake 0.28s infinite; z-index: 6;
   }
+  .seat-node.holding-bpa {
+    border-color: var(--purple); background: rgba(155, 93, 229, 0.38);
+    box-shadow: 0 0 30px rgba(155, 93, 229, 0.95);
+    transform: translate(-50%, -50%) scale(1.26);
+    animation: shake 0.28s infinite; z-index: 6;
+  }
+  .seat-node.holding-bpa .stick-anim { --wobble-dur: 0.42s !important; }
   .seat-node.loser {
     border-color: var(--gold); background: rgba(255, 59, 92, 0.65);
     box-shadow: 0 0 32px rgba(255, 59, 92, 0.9);
@@ -612,7 +619,7 @@
 
 <!-- ==================== LANDING ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v7</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v8</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>실사 얼굴 졸라맨 코디 콘테스트(한 줄 컨셉!)부터 7.77초·계약 돌리기·리듬게임·우리 그룹 TMI 눈치 O/X 퀴즈까지!</p>
   <div class="landing-grid">
@@ -740,20 +747,19 @@
         <div id="hostStop777RevealStage" class="reveal-stage"></div>
       </div>
 
-      <!-- GAME 3: BOMB -->
+      <!-- GAME 4: DOUBLE BOMB (Spot + BPA 동시!) -->
       <div id="hostBomb" class="card hidden">
         <div>
-          <span class="badge">GAME 3</span>
-          <h2 style="margin:6px 0 0;">💣 계약 돌리기 (Spot / BPA)</h2>
+          <span class="badge">GAME 4 · DOUBLE BOMB</span>
+          <h2 style="margin:6px 0 0;">💣 더블 계약 돌리기 (Spot + BPA 동시!)</h2>
         </div>
         <div class="step-wizard">
           <div class="step-info">
-            <span class="step-tag" id="bombStepTag">1단계 · 폭탄 선택</span>
-            <span class="step-desc" id="bombStepDesc">Spot 또는 BPA 계약서 중 하나를 골라 폭탄을 시작하세요!</span>
+            <span class="step-tag" id="bombStepTag">1단계 · 더블 폭탄 시작</span>
+            <span class="step-desc" id="bombStepDesc">Spot과 BPA 계약서 2개가 동시에 돌아다닙니다! (폭발 시 생존자 전원 +50점)</span>
           </div>
           <div class="step-actions">
-            <button id="btnBombSpot" class="btn btn-primary" onclick="sendWS({type:'bomb_start', doc_type:'Spot'})">📄 Spot 시작</button>
-            <button id="btnBombBpa" class="btn btn-purple" onclick="sendWS({type:'bomb_start', doc_type:'BPA'})">📑 BPA 시작</button>
+            <button id="btnBombStart" class="btn btn-pink btn-next-pulse" onclick="sendWS({type:'bomb_start'})">💣 Spot + BPA 동시 폭탄 시작!</button>
             <button id="btnBombNextGame" class="btn btn-green btn-next-pulse hidden" onclick="hostSwitchGame('rhythm')">➡ 다음 게임: 5. 리듬게임</button>
           </div>
         </div>
@@ -1509,9 +1515,9 @@ function renderStudio(st) {
   const taken = st.taken_faces || {};
   const myCurrentFace = myPlayerId && st.players.find(p => p.id === myPlayerId)?.face_id;
 
-  if (!draft.face_id || (taken[draft.face_id] && draft.face_id !== myCurrentFace)) {
+  if (!draft.face_id || draft.face_id === "emoji_fallback" || (taken[draft.face_id] && draft.face_id !== myCurrentFace)) {
     const avail = (st.faces || []).find(f => !taken[f.id] || f.id === myCurrentFace);
-    draft.face_id = avail ? avail.id : "emoji_fallback";
+    draft.face_id = avail ? avail.id : null;
   }
 
   document.getElementById("studioStickmanPreview").innerHTML = renderStickmanSVG(draft, 126, true);
@@ -1531,13 +1537,7 @@ function renderStudio(st) {
     `;
   }).join("");
 
-  const emojiFallbackHtml = `
-    <div class="face-tile ${draft.face_id === 'emoji_fallback' ? 'selected' : ''}" onclick="pickDraft('face_id','emoji_fallback')">
-      <div style="font-size:38px; line-height:56px;">${draft.emoji}</div>
-      <div style="font-size:11px; color:var(--muted); margin-top:2px;">기본캐릭</div>
-    </div>
-  `;
-  fGrid.innerHTML = faceHtml + emojiFallbackHtml;
+  fGrid.innerHTML = faceHtml || '<div style="grid-column:1/-1; color:var(--muted); font-size:13px; padding:12px;">등록된 사진 캐릭터가 없습니다.</div>';
 
   document.getElementById("studioOutfitPills").innerHTML = OUTFIT_OPTS.map(o =>
     `<button class="opt-pill ${draft.outfit===o.id?'selected':''}" onclick="pickDraft('outfit','${o.id}')">${o.label}</button>`
@@ -1558,6 +1558,7 @@ function pickDraft(key, val) {
 
 function finalizePlayerJoin() {
   if (!draft.name) { showToast("아바타 설명(익명 캐릭터 이름)을 입력해주세요!"); document.getElementById("studioConceptInput").focus(); return; }
+  if (!draft.face_id || draft.face_id === "emoji_fallback") { showToast("사진 캐릭터를 선택해주세요! (모두 품절이면 사회자에게 사진 추가를 요청하세요)"); return; }
   const savedRoom = sessionStorage.getItem("tp_room");
   const savedPid = myPlayerId || (savedRoom === roomCode ? sessionStorage.getItem("tp_pid") : null);
   sendWS({
@@ -1797,13 +1798,15 @@ function renderHostStop777(st) {
   }
 }
 
-// --- HOST GAME 3: BOMB ---
+// --- HOST GAME 4: DOUBLE BOMB (Spot + BPA 동시) ---
 function renderHostBomb(st) {
   const gs = st.game_state;
   const arena = document.getElementById("hostBombArena");
   const center = document.getElementById("hostBombCenter");
   const pMap = Object.fromEntries(st.players.map(p => [p.id, p]));
   const order = (gs.order && gs.order.length) ? gs.order : st.players.map(p => p.id);
+  const bombs = gs.bombs || [];
+  const losers = gs.losers || [];
 
   arena.querySelectorAll(".seat-node").forEach(n => n.remove());
   const n = order.length;
@@ -1816,47 +1819,60 @@ function renderHostBomb(st) {
     const y = 50 + ry * Math.sin(angle);
     const node = document.createElement("div");
     node.className = "seat-node";
-    if (gs.phase === "running" && gs.holder === pid) node.classList.add("holding");
-    if (gs.phase === "exploded" && gs.loser === pid) node.classList.add("loser");
+    const heldBombs = bombs.filter(b => b.holder === pid);
+    const isLoser = gs.phase === "exploded" && losers.includes(pid);
+    if (gs.phase === "running" && heldBombs.length > 0) {
+      node.classList.add(heldBombs[0].doc_type === "BPA" ? "holding-bpa" : "holding");
+    }
+    if (isLoser) node.classList.add("loser");
     node.style.left = x + "%";
     node.style.top = y + "%";
+    const bombBadges = heldBombs.map(b =>
+      `<div style="font-size:10px; color:${b.doc_type==='Spot'?'#fecaca':'#e9d5ff'}; font-weight:900;">${b.doc_type==='Spot'?'📄 Spot':'📑 BPA'}</div>`
+    ).join("");
     node.innerHTML = `
-      ${renderStickmanSVG(p, 42, gs.phase !== "exploded" || gs.loser !== pid)}
+      ${renderStickmanSVG(p, 42, !isLoser)}
       <div style="font-size:11px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(p.name)}</div>
-      ${gs.phase === "running" && gs.holder === pid ? `<div style="font-size:10px; color:#fecaca; font-weight:900;">💣 ${gs.doc_type}</div>` : ''}
-      ${gs.phase === "exploded" && gs.loser === pid ? `<div style="font-size:10px; color:#fde047; font-weight:900;">💥 폭발!</div>` : ''}
+      ${gs.phase === "running" ? bombBadges : ''}
+      ${isLoser ? `<div style="font-size:10px; color:#fde047; font-weight:900;">💥 폭발!</div>` : ''}
     `;
     arena.appendChild(node);
   });
 
   const bTag = document.getElementById("bombStepTag");
   const bDesc = document.getElementById("bombStepDesc");
-  const bSpot = document.getElementById("btnBombSpot");
-  const bBpa = document.getElementById("btnBombBpa");
+  const bStart = document.getElementById("btnBombStart");
   const bNext = document.getElementById("btnBombNextGame");
   if (gs.phase === "ready") {
-    bTag.textContent = "1단계 · 폭탄 선택"; bDesc.textContent = "Spot 또는 BPA 계약서 중 하나를 골라 시작하세요!";
-    bSpot.classList.remove("hidden"); bBpa.classList.remove("hidden"); bNext.classList.add("hidden");
-    center.innerHTML = `<div style="font-size:44px;">📄</div><div style="font-weight:800; margin-top:6px;">Spot 또는 BPA<br/>시작 버튼을 누르세요</div>`;
+    bTag.textContent = "1단계 · 더블 폭탄 시작";
+    bDesc.textContent = "Spot과 BPA 계약서 2개가 동시에 돌아다닙니다!";
+    bStart.classList.remove("hidden"); bNext.classList.add("hidden");
+    center.innerHTML = `<div style="font-size:40px;">📄 📑</div><div style="font-weight:800; margin-top:6px;">Spot + BPA<br/>동시 폭탄 대기 중</div>`;
   } else if (gs.phase === "running") {
-    bTag.textContent = "2단계 · 폭탄 진행 중 🔥"; bDesc.textContent = `${gs.doc_type} 계약서 폭탄이 돌아가고 있습니다! (폭발 대기)`;
-    bSpot.classList.add("hidden"); bBpa.classList.add("hidden"); bNext.classList.add("hidden");
-    const holder = pMap[gs.holder];
+    bTag.textContent = "2단계 · 더블 폭탄 진행 중 🔥";
+    bDesc.textContent = `Spot과 BPA가 동시에 날아다니고 있습니다! (총 패스 ${gs.pass_count || 0}회)`;
+    bStart.classList.add("hidden"); bNext.classList.add("hidden");
+    const spotB = bombs.find(b => b.doc_type === "Spot");
+    const bpaB = bombs.find(b => b.doc_type === "BPA");
+    const spotName = spotB && pMap[spotB.holder] ? escapeHtml(pMap[spotB.holder].name) : "-";
+    const bpaName = bpaB && pMap[bpaB.holder] ? escapeHtml(pMap[bpaB.holder].name) : "-";
     center.innerHTML = `
-      <div style="font-size:46px;">${gs.doc_type === 'Spot' ? '📄' : '📑'}</div>
-      <div style="font-size:20px; font-weight:900; color:var(--accent);">${gs.doc_type} 계약서</div>
-      <div style="font-size:13px; color:var(--muted); margin-top:3px;">패스 횟수: ${gs.pass_count || 0}회</div>
-      <div style="font-size:14px; font-weight:800; margin-top:5px; color:#fca5a5;">보유: ${holder ? escapeHtml(holder.name) : ''}</div>
+      <div style="font-size:32px;">💣💣</div>
+      <div style="font-size:14px; font-weight:900; color:#ff99c8; margin-top:4px;">📄 Spot: ${spotName}</div>
+      <div style="font-size:14px; font-weight:900; color:#d8b4fe; margin-top:2px;">📑 BPA: ${bpaName}</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">총 패스: ${gs.pass_count || 0}회</div>
     `;
   } else if (gs.phase === "exploded") {
-    bTag.textContent = "3단계 · 폭발 완료!"; bDesc.textContent = "한 판 더 하거나 다음 게임으로 넘어가세요!";
-    bSpot.classList.remove("hidden"); bBpa.classList.remove("hidden"); bNext.classList.remove("hidden");
-    const loser = pMap[gs.loser];
+    bTag.textContent = "3단계 · 더블 폭발 완료!";
+    bDesc.textContent = "한 판 더 하거나 다음 게임으로 넘어가세요!";
+    bStart.textContent = "🔄 한 판 더 하기";
+    bStart.classList.remove("hidden"); bNext.classList.remove("hidden");
+    const loserNames = losers.map(id => pMap[id] ? escapeHtml(pMap[id].name) : "?").join(" & ");
     playTone(110, 0.4, 'sawtooth', 0.2);
     center.innerHTML = `
-      <div style="font-size:50px;">💥</div>
-      <div style="font-size:19px; font-weight:900; color:#f87171;">${gs.doc_type} 계약 폭발!</div>
-      <div style="font-size:15px; font-weight:800; margin-top:4px;">${loser ? escapeHtml(loser.name) : ''} 당첨!</div>
+      <div style="font-size:46px;">💥💥</div>
+      <div style="font-size:17px; font-weight:900; color:#f87171;">Spot & BPA 폭발!</div>
+      <div style="font-size:14px; font-weight:800; margin-top:4px; color:var(--gold);">${loserNames} 당첨!</div>
       <div style="font-size:12px; color:var(--green); margin-top:4px;">생존자 전원 +50점</div>
     `;
   }
@@ -2212,7 +2228,7 @@ function playerPressStop777() {
   sendWS({type: "stop777_press", elapsed: Number(elapsed.toFixed(2))});
 }
 
-// --- PLAYER GAME 3: BOMB (Live Holder Spectator) ---
+// --- PLAYER GAME 4: DOUBLE BOMB (Spot + BPA 동시) ---
 function renderPlayerBomb(st) {
   const gs = st.game_state;
   const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
@@ -2220,18 +2236,22 @@ function renderPlayerBomb(st) {
   const passBtn = document.getElementById("pBombPassBtn");
   const specBox = document.getElementById("pBombSpectator");
   const holderView = document.getElementById("pBombHolderView");
+  const bombs = gs.bombs || [];
+  const losers = gs.losers || [];
 
   if (gs.phase === "ready") {
-    statusEl.textContent = "사회자가 계약서를 배포할 때까지 대기 중...";
+    statusEl.textContent = "사회자가 Spot + BPA 더블 폭탄을 시작할 때까지 대기 중...";
     passBtn.classList.add("hidden");
     specBox.classList.remove("hidden");
-    holderView.innerHTML = `<div style="font-size:32px;">📄</div><div style="font-size:13px;color:var(--muted);margin-top:4px;">곧 폭탄 계약서가 시작됩니다!</div>`;
+    holderView.innerHTML = `<div style="font-size:32px;">📄 📑</div><div style="font-size:13px;color:var(--muted);margin-top:4px;">계약서 2개가 동시에 돌아다닙니다!</div>`;
   } else if (gs.phase === "running") {
-    const holder = pMap[gs.holder];
-    if (gs.holder === myPlayerId) {
-      statusEl.innerHTML = `<span style="color:#f87171;">🚨 ${gs.doc_type} 계약서가 내게 왔습니다!</span>`;
-      document.getElementById("pBombDocIcon").textContent = gs.doc_type === "Spot" ? "📄" : "📑";
-      document.getElementById("pBombPassText").textContent = `${gs.doc_type} 계약서 넘기기!`;
+    const myBomb = bombs.find(b => b.holder === myPlayerId);
+    if (myBomb) {
+      const isSpot = myBomb.doc_type === "Spot";
+      statusEl.innerHTML = `<span style="color:${isSpot?'#ff4d6d':'#c084fc'};">🚨 ${myBomb.doc_type} 계약서가 내게 왔습니다!</span>`;
+      document.getElementById("pBombDocIcon").textContent = isSpot ? "📄" : "📑";
+      document.getElementById("pBombPassText").textContent = `${myBomb.doc_type} 계약서 넘기기!`;
+      passBtn.className = isSpot ? "btn btn-red huge-action-btn" : "btn btn-purple huge-action-btn";
       passBtn.classList.remove("hidden");
       specBox.classList.add("hidden");
       if (navigator.vibrate) navigator.vibrate(100);
@@ -2239,26 +2259,40 @@ function renderPlayerBomb(st) {
       statusEl.innerHTML = `<span style="color:var(--green);">😮‍💨 지금은 안전합니다!</span> <span style="font-size:13px;color:var(--muted);">(패스 ${gs.pass_count||0}회)</span>`;
       passBtn.classList.add("hidden");
       specBox.classList.remove("hidden");
-      holderView.innerHTML = holder ? `
-        ${renderStickmanSVG(holder, 82, true)}
-        <div style="font-weight:900; font-size:16px; color:#fca5a5; margin-top:4px;">💣 ${escapeHtml(holder.name)}님이 보유 중!</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:2px;">언제 내게 넘어올지 모르니 준비하세요!</div>
-      ` : "";
+      holderView.innerHTML = `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">` +
+        bombs.map(b => {
+          const h = pMap[b.holder];
+          if (!h) return "";
+          const col = b.doc_type === "Spot" ? "#ff99c8" : "#d8b4fe";
+          return `
+            <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:8px 4px;">
+              <div style="font-size:11px; font-weight:900; color:${col};">${b.doc_type==='Spot'?'📄 Spot':'📑 BPA'}</div>
+              ${renderStickmanSVG(h, 62, true)}
+              <div style="font-weight:800; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(h.name)}</div>
+            </div>
+          `;
+        }).join("") + `</div>`;
     }
   } else if (gs.phase === "exploded") {
-    const loser = pMap[gs.loser];
     passBtn.classList.add("hidden");
     specBox.classList.remove("hidden");
-    if (gs.loser === myPlayerId) {
-      statusEl.innerHTML = `<span style="color:#f87171;">💥 쾅! ${gs.doc_type} 계약서가 내 손에서 터졌습니다!</span>`;
+    if (losers.includes(myPlayerId)) {
+      statusEl.innerHTML = `<span style="color:#f87171;">💥 쾅! 내 손에서 계약서가 터졌습니다!</span>`;
       if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
     } else {
       statusEl.innerHTML = `<span style="color:var(--green);">🎉 생존 성공! +50점 획득!</span>`;
     }
-    holderView.innerHTML = loser ? `
-      ${renderStickmanSVG(loser, 82, false)}
-      <div style="font-weight:900; font-size:16px; color:#f87171; margin-top:4px;">💥 ${escapeHtml(loser.name)}님 폭발 당첨!</div>
-    ` : "";
+    holderView.innerHTML = `<div style="display:grid; grid-template-columns:repeat(${Math.max(1, losers.length)}, 1fr); gap:8px;">` +
+      losers.map(id => {
+        const l = pMap[id];
+        if (!l) return "";
+        return `
+          <div style="background:rgba(255,59,92,0.18); border:1px solid var(--red); border-radius:12px; padding:8px 4px;">
+            ${renderStickmanSVG(l, 64, false)}
+            <div style="font-weight:900; font-size:13px; color:#fca5a5;">💥 ${escapeHtml(l.name)}</div>
+          </div>
+        `;
+      }).join("") + `</div>`;
   }
 }
 function playerPassBomb() { playTone(520, 0.08, 'square', 0.14); sendWS({type: "bomb_pass"}); }
