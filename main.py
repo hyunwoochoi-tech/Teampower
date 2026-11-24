@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v20")
+app = FastAPI(title="Team Power Recreation Server v21")
 
 MC_PIN = "5401"
 
@@ -28,6 +28,13 @@ OUTFITS = ["none", "suit", "vest", "muscle", "dress", "tweed", "blouse", "prince
 HATS = ["none", "sunglasses", "crown", "hardhat", "ribbon", "tiara", "flower", "beret", "longhair", "halo", "horns"]
 ITEMS = ["none", "drone", "ai", "money_gukbap", "badminton", "handbag", "bouquet", "contract", "coffee", "beer", "mic", "money"]
 SHOES = ["default", "magic10", "heels", "boots", "slippers"]
+
+RUSH_CAUGHT_MSGS = [
+    "🏸 배드민턴 지옥에 걸렸다! 퇴근 후 민턴 (-18m 후퇴!)",
+    "🍗 쌀통닭 보스한테 걸렸다! 지곡으로 끌려감 (-18m 후퇴!)",
+    "📊 마! 니 뭔데 지금 가는데! (-18m 후퇴!)",
+    "🔥 강철의 심장 그룹장님께 걸렸다! 철인3종 합류 (-18m 후퇴!)",
+]
 
 BOT_CONCEPTS = [
     "칼퇴하는 부장님", "야근 요정", "법인카드 마스터", "점심 메뉴 결정권자",
@@ -458,9 +465,12 @@ async def run_bot_quiz(room: Room):
 async def run_rush_loop(room: Room, duration: float = 32.0):
     try:
         start = time.time()
-        next_toggle = start + random.uniform(2.5, 4.2)
+        next_toggle = start + random.uniform(2.3, 3.6)
         next_bot_tick = start + 0.28
         bot_ids = [pid for pid, p in room.players.items() if p.get("is_bot")]
+        boss_bag = [0, 1, 2, 3]
+        random.shuffle(boss_bag)
+        last_boss = -1
         while time.time() - start < duration:
             if room.current_game != "rush" or room.game_state.get("phase") != "running":
                 return
@@ -471,13 +481,21 @@ async def run_rush_loop(room: Room, duration: float = 32.0):
             if now >= next_toggle:
                 cur_light = room.game_state.get("light", "green")
                 if cur_light == "green":
+                    if not boss_bag:
+                        boss_bag = [0, 1, 2, 3]
+                        random.shuffle(boss_bag)
+                        if boss_bag[0] == last_boss:
+                            boss_bag.append(boss_bag.pop(0))
+                    b_idx = boss_bag.pop(0)
+                    last_boss = b_idx
+                    room.game_state["boss_idx"] = b_idx
                     room.game_state["light"] = "red"
                     room.game_state["light_changed_ts"] = now
-                    next_toggle = now + random.uniform(1.6, 2.5)
+                    next_toggle = now + random.uniform(1.8, 2.6)
                 else:
                     room.game_state["light"] = "green"
                     room.game_state["light_changed_ts"] = now
-                    next_toggle = now + random.uniform(2.4, 4.0)
+                    next_toggle = now + random.uniform(2.2, 3.5)
                 changed = True
 
             # Bot movement every ~0.28s
@@ -799,6 +817,7 @@ async def websocket_endpoint(ws: WebSocket):
                         room.game_state = {
                             "phase": "ready",
                             "light": "green",
+                            "boss_idx": 0,
                             "lanes": {pid: i for i, pid in enumerate(pids)},
                             "progress": {pid: 0 for pid in pids},
                             "finished_order": [],
@@ -1126,6 +1145,7 @@ async def websocket_endpoint(ws: WebSocket):
                     room.game_state = {
                         "phase": "running",
                         "light": "green",
+                        "boss_idx": 0,
                         "light_changed_ts": time.time(),
                         "start_ts": time.time(),
                         "lanes": {pid: i for i, pid in enumerate(pids)},
@@ -1323,7 +1343,8 @@ async def websocket_endpoint(ws: WebSocket):
                             cur = room.game_state["progress"].get(player_id, 0)
                             room.game_state["progress"][player_id] = max(0, cur - 18)
                             room.game_state["caught"][player_id] = now
-                            await ws.send_text(json.dumps({"type": "toast", "message": "🚨 이정훈 상무님한테 걸렸다! 강제 야근 (-18m 후퇴!)"}, ensure_ascii=False))
+                            b_msg = RUSH_CAUGHT_MSGS[int(room.game_state.get("boss_idx", 0)) % len(RUSH_CAUGHT_MSGS)]
+                            await ws.send_text(json.dumps({"type": "toast", "message": b_msg}, ensure_ascii=False))
                             room.rush_dirty = True
                         else:
                             cur = round(room.game_state["progress"].get(player_id, 0) + 3.2, 1)
