@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v23")
+app = FastAPI(title="Team Power Recreation Server v24")
 
 MC_PIN = "5401"
 
@@ -134,6 +134,7 @@ class Room:
         self.current_game: str = "lobby"
         self.show_ranking: bool = False
         self.show_qr: bool = False
+        self.last_cam_img: Optional[str] = None
         self.rush_dirty: bool = False
         self.quizzes: List[dict] = [dict(q) for q in DEFAULT_QUIZZES]
         self.card_quizzes: Dict[str, dict] = {}
@@ -226,6 +227,19 @@ class Room:
         for ws in dead_d:
             if ws in self.display_ws:
                 self.display_ws.remove(ws)
+
+    async def send_to_players(self, payload: dict):
+        text = json.dumps(payload, ensure_ascii=False)
+        dead = []
+        for pid, ws in list(self.player_ws.items()):
+            try:
+                await ws.send_text(text)
+            except Exception:
+                dead.append(pid)
+        for pid in dead:
+            self.player_ws.pop(pid, None)
+            if pid in self.players:
+                self.players[pid]["connected"] = False
 
     async def broadcast(self, payload: Optional[dict] = None):
         data = payload if payload is not None else self.snapshot()
@@ -624,6 +638,14 @@ async def websocket_endpoint(ws: WebSocket):
                     room.display_ws.append(ws)
                 role = "display"
                 await ws.send_text(json.dumps(room.snapshot(), ensure_ascii=False))
+                if room.current_game == "dinner_cam" and room.game_state.get("frozen") and room.last_cam_img:
+                    await ws.send_text(json.dumps({
+                        "type": "cam_freeze",
+                        "img": room.last_cam_img,
+                        "mirror": bool(room.game_state.get("mirror", False)),
+                        "fit": room.game_state.get("fit", "contain"),
+                        "confetti": False,
+                    }, ensure_ascii=False))
                 continue
 
             if mtype == "mc_auth":
@@ -737,6 +759,17 @@ async def websocket_endpoint(ws: WebSocket):
                 room.player_ws[player_id] = ws
                 await ws.send_text(json.dumps({"type": "joined", "player_id": player_id, "room": code}, ensure_ascii=False))
                 await room.broadcast()
+                if room.current_game == "dinner_cam" and room.game_state.get("frozen") and room.last_cam_img:
+                    try:
+                        await ws.send_text(json.dumps({
+                            "type": "cam_freeze",
+                            "img": room.last_cam_img,
+                            "mirror": bool(room.game_state.get("mirror", False)),
+                            "fit": room.game_state.get("fit", "contain"),
+                            "confetti": False,
+                        }, ensure_ascii=False))
+                    except Exception:
+                        pass
                 continue
 
             if not room:
@@ -845,6 +878,18 @@ async def websocket_endpoint(ws: WebSocket):
                         }
                     elif target == "podium":
                         room.game_state = {"revealed": 0}
+                    elif target == "dinner_cam":
+                        room.last_cam_img = None
+                        room.game_state = {
+                            "theme": "kiss",
+                            "caption": "",
+                            "mirror": False,
+                            "fit": "contain",
+                            "frozen": False,
+                            "streaming": False,
+                            "countdown_end_ts": None,
+                            "server_now": time.time(),
+                        }
                     else:
                         room.game_state = {}
                     await room.broadcast()
@@ -1243,6 +1288,78 @@ async def websocket_endpoint(ws: WebSocket):
                 elif mtype == "trigger_confetti":
                     await room.send_to_displays({"type": "confetti"})
 
+                elif mtype == "cam_frame":
+                    if room.current_game == "dinner_cam" and not room.game_state.get("frozen"):
+                        img = msg.get("img")
+                        if isinstance(img, str) and img.startswith("data:image/") and len(img) < 600_000:
+                            await room.send_to_displays({
+                                "type": "cam_frame",
+                                "img": img,
+                                "mirror": bool(msg.get("mirror", room.game_state.get("mirror", False))),
+                                "fit": room.game_state.get("fit", "contain"),
+                            })
+
+                elif mtype == "cam_freeze":
+                    if room.current_game == "dinner_cam":
+                        img = msg.get("img")
+                        if isinstance(img, str) and img.startswith("data:image/") and len(img) < 3_000_000:
+                            mirror = bool(msg.get("mirror", room.game_state.get("mirror", False)))
+                            room.last_cam_img = img
+                            room.game_state["frozen"] = True
+                            room.game_state["streaming"] = False
+                            room.game_state["mirror"] = mirror
+                            payload = {
+                                "type": "cam_freeze",
+                                "img": img,
+                                "mirror": mirror,
+                                "fit": room.game_state.get("fit", "contain"),
+                                "confetti": bool(msg.get("confetti", True)),
+                            }
+                            await room.send_to_displays(payload)
+                            await room.send_to_players(payload)
+                            await room.broadcast()
+
+                elif mtype == "cam_unfreeze":
+                    if room.current_game == "dinner_cam":
+                        room.last_cam_img = None
+                        room.game_state["frozen"] = False
+                        room.game_state["streaming"] = bool(msg.get("streaming", False))
+                        await room.send_to_displays({"type": "cam_unfreeze"})
+                        await room.send_to_players({"type": "cam_unfreeze"})
+                        await room.broadcast()
+
+                elif mtype == "cam_clear":
+                    if room.current_game == "dinner_cam":
+                        room.last_cam_img = None
+                        room.game_state["frozen"] = False
+                        room.game_state["streaming"] = False
+                        room.game_state["countdown_end_ts"] = None
+                        await room.send_to_displays({"type": "cam_clear"})
+                        await room.send_to_players({"type": "cam_clear"})
+                        await room.broadcast()
+
+                elif mtype == "cam_config":
+                    if room.current_game == "dinner_cam":
+                        theme = msg.get("theme")
+                        if theme in ("kiss", "oneshot", "toast", "dance", "free"):
+                            room.game_state["theme"] = theme
+                        if "caption" in msg:
+                            room.game_state["caption"] = str(msg.get("caption") or "").strip()[:40]
+                        if "mirror" in msg:
+                            room.game_state["mirror"] = bool(msg.get("mirror"))
+                        if "fit" in msg and msg.get("fit") in ("contain", "cover"):
+                            room.game_state["fit"] = msg.get("fit")
+                        if "streaming" in msg:
+                            room.game_state["streaming"] = bool(msg.get("streaming"))
+                        await room.broadcast()
+
+                elif mtype == "cam_countdown":
+                    if room.current_game == "dinner_cam":
+                        sec = max(3.0, min(15.0, float(msg.get("seconds", 5.0))))
+                        room.game_state["countdown_end_ts"] = time.time() + sec
+                        room.game_state["server_now"] = time.time()
+                        await room.broadcast()
+
             # --- PLAYER ACTIONS ---
             elif role == "player" and player_id:
                 if mtype == "fashion_vote":
@@ -1385,7 +1502,7 @@ async def websocket_endpoint(ws: WebSocket):
 
                 elif mtype == "reaction":
                     emoji = msg.get("emoji", "👏")
-                    if emoji in ("👏", "😂", "🔥", "😱", "💸", "❤️"):
+                    if emoji in ("👏", "😂", "🔥", "😱", "💸", "❤️", "🍻", "💘", "🎤", "🕺"):
                         pname = room.players.get(player_id, {}).get("name", "")
                         payload = {"type": "reaction", "emoji": emoji, "name": pname}
                         await room.send_to_displays(payload)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v23 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v24 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -867,6 +867,188 @@
     box-shadow: 0 8px 24px rgba(225, 29, 72, 0.5);
   }
 
+
+  /* v24 DINNER JUMBOTRON CAM */
+  .jumbotron-stage {
+    position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 70vh;
+    background: radial-gradient(circle at center, #111936 0%, #050814 100%);
+    border-radius: 22px; overflow: hidden;
+    border: 4px solid rgba(244, 63, 94, 0.75);
+    box-shadow: 0 0 40px rgba(244, 63, 94, 0.35), inset 0 0 40px rgba(0, 0, 0, 0.65);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .jumbotron-stage.theme-kiss {
+    border-color: #ec4899;
+    box-shadow: 0 0 45px rgba(236, 72, 153, 0.55), inset 0 0 36px rgba(236, 72, 153, 0.22);
+  }
+  .jumbotron-stage.theme-oneshot {
+    border-color: #f59e0b;
+    box-shadow: 0 0 45px rgba(245, 158, 11, 0.55), inset 0 0 36px rgba(245, 158, 11, 0.22);
+  }
+  .jumbotron-stage.theme-toast {
+    border-color: #fde047;
+    box-shadow: 0 0 48px rgba(253, 224, 71, 0.55), inset 0 0 48px rgba(0, 0, 0, 0.7);
+  }
+  .jumbotron-stage.theme-dance {
+    border-color: #a855f7;
+    animation: danceBorder 1.8s linear infinite;
+  }
+  .jumbotron-stage.theme-free {
+    border-color: #38bdf8;
+    box-shadow: 0 0 40px rgba(56, 189, 248, 0.45), inset 0 0 32px rgba(56, 189, 248, 0.16);
+  }
+  @keyframes danceBorder {
+    0%   { border-color: #38bdf8; box-shadow: 0 0 42px rgba(56,189,248,0.6); }
+    33%  { border-color: #ec4899; box-shadow: 0 0 42px rgba(236,72,153,0.6); }
+    66%  { border-color: #fbbf24; box-shadow: 0 0 42px rgba(251,191,36,0.6); }
+    100% { border-color: #38bdf8; box-shadow: 0 0 42px rgba(56,189,248,0.6); }
+  }
+  .jumbotron-img {
+    width: 100%; height: 100%; object-fit: contain; display: block;
+    transition: transform 0.15s ease;
+  }
+  .jumbotron-img.cover { object-fit: cover; }
+  .jumbotron-img.mirrored { transform: scaleX(-1); }
+
+  .jumbotron-placeholder {
+    text-align: center; padding: 24px; z-index: 2;
+  }
+  .jumbotron-spotlight {
+    position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background: radial-gradient(circle at center, transparent 36%, rgba(0, 0, 0, 0.72) 100%);
+    opacity: 0; transition: opacity 0.25s ease;
+  }
+  .jumbotron-stage.theme-toast .jumbotron-spotlight { opacity: 1; }
+
+  .jumbotron-hearts {
+    position: absolute; inset: 0; pointer-events: none; z-index: 4;
+    display: none;
+  }
+  .jumbotron-stage.theme-kiss .jumbotron-hearts { display: block; }
+  .jb-heart {
+    position: absolute; font-size: clamp(28px, 4vw, 52px);
+    animation: heartBeat 1.1s ease-in-out infinite;
+    filter: drop-shadow(0 0 14px rgba(236, 72, 153, 0.85));
+  }
+  @keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    35% { transform: scale(1.24); }
+    65% { transform: scale(0.95); }
+  }
+
+  .jumbotron-topbar {
+    position: absolute; top: 14px; left: 16px; right: 16px; z-index: 6;
+    display: flex; align-items: center; justify-content: space-between; pointer-events: none;
+  }
+  .onair-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 14px; border-radius: 999px; font-weight: 900; font-size: 13px;
+    background: rgba(15, 23, 42, 0.84); border: 1.5px solid rgba(244, 63, 94, 0.75);
+    color: #fff; backdrop-filter: blur(8px);
+  }
+  .onair-dot {
+    width: 9px; height: 9px; border-radius: 50%; background: #ef4444;
+    box-shadow: 0 0 10px #ef4444; animation: pulseDot 1s infinite;
+  }
+  .onair-pill.frozen {
+    border-color: #fbbf24; background: rgba(180, 83, 9, 0.9); color: #fef08a;
+  }
+  .onair-pill.frozen .onair-dot { background: #fde047; box-shadow: 0 0 10px #fde047; animation: none; }
+
+  .jumbotron-banner {
+    position: absolute; left: 18px; right: 18px; bottom: 16px; z-index: 6;
+    padding: 13px 22px; border-radius: 16px; text-align: center;
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.88), rgba(30, 27, 75, 0.88));
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+  .jumbotron-stage.theme-kiss .jumbotron-banner {
+    background: linear-gradient(90deg, rgba(190, 24, 93, 0.9), rgba(236, 72, 153, 0.9));
+    border-color: #fbcfe8;
+  }
+  .jumbotron-stage.theme-oneshot .jumbotron-banner {
+    background: linear-gradient(90deg, rgba(180, 83, 9, 0.92), rgba(217, 119, 6, 0.92));
+    border-color: #fde68a;
+  }
+  .jumbotron-stage.theme-toast .jumbotron-banner {
+    background: linear-gradient(90deg, rgba(30, 41, 59, 0.92), rgba(120, 53, 15, 0.92));
+    border-color: #fde047;
+  }
+  .jumbotron-stage.theme-dance .jumbotron-banner {
+    background: linear-gradient(90deg, rgba(109, 40, 217, 0.92), rgba(219, 39, 119, 0.92));
+    border-color: #e9d5ff;
+  }
+  .jb-title {
+    font-size: clamp(22px, 3.6vw, 38px); font-weight: 900; color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45); letter-spacing: -0.5px;
+  }
+  .jb-sub {
+    font-size: clamp(14px, 2vw, 21px); font-weight: 800; color: #fef08a; margin-top: 3px;
+  }
+
+  .shutter-flash {
+    position: absolute; inset: 0; background: #ffffff; z-index: 20;
+    opacity: 0; pointer-events: none;
+  }
+  .shutter-flash.active { animation: flashAnim 0.45s ease-out; }
+  @keyframes flashAnim {
+    0% { opacity: 0.95; }
+    100% { opacity: 0; }
+  }
+
+  .cam-countdown-layer {
+    position: absolute; inset: 0; z-index: 15; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.28) 0%, transparent 70%);
+  }
+  .cam-countdown-num {
+    font-size: clamp(90px, 16vw, 190px); font-weight: 900; line-height: 1;
+    color: #fde047; text-shadow: 0 0 36px rgba(244, 63, 94, 0.95), 0 8px 0 #9f1239;
+    animation: popIn 0.25s cubic-bezier(0.2, 1.5, 0.4, 1);
+  }
+  .cam-countdown-label {
+    margin-top: 8px; padding: 6px 20px; border-radius: 999px; font-size: 20px; font-weight: 900;
+    background: rgba(15, 23, 42, 0.88); color: #fff; border: 2px solid #fde047;
+  }
+
+  /* MC CAMERA PREVIEW & GALLERY */
+  .mc-cam-preview-wrap {
+    position: relative; width: 100%; max-width: 480px; aspect-ratio: 16 / 10;
+    margin: 0 auto; border-radius: 16px; overflow: hidden;
+    background: #060a14; border: 2px solid rgba(236, 72, 153, 0.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mc-cam-preview-wrap video, .mc-cam-preview-wrap img {
+    width: 100%; height: 100%; object-fit: contain; display: block;
+  }
+  .mc-cam-preview-wrap video.mirrored, .mc-cam-preview-wrap img.mirrored {
+    transform: scaleX(-1);
+  }
+  .mc-cam-gallery {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    gap: 8px; margin-top: 8px;
+  }
+  .mc-gal-item {
+    position: relative; border-radius: 10px; overflow: hidden;
+    border: 1.5px solid var(--border); background: #060a14; aspect-ratio: 4/3; cursor: pointer;
+  }
+  .mc-gal-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mc-gal-save {
+    position: absolute; right: 4px; bottom: 4px; padding: 2px 6px; border-radius: 6px;
+    font-size: 10px; font-weight: 900; background: rgba(15, 23, 42, 0.88); color: #fde68a;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+  }
+  .preset-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .preset-chip {
+    padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: rgba(56, 189, 248, 0.14); color: #bae6fd;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+  .preset-chip:hover { background: rgba(56, 189, 248, 0.28); color: #fff; }
+
 </style>
 </head>
 <body>
@@ -899,7 +1081,7 @@
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v23</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v24</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -1098,6 +1280,38 @@
       <div class="podium-grid" id="dispPodiumGrid"></div>
       <div id="dispPodiumRest" style="max-width:520px; margin:0 auto;"></div>
     </div>
+
+    <!-- DISPLAY 2부 회식 전광판 캠 (DINNER CAM) -->
+    <div id="dispDinnerCam" class="card hidden" style="padding:14px;">
+      <div id="dispCamStage" class="jumbotron-stage theme-kiss">
+        <div id="dispCamFlash" class="shutter-flash"></div>
+        <div class="jumbotron-spotlight"></div>
+        <div class="jumbotron-hearts">
+          <span class="jb-heart" style="top:14%; left:5%;">💘</span>
+          <span class="jb-heart" style="top:14%; right:5%; animation-delay:0.3s;">💖</span>
+          <span class="jb-heart" style="bottom:22%; left:6%; animation-delay:0.55s;">💕</span>
+          <span class="jb-heart" style="bottom:22%; right:6%; animation-delay:0.8s;">💘</span>
+        </div>
+        <div class="jumbotron-topbar">
+          <span id="dispCamLivePill" class="onair-pill"><span class="onair-dot"></span> 대기 중</span>
+          <span class="badge" style="background:rgba(15,23,42,0.82); color:#fde68a; border-color:rgba(251,191,36,0.45); font-size:12px;">🏟️ POSCO 회식 전광판 LIVE</span>
+        </div>
+        <img id="dispCamImg" class="jumbotron-img hidden" alt="Live Jumbotron Cam" />
+        <div id="dispCamPlaceholder" class="jumbotron-placeholder">
+          <div id="dispCamPhIcon" style="font-size:68px; margin-bottom:10px;">💘</div>
+          <div style="font-size:clamp(22px, 3.6vw, 36px); font-weight:900; color:#fff;">카메라가 누구를 비출지 긴장하세요!!</div>
+          <div style="font-size:15px; color:var(--muted); margin-top:8px;">사회자 휴대폰에서 [🔴 라이브 송출] 또는 [📷 사진 올리기]를 누르면 즉시 중계됩니다</div>
+        </div>
+        <div id="dispCamCountdownLayer" class="cam-countdown-layer hidden">
+          <div id="dispCamCountdownNum" class="cam-countdown-num">5</div>
+          <div id="dispCamCountdownLabel" class="cam-countdown-label">🍻 원샷 카운트다운!!</div>
+        </div>
+        <div class="jumbotron-banner">
+          <div id="dispCamTitle" class="jb-title">💘 KISS & LOVE CAM</div>
+          <div id="dispCamSub" class="jb-sub">둘이 하트 만들고 3초 유지!! 💕</div>
+        </div>
+      </div>
+    </div>
   </main>
 </section>
 
@@ -1141,6 +1355,7 @@
       <button class="btn btn-secondary btn-sm" data-mc-nav="chosung" onclick="mcSwitchGame('chosung')">⌨️ 7.초성</button>
       <button class="btn btn-secondary btn-sm" data-mc-nav="quiz" onclick="mcSwitchGame('quiz')">❓ 8.O/X</button>
       <button class="btn btn-amber btn-sm" data-mc-nav="podium" onclick="mcSwitchGame('podium')">🏆 시상식</button>
+      <button class="btn btn-pink btn-sm" data-mc-nav="dinner_cam" onclick="mcSwitchGame('dinner_cam')">🎥 회식 캠</button>
       <button id="mcBtnToggleQr" class="btn btn-secondary btn-sm" onclick="sendWS({type:'toggle_qr'})" title="공유화면에 입장 QR 팝업 띄우기">📱 QR</button>
       <button id="mcBtnToggleRank" class="btn btn-secondary btn-sm" onclick="sendWS({type:'toggle_ranking'})" title="공유화면에 중간 순위 공개/숨기기">📊 순위 공개</button>
       <button class="btn btn-pink btn-sm" onclick="sendWS({type:'trigger_confetti'})" title="전체화면에 폭죽 발사">🎉 폭죽</button>
@@ -1208,6 +1423,79 @@
               <input id="newQuizExp" class="input-field" style="margin:0;" placeholder="해설 (선택)" />
               <button class="btn btn-green btn-sm" onclick="submitNewQuiz()">저장</button>
             </div>
+          </div>
+        </div>
+
+        <!-- DINNER CAM TOOLS (MC ONLY) -->
+        <div id="mcDinnerCamTools" class="hidden" style="border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:12px;">
+          <div class="mc-cam-preview-wrap">
+            <video id="mcCamVideo" autoplay playsinline muted class="hidden"></video>
+            <img id="mcCamFrozenPreview" class="hidden" alt="Frozen Shot" />
+            <div id="mcCamPreviewEmpty" style="text-align:center; padding:14px; color:var(--muted); font-size:13px;">
+              <div style="font-size:34px; margin-bottom:4px;">📱🎥</div>
+              아래 <b>[🔴 라이브 송출 시작]</b>을 누르면<br/>내 휴대폰 카메라가 TV 전광판에 실시간 송출됩니다!
+            </div>
+            <span id="mcCamLiveBadge" class="badge" style="position:absolute; top:8px; left:8px; background:rgba(15,23,42,0.85);">⏸️ 대기 중</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <button id="mcBtnCamLive" class="btn btn-red" style="padding:14px; font-size:15px;" onclick="toggleMcLiveCam()">🔴 라이브 송출 시작</button>
+            <button id="mcBtnCamFreeze" class="btn btn-amber" style="padding:14px; font-size:15px;" disabled onclick="mcCamShutterFreeze()">📸 찰칵! 화면 고정</button>
+          </div>
+
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <button id="mcBtnCamUnfreeze" class="btn btn-green btn-sm hidden" onclick="mcCamUnfreezeResume()">▶️ 고정 해제 (라이브 복귀)</button>
+            <button class="btn btn-secondary btn-sm" onclick="mcCamFlipFacing()">🔄 전/후면 전환</button>
+            <button id="mcBtnCamMirror" class="btn btn-secondary btn-sm" onclick="mcCamToggleMirror()">🪞 거울모드 OFF</button>
+            <button id="mcBtnCamFit" class="btn btn-secondary btn-sm" onclick="mcCamToggleFit()">📐 비율: 원본</button>
+            <button class="btn btn-secondary btn-sm" onclick="mcCamClearAll()">🧹 화면 비우기</button>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; background:rgba(10,15,32,0.6); padding:10px 12px; border-radius:12px; border:1px solid var(--border);">
+            <label class="btn btn-purple btn-sm" style="cursor:pointer; flex:1; text-align:center; padding:10px;">
+              📷 사진 찍어 즉시 올리기 (초고화질)
+              <input type="file" id="mcCamCaptureInput" accept="image/*" capture="environment" class="hidden" onchange="handleMcCamPhotoUpload(event)" />
+            </label>
+            <label class="btn btn-secondary btn-sm" style="cursor:pointer; flex:1; text-align:center; padding:10px;">
+              🖼️ 앨범 사진 올리기
+              <input type="file" id="mcCamAlbumInput" accept="image/*" class="hidden" onchange="handleMcCamPhotoUpload(event)" />
+            </label>
+          </div>
+
+          <div>
+            <div style="font-size:12.5px; font-weight:800; color:var(--muted); margin-bottom:6px;">🏟️ 전광판 테마 원터치 전환</div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap;" id="mcCamThemeBtns">
+              <button class="btn btn-pink btn-sm" data-cam-theme="kiss" onclick="mcSetCamTheme('kiss')">💘 키스/러브</button>
+              <button class="btn btn-secondary btn-sm" data-cam-theme="oneshot" onclick="mcSetCamTheme('oneshot')">🍻 원샷/러브샷</button>
+              <button class="btn btn-secondary btn-sm" data-cam-theme="toast" onclick="mcSetCamTheme('toast')">🎤 건배사 당첨</button>
+              <button class="btn btn-secondary btn-sm" data-cam-theme="dance" onclick="mcSetCamTheme('dance')">🕺 댄스/표정</button>
+              <button class="btn btn-secondary btn-sm" data-cam-theme="free" onclick="mcSetCamTheme('free')">⚡ 자유 캠</button>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-amber btn-sm" style="flex:1; padding:10px;" onclick="sendWS({type:'cam_countdown', seconds:5})">⏳ 5초 원샷/미션 카운트다운!</button>
+            <button class="btn btn-pink btn-sm" style="padding:10px 16px;" onclick="sendWS({type:'trigger_confetti'})">🎉 폭죽</button>
+          </div>
+
+          <div>
+            <div style="font-size:12.5px; font-weight:800; color:var(--muted); margin-bottom:6px;">✏️ 전광판 즉석 자막</div>
+            <div style="display:flex; gap:6px;">
+              <input id="mcCamCaptionInput" class="input-field" maxlength="40" style="margin:0; padding:10px 12px; font-size:14px;" placeholder="TV 하단에 띄울 즉석 자막 입력..." onkeydown="if(event.key==='Enter') mcApplyCamCaption()" />
+              <button class="btn btn-primary btn-sm" style="white-space:nowrap;" onclick="mcApplyCamCaption()">반영</button>
+              <button class="btn btn-secondary btn-sm" style="white-space:nowrap;" onclick="mcClearCamCaption()">기본</button>
+            </div>
+            <div class="preset-chips">
+              <button class="preset-chip" onclick="mcQuickCaption('카메라 피하면 원샷!! 🍻')">카메라 피하면 원샷! 🍻</button>
+              <button class="preset-chip" onclick="mcQuickCaption('둘이 하트 만들고 3초 유지 💕')">하트 3초 유지 💕</button>
+              <button class="preset-chip" onclick="mcQuickCaption('오늘 회식 건배사 당첨!! 🎤')">건배사 당첨 🎤</button>
+              <button class="preset-chip" onclick="mcQuickCaption('오늘 2차는 내가 쏜다?! 💸')">2차는 내가?! 💸</button>
+            </div>
+          </div>
+
+          <div id="mcCamGalleryWrap" class="hidden">
+            <div style="font-size:12.5px; font-weight:800; color:var(--muted);">📸 최근 캡처한 레전드 컷 (탭하면 TV 재송출)</div>
+            <div id="mcCamGallery" class="mc-cam-gallery"></div>
           </div>
         </div>
       </div>
@@ -1439,6 +1727,25 @@
     <div id="pPodiumTop3" class="live-hud"></div>
   </div>
 
+  <!-- Player Dinner Cam (2부 회식 전광판 관전 + 리액션) -->
+  <div id="pDinnerCam" class="card hidden" style="text-align:center; padding:18px 14px;">
+    <span id="pCamThemeBadge" class="badge" style="background:rgba(236,72,153,0.22); color:#f9a8d4;">💘 회식 전광판 LIVE</span>
+    <h2 id="pCamTitle" style="margin:8px 0 4px; font-size:21px;">💘 KISS & LOVE CAM</h2>
+    <div id="pCamSub" style="font-size:13.5px; color:#fde68a; font-weight:800; margin-bottom:12px;">TV 전광판을 주목하세요!!</div>
+    <div id="pCamShotWrap" class="hidden" style="margin-bottom:12px;">
+      <img id="pCamShotImg" style="width:100%; border-radius:14px; border:2px solid #fbbf24; box-shadow:0 8px 24px rgba(0,0,0,0.45); display:block;" alt="Captured Shot" />
+      <div style="font-size:11.5px; color:var(--muted); margin-top:5px;">📸 방금 전광판에 박제된 레전드 컷! (길게 눌러 저장 가능)</div>
+    </div>
+    <div id="pCamLiveHint" class="live-hud" style="text-align:center; font-size:13px; color:var(--muted);">
+      🎥 TV 전광판에서 실시간 중계 중!<br/>아래 리액션 버튼으로 분위기를 띄워주세요 🔥
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:10px;">
+      <button class="btn btn-amber btn-sm" style="padding:12px 6px; font-size:15px;" onclick="sendReaction('🍻')">🍻 원샷!</button>
+      <button class="btn btn-pink btn-sm" style="padding:12px 6px; font-size:15px;" onclick="sendReaction('💘')">💘 심쿵!</button>
+      <button class="btn btn-purple btn-sm" style="padding:12px 6px; font-size:15px;" onclick="sendReaction('🎤')">🎤 건배사</button>
+    </div>
+  </div>
+
   <!-- Live Emoji Reaction Bar -->
   <div class="react-bar" aria-label="리액션 보내기">
     <button class="react-btn" onclick="sendReaction('👏')">👏</button>
@@ -1510,6 +1817,7 @@ const GAME_LABELS = {
   chosung: "⌨️ GAME 7 · 선착순 초성 퀴즈",
   quiz: "❓ GAME 8 · 눈치 O/X 퀴즈",
   podium: "🏆 팀파워 최종 시상식",
+  dinner_cam: "🎥 2부 · 회식 전광판 캠",
 };
 
 let ws = null;
@@ -2026,6 +2334,10 @@ function connectWS(onOpenCb) {
     if (msg.type === "toast") { showToast(msg.message); return; }
     if (msg.type === "reaction") { spawnReaction(msg.emoji, msg.name); return; }
     if (msg.type === "confetti") { fireConfetti(true); return; }
+    if (msg.type === "cam_frame") { onReceiveCamFrame(msg); return; }
+    if (msg.type === "cam_freeze") { onReceiveCamFreeze(msg); return; }
+    if (msg.type === "cam_unfreeze") { onReceiveCamUnfreeze(); return; }
+    if (msg.type === "cam_clear") { onReceiveCamClear(); return; }
     if (msg.type === "mc_auth_fail") {
       showToast(msg.message);
       const pinEl = document.getElementById("mcPinInput");
@@ -2332,7 +2644,7 @@ function renderDisplay(st) {
   const map = {
     lobby: "dispLobby", fashion: "dispFashion", stop777: "dispStop777",
     rush: "dispRush", bomb: "dispBomb", rhythm: "dispRhythm",
-    balance: "dispBalance", chosung: "dispChosung", quiz: "dispQuiz", podium: "dispPodium",
+    balance: "dispBalance", chosung: "dispChosung", quiz: "dispQuiz", podium: "dispPodium", dinner_cam: "dispDinnerCam",
   };
   Object.entries(map).forEach(([k, id]) => {
     document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
@@ -2360,6 +2672,8 @@ function renderDisplay(st) {
   if (st.current_game === "chosung") renderDispChosung(st);
   if (st.current_game === "quiz") renderDispQuiz(st);
   if (st.current_game === "podium") renderDispPodium(st);
+  if (st.current_game === "dinner_cam") renderDispDinnerCam(st);
+  else stopDispCamCountdown();
 }
 
 function renderDispFashion(st) {
@@ -3415,6 +3729,8 @@ function renderMc(st) {
   document.getElementById("mcLobbyTools").classList.toggle("hidden", cur !== "lobby");
   document.getElementById("mcBalanceTools").classList.toggle("hidden", cur !== "balance");
   document.getElementById("mcQuizTools").classList.toggle("hidden", cur !== "quiz");
+  document.getElementById("mcDinnerCamTools").classList.toggle("hidden", cur !== "dinner_cam");
+  if (cur !== "dinner_cam" && mcCamStream) stopMcCamera();
 
   const badgeEl = document.getElementById("mcGameBadge");
   const titleEl = document.getElementById("mcGameTitle");
@@ -3571,7 +3887,13 @@ function renderMc(st) {
     if (rev === 0) btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'podium_reveal_next'})">🥉 3등 공개하기</button><button class="btn btn-secondary" onclick="sendWS({type:'podium_reveal_all'})">한 번에 공개</button>`;
     else if (rev === 1) btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'podium_reveal_next'})">🥈 2등 공개하기</button><button class="btn btn-secondary" onclick="sendWS({type:'podium_reveal_all'})">한 번에 공개</button>`;
     else if (rev === 2) btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'podium_reveal_next'})">👑 1등 우승자 공개!!</button>`;
-    else btnsEl.innerHTML = `<button class="btn btn-pink" onclick="sendWS({type:'trigger_confetti'})">🎉 축하 폭죽 한 번 더!</button>`;
+    else btnsEl.innerHTML = `<button class="btn btn-pink" onclick="sendWS({type:'trigger_confetti'})">🎉 축하 폭죽 한 번 더!</button><button class="btn btn-purple" onclick="mcSwitchGame('dinner_cam')">🎥 2부 회식 전광판 캠 열기</button>`;
+  } else if (cur === "dinner_cam") {
+    const tInfo = CAM_THEMES[gs.theme || "kiss"] || CAM_THEMES.kiss;
+    const statusTxt = gs.frozen ? "📸 화면 고정됨 (레전드 박제 중!)" : (mcCamStreaming ? "🔴 실시간 라이브 송출 중!" : "⏸️ 카메라 대기 중");
+    telEl.innerHTML = `<b>상태:</b> ${statusTxt}<br/><b>현재 테마:</b> ${tInfo.title} · <b>자막:</b> ${escapeHtml(gs.caption || tInfo.sub)}`;
+    btnsEl.innerHTML = "";
+    syncMcDinnerCamUI(gs);
   }
 }
 
@@ -3710,7 +4032,7 @@ function renderPlayer(st) {
   const map = {
     lobby: "pLobby", fashion: "pFashion", stop777: "pStop777",
     rush: "pRush", bomb: "pBomb", rhythm: "pRhythm",
-    balance: "pBalance", chosung: "pChosung", quiz: "pQuiz", podium: "pPodium",
+    balance: "pBalance", chosung: "pChosung", quiz: "pQuiz", podium: "pPodium", dinner_cam: "pDinnerCam",
   };
   Object.entries(map).forEach(([k, id]) => {
     document.getElementById(id).classList.toggle("hidden", st.current_game !== k);
@@ -3730,6 +4052,7 @@ function renderPlayer(st) {
   if (st.current_game === "rhythm") renderPlayerRhythm(st);
   if (st.current_game === "quiz") renderPlayerQuiz(st);
   if (st.current_game === "podium") renderPlayerPodium(st, myIdx);
+  if (st.current_game === "dinner_cam") renderPlayerDinnerCam(st);
 }
 
 // --- PLAYER GAME 1: FASHION VOTE ---
@@ -4535,6 +4858,548 @@ function spawnReaction(emoji, name) {
   el.innerHTML = `<span class="fr-emoji">${emoji}</span>${name ? `<span class="fr-name">${escapeHtml(name)}</span>` : ''}`;
   layer.appendChild(el);
   setTimeout(() => el.remove(), 2700);
+}
+
+
+// ==================== v24 DINNER JUMBOTRON CAM ENGINE ====================
+const CAM_THEMES = {
+  kiss:    { badge: "💘 KISS / LOVE CAM", title: "💘 KISS & LOVE CAM",   sub: "둘이 하트 만들고 3초 유지!! 💕", icon: "💘", doneMsg: "💘 하트 미션 성공!! 💕" },
+  oneshot: { badge: "🍻 원샷 / 러브샷 CAM", title: "🍻 원샷 / 러브샷 CAM", sub: "카메라에 잡혔다! 원샷 준비!! 🍺", icon: "🍻", doneMsg: "🍻 원샷 완료!! 짠!! 🎉" },
+  toast:   { badge: "🎤 건배사 당첨 CAM",   title: "🎤 건배사 당첨!!",     sub: "오늘의 멋진 건배사 한 마디 부탁드립니다! 👏", icon: "🎤", doneMsg: "🎤 박수!! 건배사 최고!! 👏" },
+  dance:   { badge: "🕺 댄스 / 표정 CAM",   title: "🕺 댄스 & 표정 CAM",   sub: "카메라 보고 3초 동안 끼 발산!! 🔥", icon: "🕺", doneMsg: "🕺 끼 발산 대성공!! 🔥" },
+  free:    { badge: "⚡ 회식 LIVE CAM",     title: "⚡ 팀파워 회식 LIVE",  sub: "오늘 회식 분위기 최고!! 🔥", icon: "🎥", doneMsg: "🎉 미션 완료!! 짠!! 🎉" },
+};
+
+let dispCamCountdownRaf = null;
+let lastCamCountdownSec = -1;
+let lastCamCountdownEndTs = 0;
+
+function playShutterSfx() {
+  if (!displaySoundOn) return;
+  playTone(1320, 0.045, 'square', 0.16);
+  setTimeout(() => playTone(880, 0.07, 'triangle', 0.14), 55);
+}
+
+function triggerDispShutterFlash() {
+  const fl = document.getElementById("dispCamFlash");
+  if (!fl) return;
+  fl.classList.remove("active");
+  void fl.offsetWidth;
+  fl.classList.add("active");
+}
+
+function applyCamImgClasses(imgEl, mirror, fit) {
+  if (!imgEl) return;
+  imgEl.classList.toggle("mirrored", !!mirror);
+  imgEl.classList.toggle("cover", fit === "cover");
+}
+
+function onReceiveCamFrame(msg) {
+  if (role !== "display") return;
+  const imgEl = document.getElementById("dispCamImg");
+  const phEl = document.getElementById("dispCamPlaceholder");
+  const pill = document.getElementById("dispCamLivePill");
+  if (!imgEl) return;
+  imgEl.src = msg.img;
+  imgEl.classList.remove("hidden");
+  applyCamImgClasses(imgEl, msg.mirror, msg.fit);
+  if (phEl) phEl.classList.add("hidden");
+  if (pill) {
+    pill.className = "onair-pill";
+    pill.innerHTML = '<span class="onair-dot"></span> LIVE ON AIR';
+  }
+}
+
+function onReceiveCamFreeze(msg) {
+  if (role === "display") {
+    const imgEl = document.getElementById("dispCamImg");
+    const phEl = document.getElementById("dispCamPlaceholder");
+    const pill = document.getElementById("dispCamLivePill");
+    if (imgEl) {
+      imgEl.src = msg.img;
+      imgEl.classList.remove("hidden");
+      applyCamImgClasses(imgEl, msg.mirror, msg.fit);
+    }
+    if (phEl) phEl.classList.add("hidden");
+    if (pill) {
+      pill.className = "onair-pill frozen";
+      pill.innerHTML = '<span class="onair-dot"></span> 📸 CAPTURED! (고정됨)';
+    }
+    triggerDispShutterFlash();
+    playShutterSfx();
+    if (msg.confetti) fireConfetti(true);
+  } else if (role === "player") {
+    const wrap = document.getElementById("pCamShotWrap");
+    const imgEl = document.getElementById("pCamShotImg");
+    const hint = document.getElementById("pCamLiveHint");
+    if (imgEl && wrap) {
+      imgEl.src = msg.img;
+      imgEl.style.transform = msg.mirror ? "scaleX(-1)" : "";
+      wrap.classList.remove("hidden");
+      if (hint) hint.classList.add("hidden");
+    }
+  }
+}
+
+function onReceiveCamUnfreeze() {
+  if (role === "display") {
+    const pill = document.getElementById("dispCamLivePill");
+    if (pill) {
+      pill.className = "onair-pill";
+      pill.innerHTML = '<span class="onair-dot"></span> LIVE ON AIR';
+    }
+  } else if (role === "player") {
+    const wrap = document.getElementById("pCamShotWrap");
+    const hint = document.getElementById("pCamLiveHint");
+    if (wrap) wrap.classList.add("hidden");
+    if (hint) hint.classList.remove("hidden");
+  }
+}
+
+function onReceiveCamClear() {
+  if (role === "display") {
+    const imgEl = document.getElementById("dispCamImg");
+    const phEl = document.getElementById("dispCamPlaceholder");
+    const pill = document.getElementById("dispCamLivePill");
+    if (imgEl) { imgEl.classList.add("hidden"); imgEl.removeAttribute("src"); }
+    if (phEl) phEl.classList.remove("hidden");
+    if (pill) {
+      pill.className = "onair-pill";
+      pill.innerHTML = '<span class="onair-dot"></span> 대기 중';
+    }
+    stopDispCamCountdown();
+  } else if (role === "player") {
+    const wrap = document.getElementById("pCamShotWrap");
+    const hint = document.getElementById("pCamLiveHint");
+    if (wrap) wrap.classList.add("hidden");
+    if (hint) hint.classList.remove("hidden");
+  }
+}
+
+function stopDispCamCountdown() {
+  if (dispCamCountdownRaf) { cancelAnimationFrame(dispCamCountdownRaf); dispCamCountdownRaf = null; }
+  const layer = document.getElementById("dispCamCountdownLayer");
+  if (layer) layer.classList.add("hidden");
+  lastCamCountdownSec = -1;
+}
+
+function renderDispDinnerCam(st) {
+  const gs = st.game_state || {};
+  const theme = gs.theme || "kiss";
+  const tInfo = CAM_THEMES[theme] || CAM_THEMES.kiss;
+  const stage = document.getElementById("dispCamStage");
+  if (stage) stage.className = `jumbotron-stage theme-${theme}`;
+  const titleEl = document.getElementById("dispCamTitle");
+  const subEl = document.getElementById("dispCamSub");
+  const phIcon = document.getElementById("dispCamPhIcon");
+  if (titleEl) titleEl.textContent = tInfo.title;
+  if (subEl) subEl.textContent = gs.caption || tInfo.sub;
+  if (phIcon) phIcon.textContent = tInfo.icon;
+
+  const imgEl = document.getElementById("dispCamImg");
+  if (imgEl && !imgEl.classList.contains("hidden")) {
+    applyCamImgClasses(imgEl, gs.mirror, gs.fit);
+  }
+  const pill = document.getElementById("dispCamLivePill");
+  if (pill) {
+    if (gs.frozen) {
+      pill.className = "onair-pill frozen";
+      pill.innerHTML = '<span class="onair-dot"></span> 📸 CAPTURED! (고정됨)';
+    } else if (gs.streaming) {
+      pill.className = "onair-pill";
+      pill.innerHTML = '<span class="onair-dot"></span> LIVE ON AIR';
+    } else if (!imgEl || imgEl.classList.contains("hidden")) {
+      pill.className = "onair-pill";
+      pill.innerHTML = '<span class="onair-dot"></span> 대기 중';
+    }
+  }
+
+  // Handle 5-sec Mission Countdown on TV
+  if (gs.countdown_end_ts && gs.countdown_end_ts !== lastCamCountdownEndTs) {
+    lastCamCountdownEndTs = gs.countdown_end_ts;
+    const offset = gs.server_now ? (Date.now() / 1000 - gs.server_now) : 0;
+    const localEnd = gs.countdown_end_ts + offset;
+    const layer = document.getElementById("dispCamCountdownLayer");
+    const numEl = document.getElementById("dispCamCountdownNum");
+    const lblEl = document.getElementById("dispCamCountdownLabel");
+    if (dispCamCountdownRaf) cancelAnimationFrame(dispCamCountdownRaf);
+    lastCamCountdownSec = -1;
+    const tick = () => {
+      if (!appState || appState.current_game !== "dinner_cam" || role !== "display") {
+        stopDispCamCountdown(); return;
+      }
+      const rem = localEnd - Date.now() / 1000;
+      if (rem <= 0) {
+        if (numEl) numEl.textContent = "🎉";
+        if (lblEl) lblEl.textContent = (CAM_THEMES[appState.game_state.theme || "kiss"] || CAM_THEMES.kiss).doneMsg;
+        fireConfetti(true);
+        dispCamCountdownRaf = null;
+        setTimeout(() => {
+          if (layer && !dispCamCountdownRaf) layer.classList.add("hidden");
+        }, 2000);
+        return;
+      }
+      const sec = Math.ceil(rem);
+      if (layer) layer.classList.remove("hidden");
+      if (sec !== lastCamCountdownSec) {
+        lastCamCountdownSec = sec;
+        if (numEl) {
+          numEl.textContent = sec;
+          numEl.style.animation = "none";
+          void numEl.offsetWidth;
+          numEl.style.animation = "";
+        }
+        if (lblEl) lblEl.textContent = theme === "oneshot" ? "🍻 원샷 카운트다운!!" : "⏳ 미션 카운트다운!!";
+        playDisplayTone(sec <= 2 ? 920 : 660, 0.11, 'triangle', 0.17);
+      }
+      dispCamCountdownRaf = requestAnimationFrame(tick);
+    };
+    tick();
+  } else if (!gs.countdown_end_ts) {
+    lastCamCountdownEndTs = 0;
+    stopDispCamCountdown();
+  }
+}
+
+function renderPlayerDinnerCam(st) {
+  const gs = st.game_state || {};
+  const tInfo = CAM_THEMES[gs.theme || "kiss"] || CAM_THEMES.kiss;
+  const badge = document.getElementById("pCamThemeBadge");
+  const title = document.getElementById("pCamTitle");
+  const sub = document.getElementById("pCamSub");
+  if (badge) badge.textContent = tInfo.badge;
+  if (title) title.textContent = tInfo.title;
+  if (sub) sub.textContent = gs.caption || tInfo.sub;
+}
+
+// --- MC CAMERA CONTROLLER ---
+let mcCamStream = null;
+let mcCamTimer = null;
+let mcCamStreaming = false;
+let mcCamFacing = "environment"; // rear camera default for pointing at colleagues
+let mcCamMirror = false;
+let mcCamFit = "contain";
+let mcCamOffCanvas = null;
+let mcCamGallery = [];
+
+function syncMcDinnerCamUI(gs) {
+  const theme = gs.theme || "kiss";
+  mcCamMirror = !!gs.mirror;
+  mcCamFit = gs.fit || "contain";
+
+  document.querySelectorAll("[data-cam-theme]").forEach(btn => {
+    const active = btn.dataset.camTheme === theme;
+    btn.className = active ? "btn btn-pink btn-sm" : "btn btn-secondary btn-sm";
+  });
+
+  const mirBtn = document.getElementById("mcBtnCamMirror");
+  if (mirBtn) {
+    mirBtn.textContent = mcCamMirror ? "🪞 거울모드 ON" : "🪞 거울모드 OFF";
+    mirBtn.className = mcCamMirror ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm";
+  }
+  const fitBtn = document.getElementById("mcBtnCamFit");
+  if (fitBtn) {
+    fitBtn.textContent = mcCamFit === "cover" ? "📐 비율: 꽉채움" : "📐 비율: 원본";
+  }
+
+  const vEl = document.getElementById("mcCamVideo");
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  if (vEl) vEl.classList.toggle("mirrored", mcCamMirror);
+  if (fEl) fEl.classList.toggle("mirrored", mcCamMirror);
+
+  const liveBtn = document.getElementById("mcBtnCamLive");
+  const freezeBtn = document.getElementById("mcBtnCamFreeze");
+  const unfreezeBtn = document.getElementById("mcBtnCamUnfreeze");
+  const badge = document.getElementById("mcCamLiveBadge");
+
+  if (liveBtn) {
+    liveBtn.textContent = mcCamStreaming ? "⏹ 라이브 송출 정지" : "🔴 라이브 송출 시작";
+    liveBtn.className = mcCamStreaming ? "btn btn-secondary" : "btn btn-red";
+  }
+  if (freezeBtn) {
+    freezeBtn.disabled = !mcCamStream;
+  }
+  if (unfreezeBtn) {
+    unfreezeBtn.classList.toggle("hidden", !gs.frozen);
+  }
+  if (badge) {
+    if (gs.frozen) { badge.textContent = "📸 화면 고정됨"; badge.style.color = "#fde047"; }
+    else if (mcCamStreaming) { badge.textContent = "🔴 LIVE 송출 중 (8fps)"; badge.style.color = "#fda4af"; }
+    else if (mcCamStream) { badge.textContent = "🎥 카메라 준비됨"; badge.style.color = "#6ee7b7"; }
+    else { badge.textContent = "⏸️ 대기 중"; badge.style.color = "#7dd3fc"; }
+  }
+}
+
+async function startMcCameraStream() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast("이 브라우저에서는 라이브 캠이 제한됩니다. 아래 [📷 사진 찍어 즉시 올리기]를 사용하세요!");
+    return false;
+  }
+  try {
+    if (mcCamStream) {
+      mcCamStream.getTracks().forEach(t => t.stop());
+      mcCamStream = null;
+    }
+    mcCamStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: mcCamFacing }, width: { ideal: 960 }, height: { ideal: 540 } },
+      audio: false,
+    });
+    const vEl = document.getElementById("mcCamVideo");
+    const fEl = document.getElementById("mcCamFrozenPreview");
+    const emptyEl = document.getElementById("mcCamPreviewEmpty");
+    vEl.srcObject = mcCamStream;
+    await vEl.play();
+    vEl.classList.remove("hidden");
+    if (fEl) fEl.classList.add("hidden");
+    if (emptyEl) emptyEl.classList.add("hidden");
+    return true;
+  } catch (err) {
+    showToast("카메라 권한을 허용해주세요! (또는 아래 [📷 사진 찍어 즉시 올리기] 이용)");
+    return false;
+  }
+}
+
+function stopMcCamera() {
+  mcCamStreaming = false;
+  if (mcCamTimer) { clearInterval(mcCamTimer); mcCamTimer = null; }
+  if (mcCamStream) {
+    mcCamStream.getTracks().forEach(t => t.stop());
+    mcCamStream = null;
+  }
+  const vEl = document.getElementById("mcCamVideo");
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  const emptyEl = document.getElementById("mcCamPreviewEmpty");
+  if (vEl) { vEl.srcObject = null; vEl.classList.add("hidden"); }
+  if (fEl && fEl.classList.contains("hidden") && emptyEl) emptyEl.classList.remove("hidden");
+  if (appState && appState.current_game === "dinner_cam") {
+    sendWS({type: "cam_config", streaming: false});
+    syncMcDinnerCamUI(appState.game_state || {});
+  }
+}
+
+function captureVideoFrame(maxDim, quality) {
+  const vEl = document.getElementById("mcCamVideo");
+  if (!vEl || !vEl.videoWidth || !vEl.videoHeight) return null;
+  if (!mcCamOffCanvas) mcCamOffCanvas = document.createElement("canvas");
+  const scale = Math.min(1, maxDim / Math.max(vEl.videoWidth, vEl.videoHeight));
+  const w = Math.max(1, Math.round(vEl.videoWidth * scale));
+  const h = Math.max(1, Math.round(vEl.videoHeight * scale));
+  if (mcCamOffCanvas.width !== w || mcCamOffCanvas.height !== h) {
+    mcCamOffCanvas.width = w;
+    mcCamOffCanvas.height = h;
+  }
+  const ctx = mcCamOffCanvas.getContext("2d");
+  ctx.drawImage(vEl, 0, 0, w, h);
+  return mcCamOffCanvas.toDataURL("image/jpeg", quality);
+}
+
+function startFramePump() {
+  if (mcCamTimer) clearInterval(mcCamTimer);
+  mcCamStreaming = true;
+  sendWS({type: "cam_config", streaming: true, mirror: mcCamMirror, fit: mcCamFit});
+  mcCamTimer = setInterval(() => {
+    if (!mcCamStreaming || !mcCamStream || !ws || ws.readyState !== 1) return;
+    if (appState && (appState.current_game !== "dinner_cam" || appState.game_state.frozen)) return;
+    if (ws.bufferedAmount > 220000) return; // Backpressure guard for weak Wi-Fi/LTE
+    const dataUrl = captureVideoFrame(640, 0.62);
+    if (dataUrl) sendWS({type: "cam_frame", img: dataUrl, mirror: mcCamMirror});
+  }, 130); // ~7.7 fps
+  if (appState) syncMcDinnerCamUI(appState.game_state || {});
+}
+
+async function toggleMcLiveCam() {
+  if (mcCamStreaming) {
+    stopMcCamera();
+    showToast("⏹ 라이브 송출을 정지했습니다.");
+    return;
+  }
+  if (appState && appState.game_state && appState.game_state.frozen) {
+    sendWS({type: "cam_unfreeze", streaming: true});
+  }
+  const ok = await startMcCameraStream();
+  if (ok) {
+    startFramePump();
+    showToast("🔴 TV 전광판으로 실시간 송출 시작!");
+  }
+}
+
+function mcCamShutterFreeze() {
+  if (!mcCamStream) { showToast("먼저 라이브 송출을 시작해주세요!"); return; }
+  const hiRes = captureVideoFrame(960, 0.86);
+  if (!hiRes) { showToast("카메라 프레임 준비 중입니다. 잠시 후 다시 눌러주세요!"); return; }
+  playTone(1100, 0.06, 'square', 0.14);
+  mcCamStreaming = false;
+  if (mcCamTimer) { clearInterval(mcCamTimer); mcCamTimer = null; }
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  const vEl = document.getElementById("mcCamVideo");
+  if (fEl && vEl) {
+    fEl.src = hiRes;
+    fEl.classList.remove("hidden");
+    vEl.classList.add("hidden");
+  }
+  addMcCamGalleryItem(hiRes, mcCamMirror);
+  sendWS({type: "cam_freeze", img: hiRes, mirror: mcCamMirror, confetti: true});
+  showToast("📸 찰칵! TV 전광판에 고정되었습니다!");
+}
+
+async function mcCamUnfreezeResume() {
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  const vEl = document.getElementById("mcCamVideo");
+  if (fEl) fEl.classList.add("hidden");
+  if (mcCamStream) {
+    if (vEl) vEl.classList.remove("hidden");
+    sendWS({type: "cam_unfreeze", streaming: true});
+    startFramePump();
+  } else {
+    sendWS({type: "cam_unfreeze", streaming: false});
+    const ok = await startMcCameraStream();
+    if (ok) startFramePump();
+  }
+}
+
+async function mcCamFlipFacing() {
+  mcCamFacing = mcCamFacing === "environment" ? "user" : "environment";
+  mcCamMirror = (mcCamFacing === "user");
+  sendWS({type: "cam_config", mirror: mcCamMirror});
+  if (mcCamStream) {
+    const wasStreaming = mcCamStreaming;
+    const ok = await startMcCameraStream();
+    if (ok && wasStreaming) startFramePump();
+  }
+  showToast(mcCamFacing === "user" ? "🤳 전면(셀카) 카메라로 전환!" : "📷 후면 카메라로 전환!");
+}
+
+function mcCamToggleMirror() {
+  mcCamMirror = !mcCamMirror;
+  sendWS({type: "cam_config", mirror: mcCamMirror});
+}
+
+function mcCamToggleFit() {
+  mcCamFit = mcCamFit === "contain" ? "cover" : "contain";
+  sendWS({type: "cam_config", fit: mcCamFit});
+}
+
+function mcSetCamTheme(theme) {
+  playTone(580, 0.06, 'triangle', 0.12);
+  sendWS({type: "cam_config", theme});
+}
+
+function mcApplyCamCaption() {
+  const inp = document.getElementById("mcCamCaptionInput");
+  if (!inp) return;
+  sendWS({type: "cam_config", caption: inp.value.trim()});
+  showToast("✏️ 전광판 자막이 반영되었습니다!");
+}
+
+function mcClearCamCaption() {
+  const inp = document.getElementById("mcCamCaptionInput");
+  if (inp) inp.value = "";
+  sendWS({type: "cam_config", caption: ""});
+}
+
+function mcQuickCaption(text) {
+  const inp = document.getElementById("mcCamCaptionInput");
+  if (inp) inp.value = text;
+  sendWS({type: "cam_config", caption: text});
+}
+
+function resizePhotoToJpeg(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * scale));
+        const h = Math.max(1, Math.round(img.height * scale));
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = reject;
+      img.src = reader.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleMcCamPhotoUpload(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  showToast("📷 고화질 사진 전송 중...");
+  try {
+    const dataUrl = await resizePhotoToJpeg(file, 1080, 0.85);
+    mcCamStreaming = false;
+    if (mcCamTimer) { clearInterval(mcCamTimer); mcCamTimer = null; }
+    const fEl = document.getElementById("mcCamFrozenPreview");
+    const vEl = document.getElementById("mcCamVideo");
+    const emptyEl = document.getElementById("mcCamPreviewEmpty");
+    if (fEl) { fEl.src = dataUrl; fEl.classList.remove("hidden"); }
+    if (vEl) vEl.classList.add("hidden");
+    if (emptyEl) emptyEl.classList.add("hidden");
+    addMcCamGalleryItem(dataUrl, false);
+    sendWS({type: "cam_freeze", img: dataUrl, mirror: false, confetti: true});
+    showToast("📸 TV 전광판에 사진 업로드 완료!");
+  } catch (e) {
+    showToast("사진 처리에 실패했습니다. 다시 시도해주세요!");
+  }
+  ev.target.value = "";
+}
+
+function addMcCamGalleryItem(imgUrl, mirror) {
+  mcCamGallery.unshift({ img: imgUrl, mirror: !!mirror, ts: Date.now() });
+  if (mcCamGallery.length > 6) mcCamGallery.pop();
+  renderMcCamGallery();
+}
+
+function renderMcCamGallery() {
+  const wrap = document.getElementById("mcCamGalleryWrap");
+  const grid = document.getElementById("mcCamGallery");
+  if (!wrap || !grid) return;
+  wrap.classList.toggle("hidden", mcCamGallery.length === 0);
+  grid.innerHTML = mcCamGallery.map((it, idx) => `
+    <div class="mc-gal-item" onclick="mcReshowGallery(${idx})">
+      <img src="${it.img}" style="${it.mirror?'transform:scaleX(-1);':''}" alt="Capture ${idx+1}"/>
+      <button class="mc-gal-save" onclick="event.stopPropagation(); mcDownloadGallery(${idx})">💾 저장</button>
+    </div>
+  `).join("");
+}
+
+function mcReshowGallery(idx) {
+  const it = mcCamGallery[idx];
+  if (!it) return;
+  mcCamStreaming = false;
+  if (mcCamTimer) { clearInterval(mcCamTimer); mcCamTimer = null; }
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  const vEl = document.getElementById("mcCamVideo");
+  const emptyEl = document.getElementById("mcCamPreviewEmpty");
+  if (fEl) { fEl.src = it.img; fEl.classList.remove("hidden"); }
+  if (vEl) vEl.classList.add("hidden");
+  if (emptyEl) emptyEl.classList.add("hidden");
+  sendWS({type: "cam_freeze", img: it.img, mirror: it.mirror, confetti: true});
+  showToast("📸 선택한 레전드 컷을 TV에 다시 띄웠습니다!");
+}
+
+
+function mcCamClearAll() {
+  stopMcCamera();
+  const fEl = document.getElementById("mcCamFrozenPreview");
+  const emptyEl = document.getElementById("mcCamPreviewEmpty");
+  if (fEl) { fEl.classList.add("hidden"); fEl.removeAttribute("src"); }
+  if (emptyEl) emptyEl.classList.remove("hidden");
+  sendWS({type: "cam_clear"});
+  showToast("🧹 전광판 화면을 비웠습니다.");
+}
+
+function mcDownloadGallery(idx) {
+  const it = mcCamGallery[idx];
+  if (!it) return;
+  const a = document.createElement("a");
+  a.href = it.img;
+  a.download = `teampower_cam_${idx + 1}.jpg`;
+  a.click();
 }
 
 function escapeHtml(s) {
