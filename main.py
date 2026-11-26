@@ -11,7 +11,7 @@ import qrcode.image.svg
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import HTMLResponse, Response
 
-app = FastAPI(title="Team Power Recreation Server v24")
+app = FastAPI(title="Team Power Recreation Server v26")
 
 MC_PIN = "5401"
 
@@ -41,6 +41,119 @@ BOT_CONCEPTS = [
     "커피 수혈 중", "계약서 폭격기", "월급 루팡 꿈나무", "회식 1차 탈주범",
     "포스코 아이언맨", "단가 협상 끝판왕", "오늘만 산다", "퇴근 5분 전"
 ]
+
+DEFAULT_CARD_QUIZZES = {
+    "김동환": {
+        "q": "김동환 사원의 하루 업무 시간 중 순수 통화시간은 2시간 이상이다.",
+        "a": "X",
+        "exp": "김동환 사원의 하루 평균 업무 통화시간은 약 1시간 30분입니다. 2시간은 살짝 안 되지만 이미 프로 소통러 인정! 📞"
+    },
+    "김창훈": {
+        "q": "김창훈 사원이 즐겨 신는 통굽 구두의 굽 높이는 6cm 이상이다.",
+        "a": "O",
+        "exp": "김창훈 사원이 즐겨 신는 통굽 구두의 굽 높이는 정확히 6cm로, 6cm 이상 기준을 딱 충족합니다! 🥾✨"
+    },
+    "김기환": {
+        "q": "김기환 리더님의 2026년 쌀통닭 방문 횟수는 15회 이상이다.",
+        "a": "O",
+        "exp": "김기환 리더님의 2026년 쌀통닭 방문 횟수는 무려 16회입니다! 15회를 가볍게 넘긴 진정한 쌀통닭 찐팬 인정! 🍗🔥"
+    },
+    "이상창": {
+        "q": "이상창 과장님은 베트남 쌀국수를 좋아한다.",
+        "a": "O",
+        "exp": "이상창 과장님은 김기환 리더님과 같은 베트남 주재원 출신으로 쌀국수를 정말 좋아하십니다. 다만 최근에는 섹션 점심으로 그만 가고 싶어 하는 눈치라고 합니다! 🍜👀"
+    },
+    "김기용": {
+        "q": "김기용 사원은 박춘규 차장님 딸을 소개받고 만났다.",
+        "a": "X",
+        "exp": "박춘규 차장님은 본인의 딸을 김기용 사원에게 소개해 주고 싶어 하시지만, 현재 김기용 사원이 튕기고 있는 상황이라 아직 만나지 않았다고 합니다! 💘🙅‍♂️"
+    },
+    "서상우": {
+        "q": "서상우 사원은 독일 교환학생 시절 독일 여자와 손을 잡은 적이 있다.",
+        "a": "O",
+        "exp": "정답은 O! 독일 교환학생 시절의 달달한 비하인드 스토리는 오늘 회식 자리에서 다들 직접 들으시길 바랍니다! 🇩🇪🤝🍻"
+    },
+    "윤석환": {
+        "q": "윤석환 대리는 외국인 여자친구를 사귀어 본 적이 있다.",
+        "a": "X",
+        "exp": "윤석환 대리는 수많은 해외여행을 다녔지만, 아쉽게도 아직 외국인 여자친구를 사귀어 본 적은 없다고 합니다! ✈️🌍"
+    },
+    "김창근": {
+        "q": "김창근 사원은 런투유에서 특정 여자와 허그를 한 적이 있다.",
+        "a": "X",
+        "exp": "김창근 사원 본인의 공식 주장으로는 절대 없다고 합니다. 다만 현장 목격자들의 진술은 다소 다르다는 제보가 있습니다! 🕵️‍♂️👀"
+    },
+    "조민호": {
+        "q": "조민호 사원은 금년 My Career 희망 보직에 현 보직이 아닌 'HR'을 작성했다.",
+        "a": "X",
+        "exp": "조민호 사원은 올해 My Career 희망 보직에 HR이 아닌 '현 보직'을 당당히 작성했다고 합니다! 부서 애정 만점! 💙💼"
+    },
+    "여수민": {
+        "q": "여수민 리더님은 서상우 사원에게 배드민턴 1대1 경기를 패배했다.",
+        "a": "X",
+        "exp": "여수민 리더님은 서상우 사원과의 배드민턴 1대1 맞대결에서 당당히 승리하셨습니다! 배드민턴 에이스 인정! 🏸🏆"
+    },
+    "이효성": {
+        "q": "이효성 과장님은 올해 통화하면서 화낸 횟수가 30회 이상이다.",
+        "a": "O",
+        "exp": "이효성 과장님은 올해 업무 통화 중 격한 열정을 담아 화를 내신 횟수가 무려 30회 이상이라고 합니다! 그만큼 일에 진심이신 프로페셔널! 📞🔥"
+    },
+    "장재승": {
+        "q": "장재승 차장님의 50m 달리기 기록은 6.6초이다.",
+        "a": "X",
+        "exp": "장재승 차장님의 50m 달리기 기록은 6.6초가 아니라 무려 0.1초 더 빠른 '6.5초'입니다! 팀 내 최강 스프린터! 🏃‍♂️⚡"
+    },
+    "이현": {
+        "q": "이현 차장님이 가장 좋아하는 술은 백세주이다.",
+        "a": "O",
+        "exp": "이현 차장님은 회식 때 백세주를 따로 직접 구매해서 오실 만큼 백세주를 진심으로 사랑하십니다! 🍶💚"
+    },
+    "이남곤": {
+        "q": "이남곤 과장님의 핸드폰 기종은 아이폰이다.",
+        "a": "O",
+        "exp": "이남곤 과장님은 최신 기기를 빠르게 섭렵하는 유우~명한 얼리어답터로, 현재 아이폰을 사용 중이십니다! 📱✨"
+    },
+    "김강문": {
+        "q": "김강문 부장님의 현재 신장은 180cm 이상이다.",
+        "a": "X",
+        "exp": "김강문 부장님은 예전에는 180cm이셨으나 약간 줄어 현재 신장은 178cm라고 합니다! 그래도 여전히 훤칠한 기럭지! 📏😎"
+    },
+    "조원우": {
+        "q": "조원우 과장님의 전 소속은 '화성부'이다.",
+        "a": "X",
+        "exp": "조원우 과장님의 전 소속은 화성부가 아니라 '후판부'입니다! 🏭✨"
+    },
+    "황석희": {
+        "q": "황석희 차장님의 주먹 너비는 10cm 이상이다.",
+        "a": "O",
+        "exp": "황석희 차장님은 우리 부서의 전설적인 '왕주먹 랄프'십니다! 차장님 밑으로는 다들 까불지 말고 조용히 지내도록 합시다! 👊💥"
+    },
+    "곽동원": {
+        "q": "곽동원 리더님의 별명은 '동원참치'이다.",
+        "a": "O",
+        "exp": "곽동원 리더님의 별명은 '동원참치'가 맞습니다! 사실 별다른 유래는 없고 문제 출제자가 그냥 만들었다고 합니다! 🐟🤣"
+    },
+    "김창현": {
+        "q": "김창현 사원은 전 그룹원인 정민화 대리의 간을 가격한 적이 있다.",
+        "a": "O",
+        "exp": "김창현 사원은 실제로 전 그룹원인 정민화 대리의 간을 정확히 가격하여 무릎을 꿇린 전설의 기록이 있습니다! 🥊😱"
+    },
+    "이정훈": {
+        "q": "이정훈 상무님은 그룹 내 솔로 사원들에게 미팅을 주선해 주었다.",
+        "a": "X",
+        "exp": "이정훈 상무님께서 그룹 내 솔로 사원들을 위해 야심 차게 미팅 주선을 시도하셨으나, 사원들의 스펙을 본 상대 여성분들 쪽에서 거절해 아쉽게 무산되었다고 합니다! 💔😂"
+    },
+    "김민혁": {
+        "q": "김민혁 차장님은 초등학교 시절 '리듬 체조' 선수 출신이다.",
+        "a": "X",
+        "exp": "김민혁 차장님은 초등학교 시절 '리듬 체조'가 아닌 '기계 체조' 선수 출신이십니다! 남다른 운동신경의 비밀! 🤸‍♂️🏅"
+    },
+    "최현우": {
+        "q": "최현우 사원은 남자를 좋아한다.",
+        "a": "X",
+        "exp": "정답은 X! 최현우 사원은 부서 내에서 이미 소문이 자자한 유명한 '여미새'로 알려져 있습니다! 💘🤣"
+    }
+}
 
 DEFAULT_QUIZZES = [
     {
@@ -137,7 +250,7 @@ class Room:
         self.last_cam_img: Optional[str] = None
         self.rush_dirty: bool = False
         self.quizzes: List[dict] = [dict(q) for q in DEFAULT_QUIZZES]
-        self.card_quizzes: Dict[str, dict] = {}
+        self.card_quizzes: Dict[str, dict] = {k: dict(v) for k, v in DEFAULT_CARD_QUIZZES.items()}
         self.balances: List[dict] = [dict(b) for b in DEFAULT_BALANCES]
         self.chosungs: List[dict] = [dict(c) for c in DEFAULT_CHOSUNGS]
         self.game_state: dict = {}
@@ -205,6 +318,7 @@ class Room:
             "show_ranking": self.show_ranking,
             "show_qr": self.show_qr,
             "quiz_cards": QUIZ_CARDS,
+            "card_quiz_keys": list(self.card_quizzes.keys()),
             "studio_count": len(self.lobby_ws),
             "total_connected": len(self.players) + len(self.lobby_ws),
             "players": self.get_public_players(),
@@ -872,7 +986,8 @@ async def websocket_endpoint(ws: WebSocket):
                             "current_q": None,
                             "pick_order": pick_order,
                             "pick_turn": 0,
-                            "current_picker": pick_order[0] if pick_order else None,
+                            "current_picker": "MC",
+                            "show_exp_popup": False,
                             "choices": {},
                             "winners": [],
                         }
@@ -1105,6 +1220,7 @@ async def websocket_endpoint(ws: WebSocket):
                             room.game_state["index"] = idx
                             room.game_state["selected_card"] = card
                             room.game_state["current_q"] = q_obj
+                            room.game_state["show_exp_popup"] = False
                             room.game_state["choices"] = {}
                             room.game_state["winners"] = []
                             await room.broadcast()
@@ -1113,20 +1229,24 @@ async def websocket_endpoint(ws: WebSocket):
 
                 elif mtype == "quiz_back_to_pick":
                     room.cancel_tasks()
-                    order = room.game_state.get("pick_order") or room.get_lowest_score_order()
-                    # Refresh order if players changed
-                    valid_order = [pid for pid in order if pid in room.players]
-                    for pid in room.get_lowest_score_order():
-                        if pid not in valid_order:
-                            valid_order.append(pid)
                     next_turn = room.game_state.get("pick_turn", 0) + 1
-                    picker = valid_order[next_turn % len(valid_order)] if valid_order else None
+                    if next_turn == 1:
+                        # Refresh lowest score order right after MC's example turn
+                        valid_order = room.get_lowest_score_order()
+                    else:
+                        order = room.game_state.get("pick_order") or room.get_lowest_score_order()
+                        valid_order = [pid for pid in order if pid in room.players]
+                        for pid in room.get_lowest_score_order():
+                            if pid not in valid_order:
+                                valid_order.append(pid)
+                    picker = valid_order[(next_turn - 1) % len(valid_order)] if valid_order else None
                     room.game_state["phase"] = "pick"
                     room.game_state["selected_card"] = None
                     room.game_state["current_q"] = None
                     room.game_state["pick_order"] = valid_order
                     room.game_state["pick_turn"] = next_turn
                     room.game_state["current_picker"] = picker
+                    room.game_state["show_exp_popup"] = False
                     room.game_state["choices"] = {}
                     room.game_state["winners"] = []
                     await room.broadcast()
@@ -1142,7 +1262,16 @@ async def websocket_endpoint(ws: WebSocket):
                                 room.players[pid]["score"] += 50
                                 winners.append(pid)
                         room.game_state["phase"] = "revealed"
+                        room.game_state["show_exp_popup"] = True
                         room.game_state["winners"] = winners
+                        await room.broadcast()
+
+                elif mtype == "quiz_toggle_popup":
+                    if room.current_game == "quiz" and room.game_state.get("phase") == "revealed":
+                        if "show" in msg:
+                            room.game_state["show_exp_popup"] = bool(msg.get("show"))
+                        else:
+                            room.game_state["show_exp_popup"] = not bool(room.game_state.get("show_exp_popup", False))
                         await room.broadcast()
 
                 elif mtype == "quiz_add":
@@ -1425,7 +1554,10 @@ async def websocket_endpoint(ws: WebSocket):
                             continue
                         card = (msg.get("card") or "").strip()
                         used = room.game_state.get("used_cards", [])
-                        if card in QUIZ_CARDS and card not in used:
+                        if card in used:
+                            await ws.send_text(json.dumps({"type": "toast", "message": "이미 선택된 질문 카드입니다! 다른 카드를 골라주세요."}, ensure_ascii=False))
+                            continue
+                        if card in QUIZ_CARDS:
                             room.cancel_tasks()
                             used.append(card)
                             room.game_state["used_cards"] = used
@@ -1435,6 +1567,7 @@ async def websocket_endpoint(ws: WebSocket):
                             room.game_state["index"] = idx
                             room.game_state["selected_card"] = card
                             room.game_state["current_q"] = q_obj
+                            room.game_state["show_exp_popup"] = False
                             room.game_state["choices"] = {}
                             room.game_state["winners"] = []
                             await room.broadcast()

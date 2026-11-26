@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>팀파워 레크레이션 v24 — 3화면 분리 에디션</title>
+<title>팀파워 레크레이션 v26 — 3화면 분리 에디션</title>
 <style>
   :root {
     --bg: #070b18;
@@ -770,13 +770,37 @@
     box-shadow: 0 8px 22px rgba(251, 191, 36, 0.32);
   }
   .quiz-name-card.used {
-    opacity: 0.28; filter: grayscale(0.9); cursor: not-allowed;
+    background: linear-gradient(180deg, rgba(12, 16, 30, 0.92), rgba(7, 10, 20, 0.96)) !important;
+    color: #475569 !important;
+    border-color: rgba(71, 85, 105, 0.28) !important;
+    box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.75) !important;
+    opacity: 0.42;
+    filter: grayscale(1) brightness(0.62);
+    cursor: not-allowed !important;
+    pointer-events: none;
     text-decoration: line-through;
-    border-color: rgba(148, 163, 184, 0.15);
+    transform: none !important;
+  }
+  .quiz-name-card.used::after {
+    content: ""; position: absolute; inset: 0; border-radius: 13px;
+    background: repeating-linear-gradient(-45deg, rgba(0,0,0,0.18) 0 6px, transparent 6px 12px);
+    pointer-events: none;
   }
   .quiz-name-card .done-tag {
     position: absolute; top: 4px; right: 5px;
     font-size: 9.5px; font-weight: 900; color: #94a3b8;
+    background: rgba(15, 23, 42, 0.85); padding: 1px 5px; border-radius: 5px;
+  }
+  .mc-card-used {
+    background: rgba(10, 14, 28, 0.88) !important;
+    color: #475569 !important;
+    border: 1px solid rgba(71, 85, 105, 0.25) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.7) !important;
+    opacity: 0.36 !important;
+    filter: grayscale(1) brightness(0.6);
+    text-decoration: line-through;
+    cursor: not-allowed !important;
+    pointer-events: none;
   }
   .picker-banner {
     display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
@@ -1049,6 +1073,59 @@
   }
   .preset-chip:hover { background: rgba(56, 189, 248, 0.28); color: #fff; }
 
+
+  /* v25 QUIZ REVEAL NOTIFICATION POPUP */
+  .quiz-exp-overlay {
+    position: fixed; inset: 0; z-index: 9050;
+    background: rgba(5, 8, 22, 0.78);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+    animation: fadeSlideIn 0.2s ease-out;
+  }
+  .quiz-exp-modal {
+    width: 100%; max-width: 720px;
+    background: linear-gradient(165deg, rgba(22, 34, 72, 0.98), rgba(10, 16, 36, 0.99));
+    border: 2.5px solid #38bdf8;
+    border-radius: 28px; padding: 30px 32px; text-align: center;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.72), 0 0 46px rgba(56, 189, 248, 0.32);
+    animation: popIn 0.34s cubic-bezier(0.2, 1.45, 0.4, 1);
+  }
+  .quiz-exp-modal.ans-o {
+    border-color: #38bdf8;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.72), 0 0 54px rgba(56, 189, 248, 0.42);
+  }
+  .quiz-exp-modal.ans-x {
+    border-color: #f43f5e;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.72), 0 0 54px rgba(244, 63, 94, 0.42);
+  }
+  .quiz-exp-verdict {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: clamp(32px, 5vw, 52px); font-weight: 900;
+    margin: 12px 0 14px; letter-spacing: -0.5px;
+  }
+  .quiz-exp-modal.ans-o .quiz-exp-verdict { color: #60a5fa; text-shadow: 0 0 26px rgba(59, 130, 246, 0.65); }
+  .quiz-exp-modal.ans-x .quiz-exp-verdict { color: #fb7185; text-shadow: 0 0 26px rgba(244, 63, 94, 0.65); }
+  .quiz-exp-body {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(251, 191, 36, 0.45);
+    border-radius: 18px; padding: 20px 22px; margin: 8px 0 16px;
+    font-size: clamp(19px, 2.5vw, 27px); font-weight: 800; line-height: 1.55;
+    color: #fef9c3;
+  }
+  .quiz-exp-label {
+    display: inline-block; font-size: 12px; font-weight: 900;
+    padding: 3px 11px; border-radius: 999px; margin-bottom: 10px;
+    background: rgba(251, 191, 36, 0.22); color: #fde047;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+  }
+  .p-quiz-exp-alert {
+    margin-top: 12px; padding: 14px 14px; border-radius: 16px; text-align: left;
+    background: linear-gradient(160deg, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.92));
+    border: 1.5px solid rgba(251, 191, 36, 0.6);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    animation: popIn 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
 </style>
 </head>
 <body>
@@ -1077,11 +1154,23 @@
   <div id="dispCountdownNum" class="countdown-num">5</div>
   <div class="countdown-sub">⏳ 선택 마감 카운트다운!</div>
 </div>
+<div id="dispQuizExpOverlay" class="quiz-exp-overlay hidden">
+  <div id="dispQuizExpModal" class="quiz-exp-modal ans-o">
+    <div><span id="dispQuizExpCardTag" class="badge" style="font-size:14px; padding:6px 16px; background:rgba(251,191,36,0.2); color:#fde68a; border-color:rgba(251,191,36,0.5);">🔔 정답 알림</span></div>
+    <div id="dispQuizExpVerdict" class="quiz-exp-verdict">⭕ 정답은 O!</div>
+    <div id="dispQuizExpQuestion" style="font-size:16px; color:var(--muted); font-weight:700; margin-bottom:12px;"></div>
+    <div class="quiz-exp-body">
+      <div><span class="quiz-exp-label">💡 정답 설명</span></div>
+      <div id="dispQuizExpText"></div>
+    </div>
+    <div id="dispQuizExpWinners" style="font-size:16px; font-weight:900; color:#6ee7b7;"></div>
+  </div>
+</div>
 <div id="toast" class="toast hidden"></div>
 
 <!-- ==================== LANDING (3-SCREEN ENTRY) ==================== -->
 <section id="viewLanding" class="landing">
-  <span class="badge">✨ ON AIR · POSCO TEAM POWER v24</span>
+  <span class="badge">✨ ON AIR · POSCO TEAM POWER v26</span>
   <h1>🏆 팀파워 레크레이션</h1>
   <p>전체화면(공유용) · 사회자 리모컨(비밀번호 보호) · 참여자 모바일 3화면 완전 분리!</p>
   <div class="landing-grid" style="max-width:960px;">
@@ -1244,8 +1333,8 @@
     <div id="dispQuiz" class="card hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
         <div>
-          <span class="badge">GAME 8 · TMI CATEGORY OX</span>
-          <h2 style="margin:6px 0 0;">❓ 부서원 카드 선택 & 눈치 O/X 퀴즈</h2>
+          <span class="badge">GAME 8 · 협력상생을 맞혀봐!</span>
+          <h2 style="margin:6px 0 0;">❓ 협력상생을 맞혀봐!</h2>
         </div>
         <span id="dispQuizMeta" class="badge" style="font-size:13px;">남은 카드 23장</span>
       </div>
@@ -1353,7 +1442,7 @@
       <button class="btn btn-secondary btn-sm" data-mc-nav="rhythm" onclick="mcSwitchGame('rhythm')">🎵 5.리듬</button>
       <button class="btn btn-secondary btn-sm" data-mc-nav="balance" onclick="mcSwitchGame('balance')">⚖️ 6.다수결</button>
       <button class="btn btn-secondary btn-sm" data-mc-nav="chosung" onclick="mcSwitchGame('chosung')">⌨️ 7.초성</button>
-      <button class="btn btn-secondary btn-sm" data-mc-nav="quiz" onclick="mcSwitchGame('quiz')">❓ 8.O/X</button>
+      <button class="btn btn-secondary btn-sm" data-mc-nav="quiz" onclick="mcSwitchGame('quiz')">❓ 8.협력상생</button>
       <button class="btn btn-amber btn-sm" data-mc-nav="podium" onclick="mcSwitchGame('podium')">🏆 시상식</button>
       <button class="btn btn-pink btn-sm" data-mc-nav="dinner_cam" onclick="mcSwitchGame('dinner_cam')">🎥 회식 캠</button>
       <button id="mcBtnToggleQr" class="btn btn-secondary btn-sm" onclick="sendWS({type:'toggle_qr'})" title="공유화면에 입장 QR 팝업 띄우기">📱 QR</button>
@@ -1648,7 +1737,7 @@
 
   <!-- Player Game 8: Quiz (23-Card Picker + Live O/X) -->
   <div id="pQuiz" class="card hidden" style="text-align:center;">
-    <span class="badge">GAME 8 · 부서원 카드 & 눈치 O/X 퀴즈</span>
+    <span class="badge">GAME 8 · 협력상생을 맞혀봐!</span>
     <div id="pQuizPickWrap">
       <div id="pQuizPickerInfo" class="picker-banner" style="font-size:14px; padding:10px;">🎯 카드 선택 차례 확인 중...</div>
       <div id="pQuizCardGrid" class="quiz-card-grid" style="grid-template-columns:repeat(3, 1fr); gap:7px; margin-top:10px;"></div>
@@ -1815,7 +1904,7 @@ const GAME_LABELS = {
   rhythm: "🎵 GAME 5 · 리듬게임 (38초)",
   balance: "⚖️ GAME 6 · 다수결 텔레파시",
   chosung: "⌨️ GAME 7 · 선착순 초성 퀴즈",
-  quiz: "❓ GAME 8 · 눈치 O/X 퀴즈",
+  quiz: "❓ GAME 8 · 협력상생을 맞혀봐!",
   podium: "🏆 팀파워 최종 시상식",
   dinner_cam: "🎥 2부 · 회식 전광판 캠",
 };
@@ -2671,6 +2760,7 @@ function renderDisplay(st) {
   if (st.current_game === "balance") renderDispBalance(st);
   if (st.current_game === "chosung") renderDispChosung(st);
   if (st.current_game === "quiz") renderDispQuiz(st);
+  else { const qov = document.getElementById("dispQuizExpOverlay"); if (qov) qov.classList.add("hidden"); }
   if (st.current_game === "podium") renderDispPodium(st);
   if (st.current_game === "dinner_cam") renderDispDinnerCam(st);
   else stopDispCamCountdown();
@@ -3577,6 +3667,7 @@ function renderDispChosung(st) {
   }).join("") || (gs.phase === "open" ? '<div style="color:var(--muted);font-size:15px;">가장 먼저 정답을 맞히는 사람은 누구?!</div>' : '');
 }
 
+let lastQuizRevealKey = "";
 function renderDispQuiz(st) {
   const gs = st.game_state || {};
   const cards = st.quiz_cards || [];
@@ -3584,21 +3675,26 @@ function renderDispQuiz(st) {
   const pMap = Object.fromEntries((st.players || []).map(p => [p.id, p]));
   const boardEl = document.getElementById("dispQuizCardBoard");
   const activeEl = document.getElementById("dispQuizActiveWrap");
+  const expOv = document.getElementById("dispQuizExpOverlay");
   const remain = Math.max(0, cards.length - used.length);
   document.getElementById("dispQuizMeta").textContent = `남은 카드 ${remain} / ${cards.length}장`;
 
   if (gs.phase === "pick" || gs.phase === "ready") {
     boardEl.classList.remove("hidden");
     activeEl.classList.add("hidden");
-    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
-    const turnNum = (gs.pick_turn || 0) + 1;
-    document.getElementById("dispQuizPickerBanner").innerHTML = picker
-      ? `🎯 ${turnNum}번째 카드 선택권 (낮은 점수 우선): ${renderMiniFace(picker)} <span style="color:#fff;">${escapeHtml(picker.name)}</span> 님! 카드를 골라주세요!`
-      : `🎯 카드를 선택해주세요!`;
+    if (expOv) expOv.classList.add("hidden");
+    const isMcTurn = gs.current_picker === "MC";
+    const picker = (!isMcTurn && gs.current_picker) ? pMap[gs.current_picker] : null;
+    const playerTurnNum = gs.pick_turn || 1;
+    document.getElementById("dispQuizPickerBanner").innerHTML = isMcTurn
+      ? `🎤 <span style="color:#fff;">[예시 라운드]</span> 사회자님이 먼저 카드를 선택합니다! <span style="font-size:13px; color:#cbd5e1;">(다음 차례부터 최저점 순서)</span>`
+      : (picker
+        ? `🎯 ${playerTurnNum}번째 카드 선택권 (낮은 점수 우선): ${renderMiniFace(picker)} <span style="color:#fff;">${escapeHtml(picker.name)}</span> 님! 카드를 골라주세요!`
+        : `🎯 카드를 선택해주세요!`);
     document.getElementById("dispQuizCardGrid").innerHTML = cards.map(c => {
       const isUsed = used.includes(c);
       const isRand = c === "랜덤";
-      return `<div class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''}">${isRand?'🎲 랜덤':escapeHtml(c)}${isUsed?'<span class="done-tag">완료</span>':''}</div>`;
+      return `<div class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''}">${isRand?'🎲 랜덤':escapeHtml(c)}${isUsed?'<span class="done-tag">🔒 완료</span>':''}</div>`;
     }).join("");
     return;
   }
@@ -3615,9 +3711,31 @@ function renderDispQuiz(st) {
   const zX = document.getElementById("dispZoneX");
   zO.classList.remove("correct-glow"); zX.classList.remove("correct-glow");
   if (gs.phase === "revealed") {
-    expBox.textContent = qObj.exp; expBox.classList.remove("hidden");
+    expBox.textContent = `💡 설명: ${qObj.exp}`; expBox.classList.remove("hidden");
     if (qObj.a === "O") zO.classList.add("correct-glow"); else zX.classList.add("correct-glow");
-  } else expBox.classList.add("hidden");
+    const revKey = `${selCard}_${gs.index}_${qObj.q}`;
+    if (lastQuizRevealKey !== revKey) {
+      lastQuizRevealKey = revKey;
+      playFanfare();
+    }
+    if (expOv) {
+      const showPop = gs.show_exp_popup !== false;
+      expOv.classList.toggle("hidden", !showPop);
+      if (showPop) {
+        const modal = document.getElementById("dispQuizExpModal");
+        modal.className = `quiz-exp-modal ${qObj.a === "O" ? "ans-o" : "ans-x"}`;
+        document.getElementById("dispQuizExpCardTag").textContent = selCard === "랜덤" ? "🔔 정답 발표 · 🎲 랜덤 카드" : `🔔 정답 발표 · 🃏 [ ${selCard} ] 카드`;
+        document.getElementById("dispQuizExpVerdict").textContent = qObj.a === "O" ? "⭕ 정답은 O !" : "❌ 정답은 X !";
+        document.getElementById("dispQuizExpQuestion").textContent = `Q. ${qObj.q}`;
+        document.getElementById("dispQuizExpText").textContent = qObj.exp || `정답은 ${qObj.a} 입니다!`;
+        const winCnt = (gs.winners || []).length;
+        document.getElementById("dispQuizExpWinners").textContent = `🎉 정답자 ${winCnt}명 전원 +50점 획득!`;
+      }
+    }
+  } else {
+    expBox.classList.add("hidden");
+    if (expOv) expOv.classList.add("hidden");
+  }
 
   const choices = gs.choices || {};
   const listO = [], listX = [];
@@ -3849,32 +3967,41 @@ function renderMc(st) {
     else if (gs.phase === "open") btnsEl.innerHTML = `<button class="btn btn-amber" onclick="sendWS({type:'chosung_reveal'})">✨ 2단계: 정답 공개 & 마감</button>`;
     else btnsEl.innerHTML = `
       <button class="btn btn-primary" onclick="hostChosungNext()">➡ 다음 문제</button>
-      <button class="btn btn-green" onclick="mcSwitchGame('quiz')">➡ 다음 게임: 8. O/X 퀴즈</button>
+      <button class="btn btn-green" onclick="mcSwitchGame('quiz')">➡ 다음 게임: 8. 협력상생을 맞혀봐!</button>
     `;
   } else if (cur === "quiz") {
     const cards = st.quiz_cards || [];
+    const customKeys = st.card_quiz_keys || [];
     const used = gs.used_cards || [];
-    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
+    const isMcTurn = gs.current_picker === "MC";
+    const picker = (!isMcTurn && gs.current_picker) ? pMap[gs.current_picker] : null;
     if (gs.phase === "pick" || gs.phase === "ready") {
-      const turnNum = (gs.pick_turn || 0) + 1;
+      const playerTurnNum = gs.pick_turn || 1;
+      const pickerLine = isMcTurn
+        ? `🎤 <b style="color:#fde047;">[예시 라운드 · 사회자 먼저 선택]</b> 아래 카드 중 1장을 눌러 예시로 출제해주세요! (다음부터 최저점 순서)`
+        : `이번 선택권 (${playerTurnNum}번 · 낮은 점수 순): <b style="color:var(--gold);">${picker ? escapeHtml(picker.name) + ' (' + picker.score + '점)' : '대기 중'}</b>`;
       telEl.innerHTML = `<b>🃏 카드 선택 단계 (남은 카드 ${cards.length - used.length}/${cards.length})</b><br/>` +
-        `이번 선택권 (${turnNum}번 · 낮은 점수 순): <b style="color:var(--gold);">${picker ? escapeHtml(picker.name) + ' (' + picker.score + '점)' : '대기 중'}</b><br/>` +
-        `<span style="font-size:12px; color:var(--muted);">해당 참여자가 폰에서 카드를 고르거나, 아래 카드를 사회자가 대신 눌러 출제할 수 있습니다.</span>`;
-      btnsEl.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(76px, 1fr)); gap:6px; width:100%;">` +
+        `${pickerLine}<br/>` +
+        `<span style="font-size:12px; color:var(--muted);">⭐ 표시는 전용 TMI 질문이 등록된 카드입니다. 사회자가 직접 눌러 출제할 수도 있습니다.</span>`;
+      btnsEl.innerHTML = `<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(80px, 1fr)); gap:6px; width:100%;">` +
         cards.map(c => {
           const isUsed = used.includes(c);
           const isRand = c === "랜덤";
-          return `<button class="btn ${isRand?'btn-purple':'btn-secondary'} btn-sm" style="padding:8px 4px; font-size:12px; ${isUsed?'opacity:0.25;text-decoration:line-through;':''}" ${isUsed?'disabled':''} onclick="sendWS({type:'quiz_pick_card', card:'${c}'})">${isRand?'🎲 랜덤':escapeHtml(c)}</button>`;
+          const hasCustom = customKeys.includes(c);
+          const cls = isRand ? 'btn-purple' : (hasCustom ? 'btn-primary' : 'btn-secondary');
+          return `<button class="btn ${cls} btn-sm ${isUsed?'mc-card-used':''}" style="padding:8px 4px; font-size:12px;" ${isUsed?'disabled':''} onclick="if(!this.disabled) sendWS({type:'quiz_pick_card', card:'${c}'})">${isUsed?'🔒 ':''}${isRand?'🎲 랜덤':(hasCustom && !isUsed?'⭐':'') + escapeHtml(c)}</button>`;
         }).join("") + `</div>`;
     } else {
       const qObj = gs.current_q || {q:"", a:"O", exp:""};
       const ch = Object.values(gs.choices || {});
       const oCnt = ch.filter(x => x === "O").length, xCnt = ch.filter(x => x === "X").length;
-      telEl.innerHTML = `<b>🃏 선택 카드: ${escapeHtml(gs.selected_card || '')}</b> (정답: <b style="color:var(--gold);">${qObj.a}</b>)<br/>Q. ${escapeHtml(qObj.q)}<br/>눈치 현황: <b>O ${oCnt}명</b> vs <b>X ${xCnt}명</b>`;
+      const popShown = gs.show_exp_popup !== false;
+      telEl.innerHTML = `<b>🃏 선택 카드: ${escapeHtml(gs.selected_card || '')}</b> (정답: <b style="color:var(--gold);">${qObj.a}</b>)<br/>Q. ${escapeHtml(qObj.q)}<br/><span style="font-size:12px; color:#fde68a;">💡 설명: ${escapeHtml(qObj.exp || '')}</span><br/>눈치 현황: <b>O ${oCnt}명</b> vs <b>X ${xCnt}명</b>`;
       if (gs.phase === "open") btnsEl.innerHTML = `<button class="btn btn-amber" onclick="sendWS({type:'start_countdown', seconds:5})">⏳ 5초 뒤 자동 마감</button><button class="btn btn-red" onclick="sendWS({type:'quiz_lock'})">🔒 즉시 마감 (STOP)</button>`;
-      else if (gs.phase === "locked") btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'quiz_reveal'})">✨ 2단계: 정답 공개</button>`;
+      else if (gs.phase === "locked") btnsEl.innerHTML = `<button class="btn btn-amber btn-next-pulse" onclick="sendWS({type:'quiz_reveal'})">✨ 2단계: 정답 & 설명 팝업 공개</button>`;
       else btnsEl.innerHTML = `
-        <button class="btn btn-green btn-next-pulse" onclick="sendWS({type:'quiz_back_to_pick'})">🃏 다음 카드 선택으로 (다음 순번)</button>
+        <button class="btn ${popShown?'btn-secondary':'btn-purple'}" onclick="sendWS({type:'quiz_toggle_popup'})">${popShown?'🙈 TV 설명 팝업 닫기':'🔔 TV 설명 팝업 다시 열기'}</button>
+        <button class="btn btn-green btn-next-pulse" onclick="sendWS({type:'quiz_back_to_pick'})">🃏 다음 카드 선택으로 (최저점 순번)</button>
         <button class="btn btn-amber" onclick="mcSwitchGame('podium')">🏆 최종 시상식으로!</button>
       `;
     }
@@ -4375,10 +4502,15 @@ function renderPlayerQuiz(st) {
     playWrap.classList.add("hidden");
     const cards = st.quiz_cards || [];
     const used = gs.used_cards || [];
-    const isMyTurn = gs.current_picker === myPlayerId;
-    const picker = gs.current_picker ? pMap[gs.current_picker] : null;
+    const isMcTurn = gs.current_picker === "MC";
+    const isMyTurn = !isMcTurn && gs.current_picker === myPlayerId;
+    const picker = (!isMcTurn && gs.current_picker) ? pMap[gs.current_picker] : null;
     const infoEl = document.getElementById("pQuizPickerInfo");
-    if (isMyTurn) {
+    if (isMcTurn) {
+      infoEl.innerHTML = `🎤 <b>예시 라운드!</b> 사회자님이 먼저 카드를 고르는 중입니다...`;
+      infoEl.style.borderColor = "#38bdf8";
+      infoEl.style.color = "#7dd3fc";
+    } else if (isMyTurn) {
       infoEl.innerHTML = `✨ <b>내 차례입니다!</b> 아래 23개 카드 중 1장을 탭해서 골라주세요!`;
       infoEl.style.borderColor = "#10b981";
       infoEl.style.color = "#6ee7b7";
@@ -4393,7 +4525,7 @@ function renderPlayerQuiz(st) {
       const isUsed = used.includes(c);
       const isRand = c === "랜덤";
       const canClick = isMyTurn && !isUsed;
-      return `<div class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''} ${canClick?'clickable':''}" style="padding:10px 4px; font-size:13px;" ${canClick ? `onclick="playerPickQuizCard('${c}')"` : ''}>${isRand?'🎲 랜덤':escapeHtml(c)}</div>`;
+      return `<button type="button" class="quiz-name-card ${isRand?'random-card':''} ${isUsed?'used':''} ${canClick?'clickable':''}" style="padding:11px 4px; font-size:13px; width:100%; ${!canClick && !isUsed ? 'cursor:default;' : ''}" ${isUsed?'disabled':''} ${canClick ? `onclick="playerPickQuizCard('${c}')"` : ''}>${isRand?'🎲 랜덤':escapeHtml(c)}${isUsed?'<span class="done-tag">🔒</span>':''}</button>`;
     }).join("");
     return;
   }
@@ -4439,11 +4571,16 @@ function renderPlayerQuiz(st) {
     const won = (gs.winners || []).includes(myPlayerId);
     msg.innerHTML = won ? `<span style="color:var(--green);">🎉 정답입니다! +50점 획득!</span>` : `<span style="color:#f87171;">아쉽습니다! 다음 카드를 노려보세요.</span>`;
     hud.classList.remove("hidden");
-    expBox.textContent = qObj ? qObj.exp : "";
+    expBox.className = "p-quiz-exp-alert";
+    expBox.innerHTML = `<div style="font-size:11.5px; font-weight:900; color:#fde047; margin-bottom:4px;">🔔 정답 설명 알림</div><div style="font-size:14px; font-weight:800; color:#fef9c3; line-height:1.5;">${escapeHtml(qObj ? qObj.exp : "")}</div>`;
     expBox.classList.remove("hidden");
   }
 }
 function playerPickQuizCard(card) {
+  if (appState && appState.game_state && (appState.game_state.used_cards || []).includes(card)) {
+    showToast("이미 선택된 질문 카드입니다!");
+    return;
+  }
   playTone(620, 0.08, 'triangle', 0.16);
   sendWS({type: "quiz_pick_card", card});
 }
